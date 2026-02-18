@@ -1,0 +1,10 @@
+file,line,status
+src/main/java/io/muserver/Http1Connection.java,127,NOT_COVERED
+src/main/java/io/muserver/Http1Connection.java,128,NOT_COVERED
+src/main/java/io/muserver/Http1Connection.java,129,NOT_COVERED
+src/main/java/io/muserver/Http1Connection.java,130,NOT_COVERED
+src/main/java/io/muserver/Http1Connection.java,131,EMPTY
+src/main/java/io/muserver/Http1Connection.java,132,EMPTY
+src/main/java/io/muserver/Http1Connection.java,133,NOT_COVERED
+src/main/java/io/muserver/Http1Connection.java,134,EMPTY
+src/main/java/io/muserver/Http1Connection.java,135,NOT_COVERED

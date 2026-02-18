@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,1795,NOT_COVERED
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,1796,EMPTY
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,1797,NOT_COVERED

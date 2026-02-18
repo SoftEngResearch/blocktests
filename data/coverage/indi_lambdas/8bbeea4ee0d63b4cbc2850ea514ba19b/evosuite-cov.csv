@@ -1,0 +1,3 @@
+file,line,status
+src/main/java/com/rtbhouse/utils/avro/FastDeserializerGenerator.java,255,NOT_COVERED
+src/main/java/com/rtbhouse/utils/avro/FastDeserializerGenerator.java,256,NOT_COVERED

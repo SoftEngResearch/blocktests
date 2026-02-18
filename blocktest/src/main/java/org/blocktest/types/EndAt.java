@@ -1,0 +1,5 @@
+package org.blocktest.types;
+
+public enum EndAt {
+    LAMBDA, FIRST_ASSIGN, FIRST_BLOCK, FIRST_RETURN, FIRST_THROW, LAST_REFERENCE, FIRST_STATEMENT
+}

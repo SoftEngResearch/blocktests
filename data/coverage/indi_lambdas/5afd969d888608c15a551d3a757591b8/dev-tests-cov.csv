@@ -1,0 +1,12 @@
+file,line,status
+src/main/java/vertx/lambda/LambdaBootstrap.java,118,NOT_COVERED
+src/main/java/vertx/lambda/LambdaBootstrap.java,119,NOT_COVERED
+src/main/java/vertx/lambda/LambdaBootstrap.java,120,NOT_COVERED
+src/main/java/vertx/lambda/LambdaBootstrap.java,121,EMPTY
+src/main/java/vertx/lambda/LambdaBootstrap.java,122,NOT_COVERED
+src/main/java/vertx/lambda/LambdaBootstrap.java,123,EMPTY
+src/main/java/vertx/lambda/LambdaBootstrap.java,124,EMPTY
+src/main/java/vertx/lambda/LambdaBootstrap.java,125,EMPTY
+src/main/java/vertx/lambda/LambdaBootstrap.java,126,NOT_COVERED
+src/main/java/vertx/lambda/LambdaBootstrap.java,127,EMPTY
+src/main/java/vertx/lambda/LambdaBootstrap.java,128,NOT_COVERED

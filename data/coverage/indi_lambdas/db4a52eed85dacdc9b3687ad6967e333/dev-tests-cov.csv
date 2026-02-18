@@ -1,0 +1,7 @@
+file,line,status
+src/main/java/io/muserver/rest/SseBroadcasterImpl.java,81,FULLY_COVERED
+src/main/java/io/muserver/rest/SseBroadcasterImpl.java,82,FULLY_COVERED
+src/main/java/io/muserver/rest/SseBroadcasterImpl.java,83,FULLY_COVERED
+src/main/java/io/muserver/rest/SseBroadcasterImpl.java,84,EMPTY
+src/main/java/io/muserver/rest/SseBroadcasterImpl.java,85,FULLY_COVERED
+src/main/java/io/muserver/rest/SseBroadcasterImpl.java,86,FULLY_COVERED

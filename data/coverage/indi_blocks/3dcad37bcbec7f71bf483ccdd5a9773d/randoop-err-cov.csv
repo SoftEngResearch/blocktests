@@ -1,0 +1,12 @@
+file,line,status
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,87,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,88,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,89,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,90,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,91,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,92,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,93,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,94,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,95,EMPTY
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,96,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,97,EMPTY

@@ -1,0 +1,17 @@
+file,line,status
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,347,FULLY_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,348,FULLY_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,349,EMPTY
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,350,FULLY_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,351,PARTLY_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,352,FULLY_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,353,EMPTY
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,354,EMPTY
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,355,FULLY_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,356,PARTLY_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,357,NOT_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,358,EMPTY
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,359,FULLY_COVERED
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,360,EMPTY
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,361,EMPTY
+src/main/java/mudmap2/backend/WorldFileReader/current/WorldFileJSON.java,362,FULLY_COVERED

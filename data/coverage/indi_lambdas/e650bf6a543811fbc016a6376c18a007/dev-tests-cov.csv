@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/tech/ibit/sqlbuilder/utils/IdSqlUtils.java,573,PARTLY_COVERED
+src/main/java/tech/ibit/sqlbuilder/utils/IdSqlUtils.java,574,PARTLY_COVERED
+src/main/java/tech/ibit/sqlbuilder/utils/IdSqlUtils.java,575,FULLY_COVERED

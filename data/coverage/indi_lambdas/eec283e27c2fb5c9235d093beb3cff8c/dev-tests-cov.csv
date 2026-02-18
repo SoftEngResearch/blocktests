@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/com/jvms/i18neditor/editor/Editor.java,701,NOT_COVERED
+src/main/java/com/jvms/i18neditor/editor/Editor.java,702,NOT_COVERED
+src/main/java/com/jvms/i18neditor/editor/Editor.java,703,EMPTY

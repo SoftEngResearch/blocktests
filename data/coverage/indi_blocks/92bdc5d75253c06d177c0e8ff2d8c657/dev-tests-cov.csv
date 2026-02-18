@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/org/threeten/bp/format/DateTimeFormatterBuilder.java,1397,NOT_COVERED
+src/main/java/org/threeten/bp/format/DateTimeFormatterBuilder.java,1398,NOT_COVERED
+src/main/java/org/threeten/bp/format/DateTimeFormatterBuilder.java,1399,NOT_COVERED
+src/main/java/org/threeten/bp/format/DateTimeFormatterBuilder.java,1400,NOT_COVERED
+src/main/java/org/threeten/bp/format/DateTimeFormatterBuilder.java,1401,NOT_COVERED
+src/main/java/org/threeten/bp/format/DateTimeFormatterBuilder.java,1402,NOT_COVERED
+src/main/java/org/threeten/bp/format/DateTimeFormatterBuilder.java,1403,EMPTY

@@ -1,0 +1,14 @@
+file,line,status
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,32,FULLY_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,33,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,34,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,35,FULLY_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,36,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,37,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,38,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,39,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,40,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,41,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,42,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,43,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/LongFormatter.java,44,EMPTY

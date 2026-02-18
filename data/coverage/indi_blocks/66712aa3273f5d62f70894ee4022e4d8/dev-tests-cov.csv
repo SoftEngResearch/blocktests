@@ -1,0 +1,7 @@
+file,line,status
+src/main/java/com/github/jaiimageio/impl/plugins/tiff/TIFFImageWriter.java,745,FULLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/tiff/TIFFImageWriter.java,746,FULLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/tiff/TIFFImageWriter.java,747,FULLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/tiff/TIFFImageWriter.java,748,FULLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/tiff/TIFFImageWriter.java,749,EMPTY
+src/main/java/com/github/jaiimageio/impl/plugins/tiff/TIFFImageWriter.java,750,EMPTY

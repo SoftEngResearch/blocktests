@@ -1,0 +1,10 @@
+file,line,status
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,68,FULLY_COVERED
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,69,FULLY_COVERED
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,70,PARTLY_COVERED
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,71,FULLY_COVERED
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,72,FULLY_COVERED
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,73,FULLY_COVERED
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,74,FULLY_COVERED
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,75,EMPTY
+src/main/java/amidst/fragment/FragmentQueueProcessor.java,76,FULLY_COVERED

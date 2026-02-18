@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/krpc/rpc/bootstrap/Bootstrap.java,598,PARTLY_COVERED
+src/main/java/krpc/rpc/bootstrap/Bootstrap.java,599,FULLY_COVERED
+src/main/java/krpc/rpc/bootstrap/Bootstrap.java,600,PARTLY_COVERED
+src/main/java/krpc/rpc/bootstrap/Bootstrap.java,601,FULLY_COVERED
+src/main/java/krpc/rpc/bootstrap/Bootstrap.java,602,EMPTY
+src/main/java/krpc/rpc/bootstrap/Bootstrap.java,603,NOT_COVERED
+src/main/java/krpc/rpc/bootstrap/Bootstrap.java,604,EMPTY

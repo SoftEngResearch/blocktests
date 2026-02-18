@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/com/walmartlabs/x12/standard/txset/asn856/DefaultAsn856TransactionSetParser.java,211,FULLY_COVERED
+src/main/java/com/walmartlabs/x12/standard/txset/asn856/DefaultAsn856TransactionSetParser.java,212,FULLY_COVERED
+src/main/java/com/walmartlabs/x12/standard/txset/asn856/DefaultAsn856TransactionSetParser.java,213,FULLY_COVERED

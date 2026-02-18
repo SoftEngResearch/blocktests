@@ -1,0 +1,3 @@
+file,line,status
+src/main/java/de/a9d3/testing/checks/ToStringCheck.java,96,FULLY_COVERED
+src/main/java/de/a9d3/testing/checks/ToStringCheck.java,97,EMPTY

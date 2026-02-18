@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,2594,EMPTY
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,2595,FULLY_COVERED
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,2596,EMPTY
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,2597,FULLY_COVERED
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,2598,FULLY_COVERED
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,2599,EMPTY
+src/main/java/com/alibaba/com/caucho/hessian/io/Hessian2Input.java,2600,FULLY_COVERED

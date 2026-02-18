@@ -1,0 +1,5 @@
+file,line,status
+src/main/java/com/github/hermannpencole/nifi/config/service/ConnectionService.java,108,NOT_COVERED
+src/main/java/com/github/hermannpencole/nifi/config/service/ConnectionService.java,109,NOT_COVERED
+src/main/java/com/github/hermannpencole/nifi/config/service/ConnectionService.java,110,NOT_COVERED
+src/main/java/com/github/hermannpencole/nifi/config/service/ConnectionService.java,111,NOT_COVERED

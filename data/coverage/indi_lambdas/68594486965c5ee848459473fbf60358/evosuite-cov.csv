@@ -1,0 +1,6 @@
+file,line,status
+src/main/java/org/apdplat/word/lucene/ChineseWordTokenizer.java,138,NOT_COVERED
+src/main/java/org/apdplat/word/lucene/ChineseWordTokenizer.java,139,NOT_COVERED
+src/main/java/org/apdplat/word/lucene/ChineseWordTokenizer.java,140,NOT_COVERED
+src/main/java/org/apdplat/word/lucene/ChineseWordTokenizer.java,141,EMPTY
+src/main/java/org/apdplat/word/lucene/ChineseWordTokenizer.java,142,NOT_COVERED

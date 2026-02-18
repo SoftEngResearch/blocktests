@@ -1,0 +1,10 @@
+file,line,status
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1212,EMPTY
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1213,NOT_COVERED
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1214,EMPTY
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1215,NOT_COVERED
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1216,NOT_COVERED
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1217,EMPTY
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1218,NOT_COVERED
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1219,EMPTY
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1220,EMPTY

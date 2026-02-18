@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/sorra/tracesonar/core/FileWalker.java,55,NOT_COVERED
+src/main/java/sorra/tracesonar/core/FileWalker.java,56,NOT_COVERED
+src/main/java/sorra/tracesonar/core/FileWalker.java,57,NOT_COVERED
+src/main/java/sorra/tracesonar/core/FileWalker.java,58,NOT_COVERED
+src/main/java/sorra/tracesonar/core/FileWalker.java,59,NOT_COVERED
+src/main/java/sorra/tracesonar/core/FileWalker.java,60,EMPTY
+src/main/java/sorra/tracesonar/core/FileWalker.java,61,NOT_COVERED

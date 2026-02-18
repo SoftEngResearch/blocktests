@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/org/lastaflute/web/path/restful/verifier/RestfulStructuredMethodVerifier.java,422,NOT_COVERED
+src/main/java/org/lastaflute/web/path/restful/verifier/RestfulStructuredMethodVerifier.java,423,NOT_COVERED
+src/main/java/org/lastaflute/web/path/restful/verifier/RestfulStructuredMethodVerifier.java,424,NOT_COVERED

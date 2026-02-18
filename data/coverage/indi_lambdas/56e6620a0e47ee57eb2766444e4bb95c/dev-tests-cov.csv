@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/io/github/vmzakharov/ecdataframe/dataframe/DataFrame.java,1821,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataframe/DataFrame.java,1822,FULLY_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataframe/DataFrame.java,1823,FULLY_COVERED

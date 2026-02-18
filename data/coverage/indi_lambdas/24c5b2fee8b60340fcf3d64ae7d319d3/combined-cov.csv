@@ -1,0 +1,5 @@
+file,line,status
+src/main/java/com/googlecode/paradox/metadata/ParadoxDatabaseMetaData.java,889,FULLY_COVERED
+src/main/java/com/googlecode/paradox/metadata/ParadoxDatabaseMetaData.java,890,FULLY_COVERED
+src/main/java/com/googlecode/paradox/metadata/ParadoxDatabaseMetaData.java,891,EMPTY
+src/main/java/com/googlecode/paradox/metadata/ParadoxDatabaseMetaData.java,892,FULLY_COVERED

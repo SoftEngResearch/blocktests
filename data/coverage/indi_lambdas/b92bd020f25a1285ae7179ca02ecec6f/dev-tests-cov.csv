@@ -1,0 +1,12 @@
+file,line,status
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,245,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,246,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,247,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,248,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,249,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,250,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,251,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,252,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,253,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,254,EMPTY
+src/main/java/com/microsoft/azure/cassandraproxy/ProxyClient.java,255,NOT_COVERED

@@ -1,0 +1,361 @@
+/*
+ * SonarQube :: GitLab Plugin
+ * Copyright (C) 2016-2017 Talanlabs
+ * gabriel.allaigre@gmail.com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package com.talanlabs.sonar.plugins.gitlab;
+
+import org.blocktest.BTest;
+import static org.blocktest.BTest.blocktest;
+import static org.blocktest.types.EndAt.*;
+import static org.blocktest.types.Flow.IfStmt;
+import static org.blocktest.utils.Constant.*;
+
+import com.talanlabs.gitlab.api.Paged;
+import com.talanlabs.gitlab.api.v4.GitLabAPI;
+import com.talanlabs.gitlab.api.v4.GitlabMergeRequestDiff;
+import com.talanlabs.gitlab.api.v4.models.GitlabMergeRequest;
+import com.talanlabs.gitlab.api.v4.models.GitlabPosition;
+import com.talanlabs.gitlab.api.v4.models.commits.GitLabCommit;
+import com.talanlabs.gitlab.api.v4.models.commits.GitLabCommitComments;
+import com.talanlabs.gitlab.api.v4.models.commits.GitLabCommitDiff;
+import com.talanlabs.gitlab.api.v4.models.discussion.GitlabDiscussion;
+import com.talanlabs.gitlab.api.v4.models.projects.GitLabProject;
+import com.talanlabs.gitlab.api.v4.models.users.GitLabUser;
+import org.apache.commons.lang3.StringUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class GitLabApiV4Wrapper implements IGitLabApiWrapper {
+
+    private static final Logger LOG = Loggers.get(GitLabApiV4Wrapper.class);
+
+    private static final String COMMIT_CONTEXT = "sonarqube";
+
+    private final GitLabPluginConfiguration config;
+    private GitLabAPI gitLabAPIV4;
+    private GitLabProject gitLabProject;
+    private Map<String, List<GitLabCommitComments>> commitCommentPerRevision;
+    private Map<String, Map<String, Set<Line>>> patchPositionByFile;
+
+    public GitLabApiV4Wrapper(GitLabPluginConfiguration config) {
+        this.config = config;
+    }
+
+    @Override
+    public void init() {
+        gitLabAPIV4 = GitLabAPI.connect(config.url(), config.userToken()).setIgnoreCertificateErrors(config.ignoreCertificate());
+        if (config.isProxyConnectionEnabled()) {
+            gitLabAPIV4.setProxy(config.getHttpProxy());
+        }
+        try {
+            gitLabProject = getGitLabProject();
+
+            commitCommentPerRevision = getCommitCommentsPerRevision(config.commitSHA());
+            patchPositionByFile = getPatchPositionsToLineMapping(config.commitSHA());
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to perform GitLab WS operation", e);
+        }
+    }
+
+    void setGitLabAPI(GitLabAPI gitLabAPI) {
+        this.gitLabAPIV4 = gitLabAPI;
+    }
+
+    private GitLabProject getGitLabProject() throws IOException {
+        if (config.projectId() == null) {
+            throw new IllegalStateException("Unable to find project ID null. Set the property sonar.gitlab.project_id");
+        }
+
+        try {
+            GitLabProject project = gitLabAPIV4.getGitLabAPIProjects().getProject(config.projectId());
+            if (project != null) {
+                return project;
+            }
+        } catch (IOException e) {
+            LOG.trace("Not found project with id", e);
+        }
+
+        Paged<GitLabProject> paged = gitLabAPIV4.getGitLabAPIProjects().getProjects(null, null, null, null, null, null);
+        if (paged == null) {
+            throw new IllegalStateException("Unable to find project ID " + config.projectId() + ". Either the project ID is incorrect or you don't have access to this project. Verify the configurations sonar.gitlab.project_id or sonar.gitlab.user_token");
+        }
+        List<GitLabProject> projects = new ArrayList<>();
+        do {
+            if (paged.getResults() != null) {
+                projects.addAll(paged.getResults().stream().filter(this::isMatchingProject).collect(Collectors.toList()));
+            }
+        } while ((paged = paged.nextPage()) != null);
+
+        if (projects.isEmpty()) {
+            throw new IllegalStateException("Unable to find project ID " + config.projectId() + ". Either the project ID is incorrect or you don't have access to this project. Verify the configurations sonar.gitlab.project_id or sonar.gitlab.user_token");
+        }
+        if (projects.size() > 1) {
+            throw new IllegalStateException("Multiple found projects for " + config.projectId());
+        }
+        return projects.get(0);
+    }
+
+    void setGitLabProject(GitLabProject gitLabProject) {
+        this.gitLabProject = gitLabProject;
+    }
+
+    Map<String, List<GitLabCommitComments>> getCommitCommentsPerRevision(List<String> revisions) throws IOException {
+        Map<String, List<GitLabCommitComments>> result = new HashMap<>();
+        for (String revision : revisions) {
+            Paged<GitLabCommitComments> paged = gitLabAPIV4.getGitLabAPICommits().getCommitComments(gitLabProject.getId(), revision, null);
+
+            List<GitLabCommitComments> gitLabCommitCommentss = new ArrayList<>();
+            do {
+                if (paged.getResults() != null) {
+                    gitLabCommitCommentss.addAll(paged.getResults());
+                }
+            } while ((paged = paged.nextPage()) != null);
+
+            result.put(revision, gitLabCommitCommentss);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean hasSameCommitCommentsForFile(String revision, String path, Integer lineNumber, String body) {
+        return getCommitCommentsForFile(revision, path)
+                .stream()
+                .anyMatch(c -> Objects.equals(c.getLine(), lineNumber) && c.getNote().equals(body));
+    }
+
+    Set<GitLabCommitComments> getCommitCommentsForFile(String revision, String path) {
+        List<GitLabCommitComments> value = commitCommentPerRevision.get(revision);
+        return Optional.ofNullable(value)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(c -> path.equals(c.getPath()))
+                .collect(Collectors.toSet());
+    }
+
+    private Map<String, Map<String, Set<Line>>> getPatchPositionsToLineMapping(List<String> revisions) throws IOException {
+        Map<String, Map<String, Set<Line>>> result = new HashMap<>();
+
+        for (String revision : revisions) {
+            Paged<GitLabCommitDiff> paged = gitLabAPIV4.getGitLabAPICommits().getCommitDiffs(gitLabProject.getId(), revision, null);
+            List<GitLabCommitDiff> commitDiffs = new ArrayList<>();
+            do {
+                if (paged.getResults() != null) {
+                    commitDiffs.addAll(paged.getResults());
+                }
+            } while ((paged = paged.nextPage()) != null);
+
+            result.put(revision, commitDiffs
+                    .stream()
+                    .collect(Collectors.toMap(GitLabCommitDiff::getNewPath, d -> PatchUtils.getPositionsFromPatch(d.getDiff()))));
+        }
+
+        LOG.debug("getPatchPositionsToLineMapping {}", result);
+
+        return result;
+    }
+
+    /**
+     * Author Email is access only for admin gitlab user but search work for all users
+     */
+    @Override
+    public String getUsernameForRevision(String revision) {
+        try {
+            GitLabCommit commit = gitLabAPIV4.getGitLabAPICommits().getCommit(gitLabProject.getId(), revision);
+
+            Paged<GitLabUser> paged = gitLabAPIV4.getGitLabAPIUsers().getUsers(commit.getAuthorEmail(), null);
+            List<GitLabUser> users = new ArrayList<>();
+            do {
+                if (paged.getResults() != null) {
+                    users.addAll(paged.getResults());
+                }
+            } while ((paged = paged.nextPage()) != null);
+
+            if (users.size() == 1) {
+                return users.get(0).getUsername();
+            }
+            return users.stream().filter(x -> commit.getAuthorEmail().equals(x.getEmail()))
+                    .map(GitLabUser::getUsername).findFirst().orElse(null);
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to create retrive author for commit " + revision, e);
+        }
+    }
+
+    private boolean isMatchingProject(GitLabProject project) {
+        return config.projectId().equals(project.getId().toString()) || verifyProjectName(project) || verifyProjectUrl(project);
+    }
+
+    private boolean verifyProjectUrl(GitLabProject project) {
+        return config.projectId().equals(project.getHttpUrl()) || config.projectId().equals(project.getSshUrl()) || config.projectId().equals(project.getWebUrl());
+    }
+
+    private boolean verifyProjectName(GitLabProject project) {
+        return config.projectId().equals(project.getPathWithNamespace()) || config.projectId().equals(project.getNameWithNamespace());
+    }
+
+    @Override
+    public void createOrUpdateSonarQubeStatus(String status, String statusDescription) {
+        try {
+            gitLabAPIV4.getGitLabAPICommits()
+                    .postCommitStatus(gitLabProject.getId(), getFirstCommitSHA(), status, config.refName(), COMMIT_CONTEXT, null, statusDescription);
+        } catch (IOException e) {
+            // Workaround for https://gitlab.com/gitlab-org/gitlab-ce/issues/25807
+            if (e.getMessage() != null && e.getMessage().contains("Cannot transition status")) {
+                LOG.debug("Transition status is already {}", status);
+            } else {
+                LOG.error("Unable to update commit status", e);
+            }
+        }
+    }
+
+    @Override
+    public boolean hasFile(String path) {
+        LOG.debug("hasFile {}", path);
+        for (String revision : config.commitSHA()) {
+            if (patchPositionByFile.get(revision).containsKey(path)) {
+                LOG.debug("hasFile found {}", revision);
+                return true;
+            }
+        }
+        LOG.debug("hasFile notfound");
+        return false;
+    }
+
+    @Override
+    public String getRevisionForLine(File file, String path, int lineNumber) {
+        String value = null;
+        try {
+            List<String> ss = Files.readAllLines(file.toPath());
+            int l = lineNumber > 0 ? lineNumber - 1 : 0;
+            value = ss.size() >= lineNumber ? ss.get(l) : null;
+        } catch (IOException e) {
+            LOG.trace("Not read all line for file {}", file, e);
+        }
+        Line line = new Line(lineNumber, value);
+
+        LOG.debug("getRevisionForLine {} {}", path, line);
+
+        for (String revision : config.commitSHA()) {
+            LOG.debug("getRevisionForLine " + patchPositionByFile.get(revision));
+            // BLOCKTEST EVAL: https://github.com/gabrie-allaigre/sonar-gitlab-plugin/blob/1a6b20737c0e034fed35f555442fa493c6268e9f/src/main/java/com/talanlabs/sonar/plugins/gitlab/GitLabApiV4Wrapper.java#L257-L258
+            blocktest().given(patchPositionByFile, new HashMap<String, Map<String, Set<Line>>>(){{
+                put("abc", new HashMap<String, Set<Line>>(){{
+                    put("dummyPath", new HashSet<>(Arrays.asList(new Line(1, "line1"), new Line(2, "line2"))));
+                }});
+            }}).given(revision, "abc").given(path, "dummyPath").given(line, new Line(2, "line2")).checkReturnEq("abc").checkFlow(IfStmt().Then());
+            blocktest().given(patchPositionByFile, new HashMap<String, Map<String, Set<Line>>>(){{
+                put("abc", new HashMap<String, Set<Line>>(){{
+                    put("dummyPath", new HashSet<>(Arrays.asList(new Line(1, "line1"), new Line(2, "line2"))));
+                }});
+            }}).given(revision, "abc").given(path, "dummyPath").given(line, new Line(3, "line3")).checkReturnEq("NOT_MATCH").checkFlow(IfStmt().Else());
+            blocktest().given(patchPositionByFile, new HashMap<String, Map<String, Set<Line>>>(){{
+                put("abc", new HashMap<String, Set<Line>>(){{
+                    put("dummyPath", new HashSet<>(Arrays.asList(new Line(1, "line1"), new Line(2, "line2"))));
+                }});
+            }}).given(revision, "abc").given(path, "notDummyPath").given(line, new Line(2, "line2")).checkReturnEq("NOT_MATCH").checkFlow(IfStmt().Else());
+            if (patchPositionByFile.get(revision).entrySet().stream().anyMatch(v ->
+                    v.getKey().equals(path) && v.getValue().contains(line))) {
+                LOG.debug("getRevisionForLine found {}");
+                return revision;
+            } else {}
+        }
+        LOG.debug("getRevisionForLine notfound");
+        return null;
+    }
+
+    @Override
+    @CheckForNull
+    public String getGitLabUrl(@Nullable String revision, String path, @Nullable Integer issueLine) {
+        return gitLabProject.getWebUrl() + "/blob/" + (revision != null ? revision : getFirstCommitSHA()) + "/" + path + (issueLine != null ? ("#L" + issueLine) : "");
+    }
+
+    @Override
+    public void createOrUpdateReviewComment(String revision, String fullPath, Integer line, String body) {
+        try {
+            if (config.isMergeRequestDiscussionEnabled()) {
+                createReviewDiscussion(fullPath, line, body);
+            } else {
+                gitLabAPIV4.getGitLabAPICommits().postCommitComments(gitLabProject.getId(), revision != null ? revision : getFirstCommitSHA(), body, fullPath, line, "new");
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to create or update review comment in file " + fullPath + " at line " + line, e);
+        }
+    }
+
+    private void createReviewDiscussion(String fullPath, Integer lineNumber, String body) throws IOException {
+        Integer projectId = gitLabProject.getId();
+        int mergeRequestIid = config.mergeRequestIid();
+
+        checkArgument(mergeRequestIid != -1, "The merge request iid must be provided.");
+
+        Paged<GitlabMergeRequestDiff> mergeRequestDiffs = gitLabAPIV4
+                .getGitLabAPIMergeRequestDiff().getMergeRequestDiff(projectId, mergeRequestIid);
+
+        checkArgument(mergeRequestDiffs.getResults() != null && !mergeRequestDiffs.getResults().isEmpty(), "There are no merge request diffs.");
+
+        GitlabMergeRequestDiff mergeRequestDiff = mergeRequestDiffs.getResults().get(0);
+
+        GitlabDiscussion discussion = createMergeRequestDiscussion(mergeRequestDiff, fullPath, lineNumber, body);
+
+        gitLabAPIV4.getGitLabAPIMergeRequestDiscussion().createDiscussion(projectId, mergeRequestIid, discussion);
+    }
+
+    private GitlabDiscussion createMergeRequestDiscussion(GitlabMergeRequestDiff mergeRequestDiff, String fullPath, Integer line, String body) {
+        GitlabPosition position = new GitlabPosition();
+        position.setBaseSha(mergeRequestDiff.getBaseCommitSha());
+        position.setStartSha(mergeRequestDiff.getStartCommitSha());
+        position.setHeadSha(mergeRequestDiff.getHeadCommitSha());
+        position.setPositionType(GitlabPosition.PositionType.TEXT);
+        position.setOldPath(fullPath);
+        position.setNewPath(fullPath);
+        position.setNewLine(line);
+
+        GitlabDiscussion discussion = new GitlabDiscussion();
+        discussion.setBody(body);
+        discussion.setPosition(position);
+        return discussion;
+    }
+
+    @Override
+    public void addGlobalComment(String comment) {
+        try {
+            gitLabAPIV4.getGitLabAPICommits().postCommitComments(gitLabProject.getId(), getFirstCommitSHA(), comment, null, null, null);
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to comment the commit", e);
+        }
+    }
+
+    private String getFirstCommitSHA() {
+        return config.commitSHA() != null && !config.commitSHA().isEmpty() ? config.commitSHA().get(0) : null;
+    }
+
+    public static void checkArgument(boolean expression, @Nullable Object errorMessage) {
+        if (!expression) {
+            throw new IllegalArgumentException(String.valueOf(errorMessage));
+        }
+    }
+
+}

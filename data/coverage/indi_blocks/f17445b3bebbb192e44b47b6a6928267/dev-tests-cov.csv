@@ -1,0 +1,13 @@
+file,line,status
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,443,FULLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,444,EMPTY
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,445,EMPTY
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,446,PARTLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,447,FULLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,448,PARTLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,449,PARTLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,450,FULLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,451,FULLY_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,452,EMPTY
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,453,EMPTY
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageWriter.java,454,EMPTY

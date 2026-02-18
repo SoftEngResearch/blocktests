@@ -1,0 +1,13 @@
+file,line,status
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,707,EMPTY
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,708,NOT_COVERED
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,709,EMPTY
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,710,NOT_COVERED
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,711,NOT_COVERED
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,712,NOT_COVERED
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,713,NOT_COVERED
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,714,EMPTY
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,715,EMPTY
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,716,NOT_COVERED
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,717,NOT_COVERED
+src/main/java/com/github/maven_nar/NarIntegrationTestMojo.java,718,EMPTY

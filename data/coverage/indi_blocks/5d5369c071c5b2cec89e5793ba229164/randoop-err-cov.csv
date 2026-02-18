@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/com/github/jaiimageio/impl/plugins/bmp/BMPImageWriter.java,678,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/bmp/BMPImageWriter.java,679,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/bmp/BMPImageWriter.java,680,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/bmp/BMPImageWriter.java,681,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/bmp/BMPImageWriter.java,682,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/bmp/BMPImageWriter.java,683,EMPTY
+src/main/java/com/github/jaiimageio/impl/plugins/bmp/BMPImageWriter.java,684,EMPTY

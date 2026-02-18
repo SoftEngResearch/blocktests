@@ -1,0 +1,12 @@
+file,line,status
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,453,NOT_COVERED
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,454,NOT_COVERED
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,455,NOT_COVERED
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,456,EMPTY
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,457,EMPTY
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,458,NOT_COVERED
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,459,NOT_COVERED
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,460,NOT_COVERED
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,461,NOT_COVERED
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,462,EMPTY
+src/main/java/com/tidb/jdbc/conf/StringInspector.java,463,EMPTY

@@ -1,0 +1,13 @@
+file,line,status
+src/main/java/com/lowagie/text/pdf/PdfReader.java,721,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfReader.java,722,EMPTY
+src/main/java/com/lowagie/text/pdf/PdfReader.java,723,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfReader.java,724,EMPTY
+src/main/java/com/lowagie/text/pdf/PdfReader.java,725,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfReader.java,726,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfReader.java,727,EMPTY
+src/main/java/com/lowagie/text/pdf/PdfReader.java,728,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfReader.java,729,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfReader.java,730,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfReader.java,731,EMPTY
+src/main/java/com/lowagie/text/pdf/PdfReader.java,732,NOT_COVERED

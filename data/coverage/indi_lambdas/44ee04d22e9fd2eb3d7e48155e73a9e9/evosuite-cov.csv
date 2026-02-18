@@ -1,0 +1,3 @@
+file,line,status
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,532,FULLY_COVERED
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,533,PARTLY_COVERED

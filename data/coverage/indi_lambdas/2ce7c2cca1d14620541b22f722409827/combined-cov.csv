@@ -1,0 +1,17 @@
+file,line,status
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,47,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,48,PARTLY_COVERED
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,49,FULLY_COVERED
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,50,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,51,PARTLY_COVERED
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,52,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,53,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,54,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,55,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,56,FULLY_COVERED
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,57,FULLY_COVERED
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,58,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,59,FULLY_COVERED
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,60,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,61,EMPTY
+src/main/java/cn/lzgabel/converter/processing/event/IntermediateCatchEventProcessor.java,62,FULLY_COVERED

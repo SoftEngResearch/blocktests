@@ -1,0 +1,7 @@
+file,line,status
+src/main/java/io/github/sranka/jdbcimage/main/MainToolBase.java,386,FULLY_COVERED
+src/main/java/io/github/sranka/jdbcimage/main/MainToolBase.java,387,NOT_COVERED
+src/main/java/io/github/sranka/jdbcimage/main/MainToolBase.java,388,NOT_COVERED
+src/main/java/io/github/sranka/jdbcimage/main/MainToolBase.java,389,NOT_COVERED
+src/main/java/io/github/sranka/jdbcimage/main/MainToolBase.java,390,NOT_COVERED
+src/main/java/io/github/sranka/jdbcimage/main/MainToolBase.java,391,NOT_COVERED

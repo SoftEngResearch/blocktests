@@ -1,0 +1,14 @@
+file,line,status
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,109,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,110,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,111,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,112,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,113,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,114,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,115,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,116,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,117,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,118,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,119,EMPTY
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,120,EMPTY
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,121,FULLY_COVERED

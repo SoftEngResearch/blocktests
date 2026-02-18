@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/com/intel/jndn/utils/client/impl/SegmentedDataStream.java,150,FULLY_COVERED
+src/main/java/com/intel/jndn/utils/client/impl/SegmentedDataStream.java,151,FULLY_COVERED
+src/main/java/com/intel/jndn/utils/client/impl/SegmentedDataStream.java,152,FULLY_COVERED

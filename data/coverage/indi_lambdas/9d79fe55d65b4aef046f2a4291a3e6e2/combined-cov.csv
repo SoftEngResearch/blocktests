@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/io/muserver/Http2Connection.java,354,NOT_COVERED
+src/main/java/io/muserver/Http2Connection.java,355,EMPTY
+src/main/java/io/muserver/Http2Connection.java,356,NOT_COVERED
+src/main/java/io/muserver/Http2Connection.java,357,NOT_COVERED
+src/main/java/io/muserver/Http2Connection.java,358,NOT_COVERED
+src/main/java/io/muserver/Http2Connection.java,359,NOT_COVERED
+src/main/java/io/muserver/Http2Connection.java,360,NOT_COVERED

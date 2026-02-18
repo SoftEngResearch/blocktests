@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/com/rtbhouse/utils/avro/FastSerdeCache.java,209,EMPTY
+src/main/java/com/rtbhouse/utils/avro/FastSerdeCache.java,210,NOT_COVERED
+src/main/java/com/rtbhouse/utils/avro/FastSerdeCache.java,211,NOT_COVERED

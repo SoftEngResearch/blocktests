@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/co/streamx/fluent/extree/expression/ExpressionMethodVisitor.java,435,FULLY_COVERED
+src/main/java/co/streamx/fluent/extree/expression/ExpressionMethodVisitor.java,436,NOT_COVERED
+src/main/java/co/streamx/fluent/extree/expression/ExpressionMethodVisitor.java,437,NOT_COVERED

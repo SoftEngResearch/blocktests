@@ -1,0 +1,9 @@
+file,line,status
+src/main/java/io/muserver/rest/RestHandler.java,141,NOT_COVERED
+src/main/java/io/muserver/rest/RestHandler.java,142,EMPTY
+src/main/java/io/muserver/rest/RestHandler.java,143,NOT_COVERED
+src/main/java/io/muserver/rest/RestHandler.java,144,NOT_COVERED
+src/main/java/io/muserver/rest/RestHandler.java,145,NOT_COVERED
+src/main/java/io/muserver/rest/RestHandler.java,146,NOT_COVERED
+src/main/java/io/muserver/rest/RestHandler.java,147,NOT_COVERED
+src/main/java/io/muserver/rest/RestHandler.java,148,NOT_COVERED

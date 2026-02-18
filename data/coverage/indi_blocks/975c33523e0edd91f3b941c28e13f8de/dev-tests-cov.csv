@@ -1,0 +1,3 @@
+file,line,status
+src/main/java/biweekly/util/com/google/ical/iter/RecurrenceIteratorFactory.java,232,FULLY_COVERED
+src/main/java/biweekly/util/com/google/ical/iter/RecurrenceIteratorFactory.java,233,FULLY_COVERED

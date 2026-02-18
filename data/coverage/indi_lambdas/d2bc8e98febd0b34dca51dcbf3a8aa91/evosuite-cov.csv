@@ -1,0 +1,5 @@
+file,line,status
+src/main/java/pl/setblack/badlam/analysis/DisplayContext.java,70,FULLY_COVERED
+src/main/java/pl/setblack/badlam/analysis/DisplayContext.java,71,EMPTY
+src/main/java/pl/setblack/badlam/analysis/DisplayContext.java,72,FULLY_COVERED
+src/main/java/pl/setblack/badlam/analysis/DisplayContext.java,73,EMPTY

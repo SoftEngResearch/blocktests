@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/MorphologicalAnalysis/FsmParse.java,631,PARTLY_COVERED
+src/main/java/MorphologicalAnalysis/FsmParse.java,632,NOT_COVERED
+src/main/java/MorphologicalAnalysis/FsmParse.java,633,EMPTY
+src/main/java/MorphologicalAnalysis/FsmParse.java,634,PARTLY_COVERED
+src/main/java/MorphologicalAnalysis/FsmParse.java,635,FULLY_COVERED
+src/main/java/MorphologicalAnalysis/FsmParse.java,636,EMPTY
+src/main/java/MorphologicalAnalysis/FsmParse.java,637,EMPTY

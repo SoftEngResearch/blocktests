@@ -1,0 +1,6 @@
+file,line,status
+src/main/java/io/lettuce/core/StatefulRedisConnectionImpl.java,188,NOT_COVERED
+src/main/java/io/lettuce/core/StatefulRedisConnectionImpl.java,189,NOT_COVERED
+src/main/java/io/lettuce/core/StatefulRedisConnectionImpl.java,190,NOT_COVERED
+src/main/java/io/lettuce/core/StatefulRedisConnectionImpl.java,191,EMPTY
+src/main/java/io/lettuce/core/StatefulRedisConnectionImpl.java,192,NOT_COVERED

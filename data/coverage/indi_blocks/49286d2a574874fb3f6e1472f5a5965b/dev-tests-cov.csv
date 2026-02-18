@@ -1,0 +1,16 @@
+file,line,status
+src/main/java/org/mvel2/math/MathProcessor.java,350,PARTLY_COVERED
+src/main/java/org/mvel2/math/MathProcessor.java,351,EMPTY
+src/main/java/org/mvel2/math/MathProcessor.java,352,FULLY_COVERED
+src/main/java/org/mvel2/math/MathProcessor.java,353,FULLY_COVERED
+src/main/java/org/mvel2/math/MathProcessor.java,354,FULLY_COVERED
+src/main/java/org/mvel2/math/MathProcessor.java,355,EMPTY
+src/main/java/org/mvel2/math/MathProcessor.java,356,EMPTY
+src/main/java/org/mvel2/math/MathProcessor.java,357,NOT_COVERED
+src/main/java/org/mvel2/math/MathProcessor.java,358,EMPTY
+src/main/java/org/mvel2/math/MathProcessor.java,359,EMPTY
+src/main/java/org/mvel2/math/MathProcessor.java,360,NOT_COVERED
+src/main/java/org/mvel2/math/MathProcessor.java,361,EMPTY
+src/main/java/org/mvel2/math/MathProcessor.java,362,EMPTY
+src/main/java/org/mvel2/math/MathProcessor.java,363,NOT_COVERED
+src/main/java/org/mvel2/math/MathProcessor.java,364,EMPTY

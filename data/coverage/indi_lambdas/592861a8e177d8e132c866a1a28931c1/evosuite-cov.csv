@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/com/google/pubsub/kafka/source/CloudPubSubSourceTask.java,173,EMPTY
+src/main/java/com/google/pubsub/kafka/source/CloudPubSubSourceTask.java,174,NOT_COVERED
+src/main/java/com/google/pubsub/kafka/source/CloudPubSubSourceTask.java,175,NOT_COVERED

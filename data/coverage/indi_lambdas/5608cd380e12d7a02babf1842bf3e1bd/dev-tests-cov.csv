@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/io/reactiverse/vertx/maven/plugin/mojos/InitializeMojo.java,133,NOT_COVERED
+src/main/java/io/reactiverse/vertx/maven/plugin/mojos/InitializeMojo.java,134,NOT_COVERED
+src/main/java/io/reactiverse/vertx/maven/plugin/mojos/InitializeMojo.java,135,NOT_COVERED

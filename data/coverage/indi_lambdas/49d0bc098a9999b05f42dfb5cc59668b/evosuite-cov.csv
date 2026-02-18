@@ -1,0 +1,10 @@
+file,line,status
+src/main/java/org/wso2/config/mapper/Validator.java,153,NOT_COVERED
+src/main/java/org/wso2/config/mapper/Validator.java,154,NOT_COVERED
+src/main/java/org/wso2/config/mapper/Validator.java,155,NOT_COVERED
+src/main/java/org/wso2/config/mapper/Validator.java,156,NOT_COVERED
+src/main/java/org/wso2/config/mapper/Validator.java,157,EMPTY
+src/main/java/org/wso2/config/mapper/Validator.java,158,NOT_COVERED
+src/main/java/org/wso2/config/mapper/Validator.java,159,EMPTY
+src/main/java/org/wso2/config/mapper/Validator.java,160,EMPTY
+src/main/java/org/wso2/config/mapper/Validator.java,161,NOT_COVERED

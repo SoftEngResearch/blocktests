@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/org/wso2/config/mapper/KeyMapper.java,61,FULLY_COVERED
+src/main/java/org/wso2/config/mapper/KeyMapper.java,62,FULLY_COVERED
+src/main/java/org/wso2/config/mapper/KeyMapper.java,63,FULLY_COVERED

@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/com/threedr3am/exp/dubbo/Exploit.java,203,NOT_COVERED
+src/main/java/com/threedr3am/exp/dubbo/Exploit.java,204,EMPTY
+src/main/java/com/threedr3am/exp/dubbo/Exploit.java,205,NOT_COVERED
+src/main/java/com/threedr3am/exp/dubbo/Exploit.java,206,NOT_COVERED
+src/main/java/com/threedr3am/exp/dubbo/Exploit.java,207,NOT_COVERED
+src/main/java/com/threedr3am/exp/dubbo/Exploit.java,208,NOT_COVERED
+src/main/java/com/threedr3am/exp/dubbo/Exploit.java,209,NOT_COVERED

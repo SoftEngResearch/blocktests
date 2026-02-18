@@ -1,0 +1,11 @@
+file,line,status
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,67,NOT_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,68,NOT_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,69,NOT_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,70,NOT_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,71,NOT_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,72,EMPTY
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,73,NOT_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,74,NOT_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,75,EMPTY
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,76,NOT_COVERED

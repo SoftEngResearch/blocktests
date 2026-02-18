@@ -1,0 +1,9 @@
+file,line,status
+src/main/java/io/rainfall/execution/Pattern.java,141,NOT_COVERED
+src/main/java/io/rainfall/execution/Pattern.java,142,NOT_COVERED
+src/main/java/io/rainfall/execution/Pattern.java,143,NOT_COVERED
+src/main/java/io/rainfall/execution/Pattern.java,144,NOT_COVERED
+src/main/java/io/rainfall/execution/Pattern.java,145,NOT_COVERED
+src/main/java/io/rainfall/execution/Pattern.java,146,EMPTY
+src/main/java/io/rainfall/execution/Pattern.java,147,NOT_COVERED
+src/main/java/io/rainfall/execution/Pattern.java,148,NOT_COVERED

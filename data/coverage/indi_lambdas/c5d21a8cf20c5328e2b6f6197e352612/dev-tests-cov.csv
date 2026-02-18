@@ -1,0 +1,13 @@
+file,line,status
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,32,FULLY_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,33,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,34,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,35,FULLY_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,36,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,37,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,38,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,39,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,40,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,41,NOT_COVERED
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,42,EMPTY
+src/main/java/io/github/vmzakharov/ecdataframe/dataset/DoubleFormatter.java,43,EMPTY

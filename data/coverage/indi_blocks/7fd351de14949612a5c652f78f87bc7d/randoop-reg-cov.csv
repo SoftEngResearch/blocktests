@@ -1,0 +1,7 @@
+file,line,status
+src/main/java/com/lowagie/text/html/simpleparser/HTMLWorker.java,285,NOT_COVERED
+src/main/java/com/lowagie/text/html/simpleparser/HTMLWorker.java,286,NOT_COVERED
+src/main/java/com/lowagie/text/html/simpleparser/HTMLWorker.java,287,NOT_COVERED
+src/main/java/com/lowagie/text/html/simpleparser/HTMLWorker.java,288,NOT_COVERED
+src/main/java/com/lowagie/text/html/simpleparser/HTMLWorker.java,289,NOT_COVERED
+src/main/java/com/lowagie/text/html/simpleparser/HTMLWorker.java,290,EMPTY

@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/org/apache/xmlgraphics/image/codec/tiff/TIFFImageEncoder.java,448,NOT_COVERED
+src/main/java/org/apache/xmlgraphics/image/codec/tiff/TIFFImageEncoder.java,449,EMPTY
+src/main/java/org/apache/xmlgraphics/image/codec/tiff/TIFFImageEncoder.java,450,EMPTY
+src/main/java/org/apache/xmlgraphics/image/codec/tiff/TIFFImageEncoder.java,451,NOT_COVERED
+src/main/java/org/apache/xmlgraphics/image/codec/tiff/TIFFImageEncoder.java,452,NOT_COVERED
+src/main/java/org/apache/xmlgraphics/image/codec/tiff/TIFFImageEncoder.java,453,NOT_COVERED
+src/main/java/org/apache/xmlgraphics/image/codec/tiff/TIFFImageEncoder.java,454,EMPTY

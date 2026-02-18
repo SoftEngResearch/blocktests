@@ -1,0 +1,5 @@
+file,line,status
+src/main/java/com/jessin/practice/dubbo/netty/FastjsonSerializer.java,268,FULLY_COVERED
+src/main/java/com/jessin/practice/dubbo/netty/FastjsonSerializer.java,269,NOT_COVERED
+src/main/java/com/jessin/practice/dubbo/netty/FastjsonSerializer.java,270,NOT_COVERED
+src/main/java/com/jessin/practice/dubbo/netty/FastjsonSerializer.java,271,NOT_COVERED

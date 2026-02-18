@@ -1,0 +1,16 @@
+file,line,status
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,98,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,99,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,100,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,101,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,102,EMPTY
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,103,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,104,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,105,EMPTY
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,106,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,107,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,108,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,109,EMPTY
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,110,NOT_COVERED
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,111,EMPTY
+src/main/java/io/github/iamazy/elasticsearch/dsl/sql/parser/query/exact/BinaryQueryParser.java,112,EMPTY

@@ -1,0 +1,15 @@
+file,line,status
+src/main/java/org/jawk/backend/AVM.java,849,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,850,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,851,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,852,EMPTY
+src/main/java/org/jawk/backend/AVM.java,853,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,854,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,855,EMPTY
+src/main/java/org/jawk/backend/AVM.java,856,EMPTY
+src/main/java/org/jawk/backend/AVM.java,857,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,858,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,859,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,860,NOT_COVERED
+src/main/java/org/jawk/backend/AVM.java,861,EMPTY
+src/main/java/org/jawk/backend/AVM.java,862,EMPTY

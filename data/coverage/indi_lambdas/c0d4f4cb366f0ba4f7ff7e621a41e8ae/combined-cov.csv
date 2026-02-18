@@ -1,0 +1,11 @@
+file,line,status
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,132,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,133,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,134,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,135,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,136,EMPTY
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,137,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,138,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,139,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,140,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/extension/PluginManager.java,141,NOT_COVERED

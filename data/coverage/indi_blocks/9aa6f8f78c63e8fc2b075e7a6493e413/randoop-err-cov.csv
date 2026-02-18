@@ -1,0 +1,11 @@
+file,line,status
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,427,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,428,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,429,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,430,EMPTY
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,431,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,432,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,433,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,434,NOT_COVERED
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,435,EMPTY
+src/main/java/com/github/jaiimageio/impl/plugins/pnm/PNMImageReader.java,436,NOT_COVERED

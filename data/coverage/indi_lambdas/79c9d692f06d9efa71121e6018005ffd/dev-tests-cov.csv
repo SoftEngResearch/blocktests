@@ -1,0 +1,12 @@
+file,line,status
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,259,NOT_COVERED
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,260,NOT_COVERED
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,261,EMPTY
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,262,NOT_COVERED
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,263,NOT_COVERED
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,264,NOT_COVERED
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,265,EMPTY
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,266,NOT_COVERED
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,267,EMPTY
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,268,NOT_COVERED
+src/main/java/org/apache/sling/servlets/resolver/internal/bundle/BundledScriptTracker.java,269,EMPTY

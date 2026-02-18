@@ -1,0 +1,11 @@
+file,line,status
+src/main/java/scengen/application/Generator.java,186,FULLY_COVERED
+src/main/java/scengen/application/Generator.java,187,FULLY_COVERED
+src/main/java/scengen/application/Generator.java,188,FULLY_COVERED
+src/main/java/scengen/application/Generator.java,189,FULLY_COVERED
+src/main/java/scengen/application/Generator.java,190,PARTLY_COVERED
+src/main/java/scengen/application/Generator.java,191,NOT_COVERED
+src/main/java/scengen/application/Generator.java,192,EMPTY
+src/main/java/scengen/application/Generator.java,193,PARTLY_COVERED
+src/main/java/scengen/application/Generator.java,194,NOT_COVERED
+src/main/java/scengen/application/Generator.java,195,EMPTY

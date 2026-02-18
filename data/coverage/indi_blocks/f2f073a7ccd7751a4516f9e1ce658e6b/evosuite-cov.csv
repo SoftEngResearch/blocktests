@@ -1,0 +1,11 @@
+file,line,status
+src/main/java/org/erdtman/jcs/NumberDToA.java,523,EMPTY
+src/main/java/org/erdtman/jcs/NumberDToA.java,524,FULLY_COVERED
+src/main/java/org/erdtman/jcs/NumberDToA.java,525,FULLY_COVERED
+src/main/java/org/erdtman/jcs/NumberDToA.java,526,PARTLY_COVERED
+src/main/java/org/erdtman/jcs/NumberDToA.java,527,NOT_COVERED
+src/main/java/org/erdtman/jcs/NumberDToA.java,528,NOT_COVERED
+src/main/java/org/erdtman/jcs/NumberDToA.java,529,NOT_COVERED
+src/main/java/org/erdtman/jcs/NumberDToA.java,530,NOT_COVERED
+src/main/java/org/erdtman/jcs/NumberDToA.java,531,EMPTY
+src/main/java/org/erdtman/jcs/NumberDToA.java,532,EMPTY

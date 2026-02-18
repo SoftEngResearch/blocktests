@@ -1,0 +1,5 @@
+file,line,status
+src/main/java/org/jetlang/remote/client/JetlangTcpClient.java,336,FULLY_COVERED
+src/main/java/org/jetlang/remote/client/JetlangTcpClient.java,337,NOT_COVERED
+src/main/java/org/jetlang/remote/client/JetlangTcpClient.java,338,NOT_COVERED
+src/main/java/org/jetlang/remote/client/JetlangTcpClient.java,339,NOT_COVERED

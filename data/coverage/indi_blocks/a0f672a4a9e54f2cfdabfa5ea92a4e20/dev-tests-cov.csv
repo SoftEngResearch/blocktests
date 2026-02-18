@@ -1,0 +1,9 @@
+file,line,status
+src/main/java/com/sforce/ws/parser/MXParser.java,1964,FULLY_COVERED
+src/main/java/com/sforce/ws/parser/MXParser.java,1965,PARTLY_COVERED
+src/main/java/com/sforce/ws/parser/MXParser.java,1966,NOT_COVERED
+src/main/java/com/sforce/ws/parser/MXParser.java,1967,EMPTY
+src/main/java/com/sforce/ws/parser/MXParser.java,1968,EMPTY
+src/main/java/com/sforce/ws/parser/MXParser.java,1969,EMPTY
+src/main/java/com/sforce/ws/parser/MXParser.java,1970,FULLY_COVERED
+src/main/java/com/sforce/ws/parser/MXParser.java,1971,FULLY_COVERED

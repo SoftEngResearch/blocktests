@@ -1,0 +1,16 @@
+file,line,status
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,370,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,371,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,372,EMPTY
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,373,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,374,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,375,EMPTY
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,376,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,377,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,378,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,379,EMPTY
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,380,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,381,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,382,NOT_COVERED
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,383,EMPTY
+src/main/java/com/amazonaws/services/glue/catalog/HiveGlueCatalogSyncAgent.java,384,NOT_COVERED

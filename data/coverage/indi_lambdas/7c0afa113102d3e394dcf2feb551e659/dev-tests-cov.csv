@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/com/hiyoko/discord/bot/BCDice/Listener/StandardInputMessageCreateListener.java,113,NOT_COVERED
+src/main/java/com/hiyoko/discord/bot/BCDice/Listener/StandardInputMessageCreateListener.java,114,NOT_COVERED
+src/main/java/com/hiyoko/discord/bot/BCDice/Listener/StandardInputMessageCreateListener.java,115,NOT_COVERED

@@ -1,0 +1,12 @@
+file,line,status
+src/main/java/com/github/maven_nar/NarCompileMojo.java,352,NOT_COVERED
+src/main/java/com/github/maven_nar/NarCompileMojo.java,353,EMPTY
+src/main/java/com/github/maven_nar/NarCompileMojo.java,354,NOT_COVERED
+src/main/java/com/github/maven_nar/NarCompileMojo.java,355,NOT_COVERED
+src/main/java/com/github/maven_nar/NarCompileMojo.java,356,NOT_COVERED
+src/main/java/com/github/maven_nar/NarCompileMojo.java,357,EMPTY
+src/main/java/com/github/maven_nar/NarCompileMojo.java,358,NOT_COVERED
+src/main/java/com/github/maven_nar/NarCompileMojo.java,359,NOT_COVERED
+src/main/java/com/github/maven_nar/NarCompileMojo.java,360,NOT_COVERED
+src/main/java/com/github/maven_nar/NarCompileMojo.java,361,EMPTY
+src/main/java/com/github/maven_nar/NarCompileMojo.java,362,NOT_COVERED

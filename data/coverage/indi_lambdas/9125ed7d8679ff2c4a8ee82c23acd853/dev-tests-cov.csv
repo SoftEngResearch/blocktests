@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/com/remondis/cdc/consumer/pactbuilder/ConsumerBuilderImpl.java,163,FULLY_COVERED
+src/main/java/com/remondis/cdc/consumer/pactbuilder/ConsumerBuilderImpl.java,164,FULLY_COVERED
+src/main/java/com/remondis/cdc/consumer/pactbuilder/ConsumerBuilderImpl.java,165,FULLY_COVERED
+src/main/java/com/remondis/cdc/consumer/pactbuilder/ConsumerBuilderImpl.java,166,FULLY_COVERED
+src/main/java/com/remondis/cdc/consumer/pactbuilder/ConsumerBuilderImpl.java,167,FULLY_COVERED
+src/main/java/com/remondis/cdc/consumer/pactbuilder/ConsumerBuilderImpl.java,168,FULLY_COVERED
+src/main/java/com/remondis/cdc/consumer/pactbuilder/ConsumerBuilderImpl.java,169,EMPTY

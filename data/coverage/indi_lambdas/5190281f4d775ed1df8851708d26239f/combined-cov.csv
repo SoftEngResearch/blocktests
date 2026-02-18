@@ -1,0 +1,3 @@
+file,line,status
+src/main/java/com/microsoft/azure/functions/worker/binding/BindingDataStore.java,103,NOT_COVERED
+src/main/java/com/microsoft/azure/functions/worker/binding/BindingDataStore.java,104,NOT_COVERED

@@ -1,0 +1,10 @@
+file,line,status
+src/main/java/org/w3c/tidy/Lexer.java,2517,PARTLY_COVERED
+src/main/java/org/w3c/tidy/Lexer.java,2518,EMPTY
+src/main/java/org/w3c/tidy/Lexer.java,2519,NOT_COVERED
+src/main/java/org/w3c/tidy/Lexer.java,2520,EMPTY
+src/main/java/org/w3c/tidy/Lexer.java,2521,NOT_COVERED
+src/main/java/org/w3c/tidy/Lexer.java,2522,EMPTY
+src/main/java/org/w3c/tidy/Lexer.java,2523,NOT_COVERED
+src/main/java/org/w3c/tidy/Lexer.java,2524,EMPTY
+src/main/java/org/w3c/tidy/Lexer.java,2525,EMPTY

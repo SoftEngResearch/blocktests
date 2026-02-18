@@ -1,0 +1,6 @@
+file,line,status
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,69,FULLY_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,70,PARTLY_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,71,FULLY_COVERED
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,72,EMPTY
+src/main/java/world/data/jdbc/internal/transport/SparqlResultsParser.java,73,FULLY_COVERED

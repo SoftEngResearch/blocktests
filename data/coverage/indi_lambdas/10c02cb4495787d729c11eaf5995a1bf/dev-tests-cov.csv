@@ -1,0 +1,3 @@
+file,line,status
+src/main/java/com/maihaoche/starter/mq/config/MQConsumerAutoConfiguration.java,114,FULLY_COVERED
+src/main/java/com/maihaoche/starter/mq/config/MQConsumerAutoConfiguration.java,115,NOT_COVERED

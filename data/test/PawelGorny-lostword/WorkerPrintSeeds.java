@@ -1,0 +1,217 @@
+package com.pawelgorny.lostword;
+
+import org.blocktest.BTest;
+import static org.blocktest.BTest.blocktest;
+import static org.blocktest.types.EndAt.*;
+import static org.blocktest.utils.Constant.*;
+
+import org.bitcoinj.crypto.MnemonicException;
+import org.bouncycastle.crypto.macs.HMac;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class WorkerPrintSeeds extends Worker{
+
+    private static int NUMBER_UNKNOWN;
+    private long start = 0;
+    private long COUNTER = 0L;
+
+    public WorkerPrintSeeds(Configuration configuration) {
+        super(configuration);
+        THREADS = 1;
+    }
+
+    public void run() throws InterruptedException, MnemonicException {
+        check();
+        try {
+            FileWriter fileWriter = new FileWriter(this.configuration.getWork().name() + "_result_" + SDTCF.format(new Date()) + ".txt", false);
+            for (String seed:PRINT_SEEDS) {
+                fileWriter.write(seed+"\r\n");
+            }
+            fileWriter.close();
+        } catch (IOException e) {
+            System.out.println("Cannot write to file: " + e.getLocalizedMessage());
+        }
+    }
+
+    private void check() throws MnemonicException, InterruptedException {
+        NUMBER_UNKNOWN = 0;
+        int position = -1;
+        int c=0;
+        for (String word : configuration.getWORDS()){
+            if (Configuration.UNKNOWN_CHAR.equalsIgnoreCase(word)){
+                NUMBER_UNKNOWN++;
+                if (position==-1) {
+                    position = c;
+                }
+            }
+            c++;
+        }
+        if (NUMBER_UNKNOWN == 1){
+            checkOne(position);
+        }
+        else{
+            checkUnknown(position);
+        }
+    }
+
+    private int getNextUnknown(int startSearch, List<String> list){
+        for (int p0=startSearch; p0<list.size(); p0++){
+            if (Configuration.UNKNOWN_CHAR.equals(list.get(p0))){
+                return p0;
+            }
+        }
+        return -1;
+    }
+
+    private void checkUnknown(int position) throws InterruptedException {
+        System.out.println("Warning: "+((Double)Math.pow(DICTIONARY_SIZE, NUMBER_UNKNOWN)).longValue()+" possibilities!");
+        List<String> mnemonic = new ArrayList<>(configuration.getWORDS());
+        List<List<String>> DICTIONARY = split();
+        int nextPosition = getNextUnknown(1+position, configuration.getWORDS());
+
+        final List<MessageDigest> SHA_256_DIGESTS= new ArrayList<>(THREADS);
+        final List<HMac> SHA_512_DIGESTS= new ArrayList<>(THREADS);
+        for (int t=0; t<THREADS; t++){
+            try {
+                SHA_512_DIGESTS.add(createHmacSha512Digest());
+                SHA_256_DIGESTS.add(MessageDigest.getInstance("SHA-256"));
+            }catch (Exception e){
+            }
+        }
+
+        for (int w0=configuration.getKnownStart(); RESULT==null && w0<DICTIONARY_SIZE; w0++){
+            String processedWord = Configuration.MNEMONIC_CODE.getWordList().get(w0);
+            System.out.println("Processing word "+(w0+1)+"/"+DICTIONARY_SIZE+" on position "+(position+1)+"! '"+processedWord+"' "+ SDTF.format(new Date()));
+            mnemonic.set(position, processedWord);
+            final CountDownLatch latch = new CountDownLatch(THREADS);
+            final ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
+            for (int t = 0; t < THREADS; t++) {
+                final int WORKING_POSITION = nextPosition;
+                final List<String> SEED = new LinkedList<>(mnemonic);
+                final List<String> WORDS_TO_WORK = DICTIONARY.get(t);
+                final boolean REPORTER = t==0;
+                final int T_NUMBER=t;
+                // BLOCKTEST EVAL: https://github.com/PawelGorny/lostword/blob/8e66ab8737a5119a21cef6c948ae7b48f00fdb91/src/main/java/com/pawelgorny/lostword/WorkerPrintSeeds.java#L96-L112
+                /*
+                @lambdatest().noInit(latch).given(SEED, new ArrayList<>(java.util.Arrays.asList("foo", "bar"))).given(REPORTER, true).given(T_NUMBER, 0).given(SHA_512_DIGESTS, new ArrayList<>(java.util.Arrays.asList(new HMac(new org.bouncycastle.crypto.digests.SHA512Digest()))))
+                        .given(SHA_256_DIGESTS, new ArrayList<>(java.util.Arrays.asList(MessageDigest.getInstance("SHA-256"))))
+                        .given(WORKING_POSITION, 0).given(WORDS_TO_WORK, new ArrayList<>(java.util.Arrays.asList("a", "b"))).mock("processSeed(..)").mock("latch.countDown()").checkEq(SEED.get(1), "bar")
+                        .checkEq(SEED.get(0), "b");
+                 */
+                executorService.submit(() -> {
+                    if (REPORTER) {
+                        start = System.currentTimeMillis();
+                    }
+                    final HMac LOCAL_SHA_512_DIGEST = SHA_512_DIGESTS.get(T_NUMBER);
+                    final MessageDigest LOCAL_SHA_256_DIGEST = SHA_256_DIGESTS.get(T_NUMBER);
+                    try {
+                        int WORKING_POSITION_PLUS = WORKING_POSITION+1;
+                        for (int bipPosition = 0; RESULT == null && bipPosition < WORDS_TO_WORK.size(); bipPosition++) {
+                            SEED.set(WORKING_POSITION, WORDS_TO_WORK.get(bipPosition));
+                            processSeed(SEED, 2, WORKING_POSITION_PLUS, REPORTER, LOCAL_SHA_512_DIGEST, LOCAL_SHA_256_DIGEST);
+                        }
+                    } catch (Exception e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    latch.countDown();
+                });
+            }
+            latch.await();
+            executorService.shutdown();
+        }
+    }
+
+    private Boolean processSeed(final List<String> seed, int depth, int positionStartSearch, boolean reporter, HMac SHA_512_DIGEST, MessageDigest SHA_256_DIGEST) throws MnemonicException {
+        if (NUMBER_UNKNOWN==depth){
+            Boolean checkResult = checkPrint(seed, SHA_512_DIGEST, SHA_256_DIGEST);
+            COUNTER++;
+            if (checkResult!=null&&checkResult){
+                System.out.println(seed);
+                RESULT = new Result(new ArrayList<>(seed));
+                return true;
+            }
+            if (reporter && (System.currentTimeMillis()-start > STATUS_PERIOD)){
+                System.out.println(SDTF.format(new Date())+ " Alive! "+(COUNTER));
+                COUNTER = 0;
+                start = System.currentTimeMillis();
+            }
+            return configuration.isMissingChecksum()?(checkResult==null?false:null):checkResult;
+        }else{
+            int nextDepth = depth + 1;
+            int position = getNextUnknown(positionStartSearch, seed);
+            if(position == -1){
+                Boolean checkResult = check(seed, SHA_512_DIGEST, SHA_256_DIGEST);
+                if (checkResult!=null&&checkResult){
+                    System.out.println(seed);
+                    RESULT = new Result(new ArrayList<>(seed));
+                }
+                return false;
+            }
+            int positionStartNextSearch = 0;
+            if (nextDepth <NUMBER_UNKNOWN ){
+                positionStartNextSearch = position+1;
+            }
+            int checksumCheckLimit = configuration.getMissingChecksumLimit();
+            for (int w = 0; RESULT==null && w<DICTIONARY_SIZE; w++){
+                seed.set(position, Configuration.MNEMONIC_CODE.getWordList().get(w));
+                Boolean result = processSeed(seed, nextDepth, positionStartNextSearch, reporter, SHA_512_DIGEST, SHA_256_DIGEST);
+                if(result == null && --checksumCheckLimit==0){
+                    break;
+                }
+            }
+            seed.set(position, Configuration.UNKNOWN_CHAR);
+        }
+        return false;
+    }
+
+    private void checkOne(int position) throws InterruptedException {
+        List<List<String>> DICTIONARY = split();
+        System.out.println("Checking missing word at position " + (position + 1));
+        Iterator<String> iterator = configuration.getWORDS().iterator();
+        int p = 0;
+        List<String> mnemonic = new ArrayList<>(configuration.getSIZE());
+        for (int i = 0; i < configuration.getSIZE(); i++) {
+            mnemonic.add("");
+        }
+        while (iterator.hasNext()) {
+            String word = iterator.next();
+            if (Configuration.UNKNOWN_CHAR.equalsIgnoreCase(word)){
+                continue;
+            }
+            if (p == position) {
+                p++;
+            }
+            mnemonic.set(p++, word);
+        }
+        final CountDownLatch latch = new CountDownLatch(THREADS);
+        final ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
+        for (int t = 0; t < THREADS; t++) {
+            final int WORKING_POSITION = position;
+            final List<String> WORDS_TO_WORK = DICTIONARY.get(t);
+            final List<String> SEED = new ArrayList<>(mnemonic);
+            executorService.submit(() -> {
+                try {
+                    final MessageDigest LOCAL_SHA_256_DIGEST = MessageDigest.getInstance("SHA-256");
+                    final HMac LOCAL_SHA_512_DIGEST = createHmacSha512Digest();
+                    for (int bipPosition = 0; RESULT == null && bipPosition < WORDS_TO_WORK.size(); bipPosition++) {
+                        SEED.set(WORKING_POSITION, WORDS_TO_WORK.get(bipPosition));
+                        checkPrint(SEED, LOCAL_SHA_512_DIGEST, LOCAL_SHA_256_DIGEST);
+                    }
+                } catch (Exception e) {
+                    Thread.currentThread().interrupt();
+                }
+                latch.countDown();
+            });
+        }
+        latch.await();
+        executorService.shutdown();
+    }
+
+}

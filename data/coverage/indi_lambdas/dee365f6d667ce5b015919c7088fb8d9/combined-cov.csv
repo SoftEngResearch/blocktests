@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/org/lastaflute/web/validation/ActionValidator.java,785,NOT_COVERED
+src/main/java/org/lastaflute/web/validation/ActionValidator.java,786,NOT_COVERED
+src/main/java/org/lastaflute/web/validation/ActionValidator.java,787,EMPTY

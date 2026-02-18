@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/com/googlecode/paradox/metadata/View.java,227,FULLY_COVERED
+src/main/java/com/googlecode/paradox/metadata/View.java,228,EMPTY
+src/main/java/com/googlecode/paradox/metadata/View.java,229,FULLY_COVERED
+src/main/java/com/googlecode/paradox/metadata/View.java,230,NOT_COVERED
+src/main/java/com/googlecode/paradox/metadata/View.java,231,NOT_COVERED
+src/main/java/com/googlecode/paradox/metadata/View.java,232,FULLY_COVERED
+src/main/java/com/googlecode/paradox/metadata/View.java,233,FULLY_COVERED

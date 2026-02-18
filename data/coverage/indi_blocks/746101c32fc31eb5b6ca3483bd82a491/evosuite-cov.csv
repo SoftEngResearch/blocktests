@@ -1,0 +1,9 @@
+file,line,status
+src/main/java/com/lowagie/text/pdf/PdfDocument.java,578,PARTLY_COVERED
+src/main/java/com/lowagie/text/pdf/PdfDocument.java,579,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfDocument.java,580,FULLY_COVERED
+src/main/java/com/lowagie/text/pdf/PdfDocument.java,581,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfDocument.java,582,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfDocument.java,583,EMPTY
+src/main/java/com/lowagie/text/pdf/PdfDocument.java,584,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PdfDocument.java,585,NOT_COVERED

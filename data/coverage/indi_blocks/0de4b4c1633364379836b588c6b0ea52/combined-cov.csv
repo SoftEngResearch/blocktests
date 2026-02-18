@@ -1,0 +1,15 @@
+file,line,status
+src/main/java/org/jawk/frontend/AwkParser.java,697,PARTLY_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,698,NOT_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,699,NOT_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,700,NOT_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,701,NOT_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,702,NOT_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,703,NOT_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,704,NOT_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,705,EMPTY
+src/main/java/org/jawk/frontend/AwkParser.java,706,NOT_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,707,EMPTY
+src/main/java/org/jawk/frontend/AwkParser.java,708,EMPTY
+src/main/java/org/jawk/frontend/AwkParser.java,709,FULLY_COVERED
+src/main/java/org/jawk/frontend/AwkParser.java,710,EMPTY

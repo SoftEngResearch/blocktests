@@ -1,0 +1,7 @@
+file,line,status
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1991,NOT_COVERED
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1992,NOT_COVERED
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1993,NOT_COVERED
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1994,NOT_COVERED
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1995,EMPTY
+src/main/java/org/mvel2/optimizers/impl/asm/ASMAccessorOptimizer.java,1996,NOT_COVERED

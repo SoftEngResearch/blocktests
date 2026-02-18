@@ -1,0 +1,6 @@
+file,line,status
+src/main/java/com/microsoft/azure/cassandraproxy/FastDecode.java,98,FULLY_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/FastDecode.java,99,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/FastDecode.java,100,NOT_COVERED
+src/main/java/com/microsoft/azure/cassandraproxy/FastDecode.java,101,EMPTY
+src/main/java/com/microsoft/azure/cassandraproxy/FastDecode.java,102,NOT_COVERED

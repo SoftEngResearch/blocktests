@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,116,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,117,FULLY_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/function/OracleToMySqlFunctionTransform.java,118,FULLY_COVERED

@@ -1,0 +1,11 @@
+file,line,status
+src/main/java/jcifs/smb/SmbSessionImpl.java,947,NOT_COVERED
+src/main/java/jcifs/smb/SmbSessionImpl.java,948,NOT_COVERED
+src/main/java/jcifs/smb/SmbSessionImpl.java,949,NOT_COVERED
+src/main/java/jcifs/smb/SmbSessionImpl.java,950,EMPTY
+src/main/java/jcifs/smb/SmbSessionImpl.java,951,NOT_COVERED
+src/main/java/jcifs/smb/SmbSessionImpl.java,952,EMPTY
+src/main/java/jcifs/smb/SmbSessionImpl.java,953,NOT_COVERED
+src/main/java/jcifs/smb/SmbSessionImpl.java,954,NOT_COVERED
+src/main/java/jcifs/smb/SmbSessionImpl.java,955,NOT_COVERED
+src/main/java/jcifs/smb/SmbSessionImpl.java,956,EMPTY

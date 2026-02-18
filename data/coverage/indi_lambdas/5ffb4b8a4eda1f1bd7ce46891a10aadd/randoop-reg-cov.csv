@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/com/jfinal/template/expr/ast/FastFieldGetter.java,62,NOT_COVERED
+src/main/java/com/jfinal/template/expr/ast/FastFieldGetter.java,63,EMPTY
+src/main/java/com/jfinal/template/expr/ast/FastFieldGetter.java,64,NOT_COVERED
+src/main/java/com/jfinal/template/expr/ast/FastFieldGetter.java,65,NOT_COVERED
+src/main/java/com/jfinal/template/expr/ast/FastFieldGetter.java,66,NOT_COVERED
+src/main/java/com/jfinal/template/expr/ast/FastFieldGetter.java,67,EMPTY
+src/main/java/com/jfinal/template/expr/ast/FastFieldGetter.java,68,EMPTY

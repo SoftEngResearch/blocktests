@@ -1,0 +1,10 @@
+file,line,status
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1057,FULLY_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1058,FULLY_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1059,PARTLY_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1060,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1061,EMPTY
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1062,NOT_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1063,FULLY_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1064,FULLY_COVERED
+src/main/java/com/alibaba/compileflow/engine/common/util/DataType.java,1065,FULLY_COVERED

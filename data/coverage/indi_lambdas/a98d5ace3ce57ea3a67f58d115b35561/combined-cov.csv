@@ -1,0 +1,11 @@
+file,line,status
+src/main/java/com/microdb/operator/Aggregate.java,73,FULLY_COVERED
+src/main/java/com/microdb/operator/Aggregate.java,74,FULLY_COVERED
+src/main/java/com/microdb/operator/Aggregate.java,75,FULLY_COVERED
+src/main/java/com/microdb/operator/Aggregate.java,76,FULLY_COVERED
+src/main/java/com/microdb/operator/Aggregate.java,77,FULLY_COVERED
+src/main/java/com/microdb/operator/Aggregate.java,78,EMPTY
+src/main/java/com/microdb/operator/Aggregate.java,79,FULLY_COVERED
+src/main/java/com/microdb/operator/Aggregate.java,80,FULLY_COVERED
+src/main/java/com/microdb/operator/Aggregate.java,81,EMPTY
+src/main/java/com/microdb/operator/Aggregate.java,82,EMPTY

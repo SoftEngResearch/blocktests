@@ -1,0 +1,7 @@
+file,line,status
+src/main/java/info/yangguo/waf/request/security/CCSecurity.java,92,NOT_COVERED
+src/main/java/info/yangguo/waf/request/security/CCSecurity.java,93,NOT_COVERED
+src/main/java/info/yangguo/waf/request/security/CCSecurity.java,94,NOT_COVERED
+src/main/java/info/yangguo/waf/request/security/CCSecurity.java,95,EMPTY
+src/main/java/info/yangguo/waf/request/security/CCSecurity.java,96,NOT_COVERED
+src/main/java/info/yangguo/waf/request/security/CCSecurity.java,97,EMPTY

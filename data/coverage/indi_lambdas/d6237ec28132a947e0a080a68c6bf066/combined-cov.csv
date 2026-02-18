@@ -1,0 +1,12 @@
+file,line,status
+src/main/java/org/xcsp/parser/XParser.java,330,FULLY_COVERED
+src/main/java/org/xcsp/parser/XParser.java,331,FULLY_COVERED
+src/main/java/org/xcsp/parser/XParser.java,332,FULLY_COVERED
+src/main/java/org/xcsp/parser/XParser.java,333,PARTLY_COVERED
+src/main/java/org/xcsp/parser/XParser.java,334,FULLY_COVERED
+src/main/java/org/xcsp/parser/XParser.java,335,FULLY_COVERED
+src/main/java/org/xcsp/parser/XParser.java,336,PARTLY_COVERED
+src/main/java/org/xcsp/parser/XParser.java,337,NOT_COVERED
+src/main/java/org/xcsp/parser/XParser.java,338,EMPTY
+src/main/java/org/xcsp/parser/XParser.java,339,FULLY_COVERED
+src/main/java/org/xcsp/parser/XParser.java,340,FULLY_COVERED

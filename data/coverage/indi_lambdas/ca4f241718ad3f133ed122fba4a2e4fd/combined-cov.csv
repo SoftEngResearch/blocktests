@@ -1,0 +1,5 @@
+file,line,status
+src/main/java/com/github/msemys/esjc/tcp/handler/HeartbeatHandler.java,59,NOT_COVERED
+src/main/java/com/github/msemys/esjc/tcp/handler/HeartbeatHandler.java,60,NOT_COVERED
+src/main/java/com/github/msemys/esjc/tcp/handler/HeartbeatHandler.java,61,NOT_COVERED
+src/main/java/com/github/msemys/esjc/tcp/handler/HeartbeatHandler.java,62,NOT_COVERED

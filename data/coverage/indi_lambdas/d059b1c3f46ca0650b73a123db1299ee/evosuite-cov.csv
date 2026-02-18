@@ -1,0 +1,12 @@
+file,line,status
+src/main/java/io/vertx/docgen/BaseProcessor.java,116,FULLY_COVERED
+src/main/java/io/vertx/docgen/BaseProcessor.java,117,EMPTY
+src/main/java/io/vertx/docgen/BaseProcessor.java,118,FULLY_COVERED
+src/main/java/io/vertx/docgen/BaseProcessor.java,119,NOT_COVERED
+src/main/java/io/vertx/docgen/BaseProcessor.java,120,NOT_COVERED
+src/main/java/io/vertx/docgen/BaseProcessor.java,121,NOT_COVERED
+src/main/java/io/vertx/docgen/BaseProcessor.java,122,NOT_COVERED
+src/main/java/io/vertx/docgen/BaseProcessor.java,123,EMPTY
+src/main/java/io/vertx/docgen/BaseProcessor.java,124,NOT_COVERED
+src/main/java/io/vertx/docgen/BaseProcessor.java,125,NOT_COVERED
+src/main/java/io/vertx/docgen/BaseProcessor.java,126,NOT_COVERED

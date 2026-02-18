@@ -1,0 +1,9 @@
+file,line,status
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,209,EMPTY
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,210,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,211,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,212,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,213,EMPTY
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,214,NOT_COVERED
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,215,EMPTY
+src/main/java/com/raysonfang/sqltranslator/sql/dialect/oracle/util/OracleSQLDataTypeTransformUtil.java,216,NOT_COVERED

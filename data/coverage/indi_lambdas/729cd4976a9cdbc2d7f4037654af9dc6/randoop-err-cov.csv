@@ -1,0 +1,11 @@
+file,line,status
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,264,EMPTY
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,265,EMPTY
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,266,EMPTY
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,267,EMPTY
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,268,EMPTY
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,269,EMPTY
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,270,EMPTY
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,271,EMPTY
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,272,NOT_COVERED
+src/main/java/net/helix/pendulum/service/transactionpruning/jobs/MilestonePrunerJob.java,273,NOT_COVERED

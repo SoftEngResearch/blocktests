@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/org/beigesoft/accounting/report/InvoiceReportPdf.java,142,NOT_COVERED
+src/main/java/org/beigesoft/accounting/report/InvoiceReportPdf.java,143,NOT_COVERED
+src/main/java/org/beigesoft/accounting/report/InvoiceReportPdf.java,144,NOT_COVERED
+src/main/java/org/beigesoft/accounting/report/InvoiceReportPdf.java,145,NOT_COVERED
+src/main/java/org/beigesoft/accounting/report/InvoiceReportPdf.java,146,NOT_COVERED
+src/main/java/org/beigesoft/accounting/report/InvoiceReportPdf.java,147,EMPTY
+src/main/java/org/beigesoft/accounting/report/InvoiceReportPdf.java,148,NOT_COVERED

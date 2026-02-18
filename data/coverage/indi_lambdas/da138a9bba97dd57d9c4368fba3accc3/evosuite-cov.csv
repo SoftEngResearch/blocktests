@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,222,FULLY_COVERED
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,223,FULLY_COVERED
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,224,FULLY_COVERED
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,225,NOT_COVERED
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,226,NOT_COVERED
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,227,FULLY_COVERED
+src/main/java/org/apache/commons/codec/language/bm/Rule.java,228,FULLY_COVERED

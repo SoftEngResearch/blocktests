@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/org/lastaflute/core/mail/LaThreadCachedDynamicTextAssist.java,45,NOT_COVERED
+src/main/java/org/lastaflute/core/mail/LaThreadCachedDynamicTextAssist.java,46,NOT_COVERED
+src/main/java/org/lastaflute/core/mail/LaThreadCachedDynamicTextAssist.java,47,EMPTY

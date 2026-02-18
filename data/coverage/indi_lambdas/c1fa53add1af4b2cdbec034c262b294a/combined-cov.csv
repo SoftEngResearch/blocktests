@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/org/lastaflute/web/ruts/config/analyzer/UrlPatternAnalyzer.java,281,FULLY_COVERED
+src/main/java/org/lastaflute/web/ruts/config/analyzer/UrlPatternAnalyzer.java,282,FULLY_COVERED
+src/main/java/org/lastaflute/web/ruts/config/analyzer/UrlPatternAnalyzer.java,283,EMPTY

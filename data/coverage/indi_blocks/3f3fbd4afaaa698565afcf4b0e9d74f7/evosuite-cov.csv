@@ -1,0 +1,9 @@
+file,line,status
+src/main/java/io/mola/galimatias/URLParser.java,472,PARTLY_COVERED
+src/main/java/io/mola/galimatias/URLParser.java,473,NOT_COVERED
+src/main/java/io/mola/galimatias/URLParser.java,474,EMPTY
+src/main/java/io/mola/galimatias/URLParser.java,475,PARTLY_COVERED
+src/main/java/io/mola/galimatias/URLParser.java,476,FULLY_COVERED
+src/main/java/io/mola/galimatias/URLParser.java,477,EMPTY
+src/main/java/io/mola/galimatias/URLParser.java,478,NOT_COVERED
+src/main/java/io/mola/galimatias/URLParser.java,479,EMPTY

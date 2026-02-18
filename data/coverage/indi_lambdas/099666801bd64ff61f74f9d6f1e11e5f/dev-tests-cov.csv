@@ -1,0 +1,9 @@
+file,line,status
+src/main/java/io/jenkins/update_center/json/TieredUpdateSitesGenerator.java,107,NOT_COVERED
+src/main/java/io/jenkins/update_center/json/TieredUpdateSitesGenerator.java,108,EMPTY
+src/main/java/io/jenkins/update_center/json/TieredUpdateSitesGenerator.java,109,NOT_COVERED
+src/main/java/io/jenkins/update_center/json/TieredUpdateSitesGenerator.java,110,NOT_COVERED
+src/main/java/io/jenkins/update_center/json/TieredUpdateSitesGenerator.java,111,EMPTY
+src/main/java/io/jenkins/update_center/json/TieredUpdateSitesGenerator.java,112,NOT_COVERED
+src/main/java/io/jenkins/update_center/json/TieredUpdateSitesGenerator.java,113,EMPTY
+src/main/java/io/jenkins/update_center/json/TieredUpdateSitesGenerator.java,114,NOT_COVERED

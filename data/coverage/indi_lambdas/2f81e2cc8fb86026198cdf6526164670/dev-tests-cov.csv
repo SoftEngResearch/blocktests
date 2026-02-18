@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/krpc/rpc/impl/RpcRetrierImpl.java,144,NOT_COVERED
+src/main/java/krpc/rpc/impl/RpcRetrierImpl.java,145,NOT_COVERED
+src/main/java/krpc/rpc/impl/RpcRetrierImpl.java,146,NOT_COVERED

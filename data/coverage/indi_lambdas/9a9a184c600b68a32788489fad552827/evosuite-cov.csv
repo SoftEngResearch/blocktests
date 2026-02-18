@@ -1,0 +1,5 @@
+file,line,status
+src/main/java/co/streamx/fluent/JPA/DSLInterpreter.java,781,NOT_COVERED
+src/main/java/co/streamx/fluent/JPA/DSLInterpreter.java,782,NOT_COVERED
+src/main/java/co/streamx/fluent/JPA/DSLInterpreter.java,783,NOT_COVERED
+src/main/java/co/streamx/fluent/JPA/DSLInterpreter.java,784,EMPTY

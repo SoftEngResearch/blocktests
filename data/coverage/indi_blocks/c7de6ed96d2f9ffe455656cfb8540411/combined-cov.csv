@@ -1,0 +1,10 @@
+file,line,status
+src/main/java/com/google/json/JsonSanitizer.java,342,NOT_COVERED
+src/main/java/com/google/json/JsonSanitizer.java,343,NOT_COVERED
+src/main/java/com/google/json/JsonSanitizer.java,344,NOT_COVERED
+src/main/java/com/google/json/JsonSanitizer.java,345,NOT_COVERED
+src/main/java/com/google/json/JsonSanitizer.java,346,EMPTY
+src/main/java/com/google/json/JsonSanitizer.java,347,NOT_COVERED
+src/main/java/com/google/json/JsonSanitizer.java,348,NOT_COVERED
+src/main/java/com/google/json/JsonSanitizer.java,349,EMPTY
+src/main/java/com/google/json/JsonSanitizer.java,350,EMPTY

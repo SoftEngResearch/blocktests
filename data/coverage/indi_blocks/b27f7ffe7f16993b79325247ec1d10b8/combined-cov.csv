@@ -1,0 +1,17 @@
+file,line,status
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,442,FULLY_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,443,FULLY_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,444,PARTLY_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,445,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,446,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,447,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,448,EMPTY
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,449,FULLY_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,450,FULLY_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,451,PARTLY_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,452,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,453,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,454,NOT_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,455,EMPTY
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,456,FULLY_COVERED
+src/main/java/com/lowagie/text/pdf/PRTokeniser.java,457,FULLY_COVERED

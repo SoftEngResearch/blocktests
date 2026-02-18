@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/org/nlp2rdf/nif21/impl/NIF21AnnotationUnit.java,33,FULLY_COVERED
+src/main/java/org/nlp2rdf/nif21/impl/NIF21AnnotationUnit.java,34,FULLY_COVERED
+src/main/java/org/nlp2rdf/nif21/impl/NIF21AnnotationUnit.java,35,FULLY_COVERED

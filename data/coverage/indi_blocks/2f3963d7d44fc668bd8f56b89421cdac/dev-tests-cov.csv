@@ -1,0 +1,8 @@
+file,line,status
+src/main/java/org/opensky/libadsb/ModeSDecoder.java,146,FULLY_COVERED
+src/main/java/org/opensky/libadsb/ModeSDecoder.java,147,EMPTY
+src/main/java/org/opensky/libadsb/ModeSDecoder.java,148,FULLY_COVERED
+src/main/java/org/opensky/libadsb/ModeSDecoder.java,149,EMPTY
+src/main/java/org/opensky/libadsb/ModeSDecoder.java,150,PARTLY_COVERED
+src/main/java/org/opensky/libadsb/ModeSDecoder.java,151,FULLY_COVERED
+src/main/java/org/opensky/libadsb/ModeSDecoder.java,152,EMPTY

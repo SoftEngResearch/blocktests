@@ -1,0 +1,3 @@
+file,line,status
+src/main/java/com/talanlabs/sonar/plugins/gitlab/GitLabApiV4Wrapper.java,257,NOT_COVERED
+src/main/java/com/talanlabs/sonar/plugins/gitlab/GitLabApiV4Wrapper.java,258,NOT_COVERED

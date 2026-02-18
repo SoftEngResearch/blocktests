@@ -1,0 +1,6 @@
+file,line,status
+src/main/java/com/googlecode/paradox/ConnectionInfo.java,505,FULLY_COVERED
+src/main/java/com/googlecode/paradox/ConnectionInfo.java,506,EMPTY
+src/main/java/com/googlecode/paradox/ConnectionInfo.java,507,FULLY_COVERED
+src/main/java/com/googlecode/paradox/ConnectionInfo.java,508,PARTLY_COVERED
+src/main/java/com/googlecode/paradox/ConnectionInfo.java,509,EMPTY

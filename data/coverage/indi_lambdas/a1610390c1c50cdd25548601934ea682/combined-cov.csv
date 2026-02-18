@@ -1,0 +1,4 @@
+file,line,status
+src/main/java/net/helix/pendulum/service/snapshot/impl/SnapshotServiceImpl.java,141,NOT_COVERED
+src/main/java/net/helix/pendulum/service/snapshot/impl/SnapshotServiceImpl.java,142,NOT_COVERED
+src/main/java/net/helix/pendulum/service/snapshot/impl/SnapshotServiceImpl.java,143,NOT_COVERED
