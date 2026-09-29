@@ -205,8 +205,13 @@ public class FlowControllingVisitor extends ModifierVisitor<Void> {
         );
 
         MethodCallExpr assertCall = new MethodCallExpr(null, "assertTrue");
+        if (Util.coverage) {
+            assertCall = new MethodCallExpr(new NameExpr("org.blocktest.Assertion"), "assertTrue");
+        }
         ArrayAccessExpr arrayAccess = new ArrayAccessExpr(arrayName, new NameExpr(indexVar));
-        if (Util.junitVersion.equals("junit4")) {
+        if (Util.coverage) {
+            assertCall.addArgument(arrayAccess);
+        } else if (Util.junitVersion.equals("junit4")) {
             assertCall.addArgument(message);
             assertCall.addArgument(arrayAccess);
         } else {

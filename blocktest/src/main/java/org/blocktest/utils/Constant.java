@@ -20,12 +20,14 @@ public class Constant {
     public final static String DECLARE_NAME = "blocktest";
     public final static String DECLARE_NAME_LAMBDA = "lambdatest";
     public final static String CHECK_FLOW = "checkFlow";
+    public final static String CHECK_CONTROL_FLOW = "checkControlFlow";
     public final static String CHECK_EQ = "checkEq";
     public final static String CHECK_TRUE = "checkTrue";
     public final static String CHECK_FALSE = "checkFalse";
     public final static String CHECK_RETURN_EQ = "checkReturnEq";
     public final static String CHECK_RETURN_TRUE = "checkReturnTrue";
     public final static String CHECK_RETURN_FALSE = "checkReturnFalse";
+    public final static String CHECK_NOT_RETURN = "checkNotReturn";
     public final static String CHECK_EXP = "expect";
     public final static String GIVEN = "given";
     public final static String ARGS = "args";
@@ -49,4 +51,6 @@ public class Constant {
             "String", "java.lang.String", "int[]", "long[]", "double[]", "float[]", "boolean[]", "char[]", "byte[]",
             "short[]",
             "String[]", "java.lang.String[]");
+
+    public final static String RETURN_STMT_REACHED = "returnStatementReached";
 }

@@ -1,11 +1,55 @@
 package org.blocktest;
 
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.converters.reflection.ReflectionConverter;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.security.AnyTypePermission;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
 
 public class BTest {
 
     public static BTest btest = new BTest();
+    public static XStream xstream = new XStream() {
+        @Override
+        protected MapperWrapper wrapMapper(MapperWrapper next) {
+            return new MapperWrapper(next) {
+                @Override
+                public Class realClass(String elementName) {
+                    if (elementName.equals("org.evosuite.runtime.mock.java.io.MockIOException")) {
+                        return IOException.class;
+                    }
+                    if (elementName.equals("org.evosuite.runtime.mock.java.lang.MockRuntimeException")) {
+                        return RuntimeException.class;
+                    }
+                    if (elementName.equals("org.evosuite.runtime.mock.java.lang.MockThrowable")) {
+                        return Throwable.class;
+                    }
+                    return super.realClass(elementName);
+                }
+            };
+        }
+    };
+
+    static {
+        xstream.addPermission(AnyTypePermission.ANY);
+        xstream.ignoreUnknownElements();
+        xstream.registerConverter(new ReflectionConverter(xstream.getMapper(), xstream.getReflectionProvider()) {
+            @Override
+            protected Object unmarshallField(UnmarshallingContext context, Object result, Class type, Field field) {
+                try {
+                    return super.unmarshallField(context, result, type, field);
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        }, XStream.PRIORITY_VERY_LOW);
+    }
 
     private BTest() {
         return;
@@ -81,8 +125,15 @@ public class BTest {
         return btest;
     }
 
+    public BTest checkNotReturn() {
+        return btest;
+    }
 
     public BTest checkFlow(Flow... value) {
+        return btest;
+    }
+
+    public BTest checkControlFlow(Object value) {
         return btest;
     }
 

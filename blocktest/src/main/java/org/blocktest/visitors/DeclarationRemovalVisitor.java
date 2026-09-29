@@ -32,7 +32,8 @@ public class DeclarationRemovalVisitor extends ModifierVisitor<Void> {
 
             VariableDeclarationExpr expr = stmt.getExpression().asVariableDeclarationExpr();
 
-            NodeList<Statement> declarationStmts = new NodeList<>();
+//            NodeList<Statement> declarationStmts = new NodeList<>();
+            NodeList<VariableDeclarator> keptVars = new NodeList<>();
             for (VariableDeclarator var : expr.getVariables()) {
                 System.out.println("\t\t3. variable: " + var.getNameAsString());
 
@@ -60,19 +61,24 @@ public class DeclarationRemovalVisitor extends ModifierVisitor<Void> {
                      */
                 } else {
                     System.out.println("\t\t\t4. variable " + var.getNameAsString() + " is NOT defined in givens, keep it as declaration");
+                    keptVars.add(var.clone());
 
-                    VariableDeclarationExpr vde = new VariableDeclarationExpr(new NodeList<>(var.clone()));
-                    declarationStmts.add(new ExpressionStmt(vde));
+//                    VariableDeclarationExpr vde = new VariableDeclarationExpr(new NodeList<>(var.clone()));
+//                    declarationStmts.add(new ExpressionStmt(vde));
                 }
             }
 
-            if (declarationStmts.isEmpty()) {
+            if (keptVars.isEmpty()) {
                 return null; // Remove the statement entirely
             }
-            if (declarationStmts.size() == 1) {
-                return declarationStmts.get(0);
-            }
-            return new BlockStmt(declarationStmts);
+//            if (declarationStmts.size() == 1) {
+//                return declarationStmts.get(0);
+//            }
+//            return new BlockStmt(declarationStmts);
+            VariableDeclarationExpr newVde = new VariableDeclarationExpr(
+                    keptVars
+            );
+            return new ExpressionStmt(newVde);
         }
 
         return super.visit(stmt, arg);

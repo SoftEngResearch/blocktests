@@ -1,5 +1,10 @@
 package org.blocktest.visitors;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -181,6 +186,19 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 }
                 System.out.println("Parsed flow: " + blockTest.flows);
             }
+        } else if (methodCall.getName().asString().equals(Constant.CHECK_CONTROL_FLOW)) {
+            List<Expression> args = methodCall.getArguments();
+            if (args.isEmpty()) {
+                throw new RuntimeException(Constant.CHECK_CONTROL_FLOW + " should have 1 argument");
+            }
+
+            if (args.get(0).toString().startsWith("\"@") && args.get(0).toString().endsWith(".txt\"")) {
+                Type rhsType = Util.getTypeFromStr("String");
+                blockTest.controlFlow = parseNonPrimitiveExpression(rhsType, args.get(0).asStringLiteralExpr().getValue()).asStringLiteralExpr().toString();
+            } else {
+                blockTest.controlFlow = args.get(0).toString();
+            }
+            System.out.println("Expected control flow: " + blockTest.controlFlow);
         } else if (methodCall.getName().asString().equals(Constant.CHECK_EQ) ||
                 methodCall.getName().asString().equals(Constant.CHECK_RETURN_EQ)) {
             List<Expression> args = methodCall.getArguments();
@@ -193,6 +211,7 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             Expression left;
             Expression right;
             Expression delta = null;
+            boolean isArray = false;
 
             if (methodCall.getName().asString().equals(Constant.CHECK_EQ)) {
                 left = args.get(0); // actual value
@@ -200,16 +219,70 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 if (args.size() == 3) {
                     delta = args.get(2); // delta for floating point comparison
                 }
+
+                if (Util.loadXml) {
+                    if (right.isStringLiteralExpr() && args.size() == 3 && right.toString().startsWith("\"@") &&
+                            (right.toString().endsWith(".xml\"") || right.toString().endsWith(".txt\"")  || right.toString().endsWith(".java\"")  )) {
+                        // not floating point, but non-primitive type that needs to be parsed from XML
+                        delta = null;
+
+                        Type rhsType = Util.getTypeFromStr(args.get(2).toString().replace("\"", ""));
+                        right = parseNonPrimitiveExpression(rhsType, right.asStringLiteralExpr().getValue());
+
+                        if (args.get(2).toString().contains("[]")) {
+                            isArray = true;
+                        }
+                    } else if (right.isStringLiteralExpr() && args.size() == 2 && right.toString().startsWith("\"@") &&
+                            ( right.toString().endsWith(".txt\"") )) {
+                        // not floating point, but non-primitive type that needs to be parsed from XML
+                        delta = null;
+
+                        Type rhsType = Util.getTypeFromStr("String");
+                        right = parseNonPrimitiveExpression(rhsType, right.asStringLiteralExpr().getValue());
+                    }
+                }
+                if (right instanceof ArrayCreationExpr) {
+                    isArray = true;
+                }
             } else {
                 left = new NameExpr(Constant.METHOD_RETURN);
                 right = args.get(0); // expected value
                 if (args.size() == 2) {
                     delta = args.get(1); // delta for floating point comparison
                 }
+
+                if (Util.loadXml) {
+                    if (right.isStringLiteralExpr() && args.size() == 2 && right.toString().startsWith("\"@") &&
+                            (right.toString().endsWith(".xml\"") || right.toString().endsWith(".txt\"") || right.toString().endsWith(".java\""))) {
+                        // not floating point, but non-primitive type that needs to be parsed from XML
+                        delta = null;
+
+                        Type rhsType = Util.getTypeFromStr(args.get(1).toString().replace("\"", ""));
+                        right = parseNonPrimitiveExpression(rhsType, right.asStringLiteralExpr().getValue());
+
+                        if (args.get(1).toString().contains("[]")) {
+                            isArray = true;
+                        }
+                    } else if (right.isStringLiteralExpr() && args.size() == 1 && right.toString().startsWith("\"@") &&
+                            ( right.toString().endsWith(".txt\""))) {
+                        // not floating point, but non-primitive type that needs to be parsed from XML
+                        delta = null;
+
+                        Type rhsType = Util.getTypeFromStr("String");
+                        right = parseNonPrimitiveExpression(rhsType, right.asStringLiteralExpr().getValue());
+                    }
+                }
+                if (right instanceof ArrayCreationExpr) {
+                    isArray = true;
+                }
             }
 
             if (left instanceof StringLiteralExpr) {
-                left = new NameExpr(((StringLiteralExpr) left).asString());
+                String name = ((StringLiteralExpr) left).asString();
+                if (name.startsWith("this.")) {
+                    name = name.substring(5); // strip "this." → "foo"
+                }
+                left = new NameExpr(name);
                 blockTest.assertedVariables.add(left.toString());
             } else {
                 left.findAll(NameExpr.class).stream()
@@ -224,8 +297,21 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                         .forEach(name -> blockTest.assertedVariables.add(name));
             }
 
-            MethodCallExpr assertEquals = delta == null ? new MethodCallExpr("assertEquals", right, left) :
-                    new MethodCallExpr("assertEquals", right, left, delta);
+            MethodCallExpr assertEquals;
+            if (!isArray) {
+                assertEquals = delta == null ? new MethodCallExpr("assertEquals", right, left) :
+                        new MethodCallExpr("assertEquals", right, left, delta);
+                if (Util.coverage || Util.generatedTests) {
+                    assertEquals = delta == null ? new MethodCallExpr(new NameExpr("org.blocktest.Assertion"), "assertEquals", new NodeList<>(right, left)) :
+                            new MethodCallExpr(new NameExpr("org.blocktest.Assertion"), "assertEquals", new NodeList<>(right, left, delta));
+                }
+            } else {
+                assertEquals = new MethodCallExpr(
+                        new NameExpr("org.blocktest.Assertion"),
+                        "assertArrayEquals",
+                        new NodeList<>(right, left, new DoubleLiteralExpr("0.001"))
+                );
+            }
             System.out.println("ASSERT: " + assertEquals);
             if (left.toString().contains(Constant.LAMBDA_RETURN)) {
                 blockTest.assertedVariables.add(Constant.LAMBDA_RETURN);
@@ -261,6 +347,9 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             }
 
             MethodCallExpr assertTrue = new MethodCallExpr("assertTrue", booleanValue);
+            if (Util.coverage) {
+                assertTrue = new MethodCallExpr(new NameExpr("org.blocktest.Assertion"), "assertTrue", new NodeList<>(booleanValue));
+            }
             if (booleanValue.toString().contains(Constant.LAMBDA_RETURN)) {
                 blockTest.assertedVariables.add(Constant.LAMBDA_RETURN);
                 blockTest.junitLambdaAssertions.add(assertTrue);
@@ -295,6 +384,9 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             }
 
             MethodCallExpr assertFalse = new MethodCallExpr("assertFalse", booleanValue);
+            if (Util.coverage) {
+                assertFalse = new MethodCallExpr(new NameExpr("org.blocktest.Assertion"), "assertFalse", new NodeList<>(booleanValue));
+            }
             if (booleanValue.toString().contains(Constant.LAMBDA_RETURN)) {
                 blockTest.assertedVariables.add(Constant.LAMBDA_RETURN);
                 blockTest.junitLambdaAssertions.add(assertFalse);
@@ -304,6 +396,11 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             } else {
                 blockTest.junitAssertions.add(assertFalse);
             }
+        } else if (methodCall.getName().asString().equals(Constant.CHECK_NOT_RETURN)) {
+            blockTest.notReturn = true;
+            blockTest.assertedVariables.add(Constant.METHOD_RETURN);
+            MethodCallExpr assertion = new MethodCallExpr(new NameExpr("org.blocktest.Assertion"), "assertEquals", new NodeList<>(new NullLiteralExpr(), new NameExpr(Constant.METHOD_RETURN)));
+            blockTest.junitLambdaAssertions.add(assertion);
         } else if (methodCall.getName().asString().equals(Constant.CHECK_EXP)) {
             List<Expression> args = methodCall.getArguments();
             if (args.size() != 1) {
@@ -324,11 +421,20 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 throw new RuntimeException(Constant.GIVEN + " should have 2 or 3 arguments");
             }
 
+            Type leftType = null;
+
             // given(a, 1) turns into int a = 1;, so it needs to know the type of `a`, which is an int
             Expression left = args.get(0);
             if (left instanceof StringLiteralExpr) {
-                left = new NameExpr(((StringLiteralExpr) left).asString());
+                String name = ((StringLiteralExpr) left).asString();
+                if (name.startsWith("this.")) {
+                    name = name.substring(5); // strip "this." → "foo"
+                }
+                left = new NameExpr(name);
+                System.out.println("Replacing this field for " + left);
             }
+
+            leftType = getTypeUsingJavaParser(symbolTable, left, leftType);
 
             if (left.toString().contains(".") || left.toString().contains("[")) {
                 // need to perform replacement
@@ -337,7 +443,6 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             }
 
             // Infer the type of the left expression
-            Type leftType;
             if (args.size() == 3) {
                 leftType = Util.getTypeFromStr(args.get(2).toString().replace("\"", ""));
                 symbolTable.put(left.toString(), leftType);
@@ -346,7 +451,21 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
 
             Expression right = args.get(1);
 
-            leftType = getVariableType(symbolTable, left, right);
+            if (Util.loadXml) {
+                if (right.isStringLiteralExpr() && args.size() == 3 && right.toString().startsWith("\"@") &&
+                        (right.toString().endsWith(".xml\"") || right.toString().endsWith(".txt\"") || right.toString().endsWith(".java\""))) {
+                    leftType = Util.getTypeFromStr(args.get(2).toString().replace("\"", ""));
+                    right = parseNonPrimitiveExpression(leftType, right.asStringLiteralExpr().getValue());
+                } else if (right.isStringLiteralExpr() && args.size() == 2 && right.toString().startsWith("\"@") &&
+                        (right.toString().endsWith(".txt\""))) {
+                    leftType = Util.getTypeFromStr("String");
+                    right = parseNonPrimitiveExpression(leftType, right.asStringLiteralExpr().getValue());
+                } else if (leftType == null) {
+                    leftType = getVariableType(symbolTable, left, right);
+                }
+            } else if (leftType == null) {
+                leftType = getVariableType(symbolTable, left, right);
+            }
 
             GivenVariable givenVariable = new GivenVariable(leftType, left.toString(), left, right);
             blockTest.givens.add(givenVariable);
@@ -367,13 +486,17 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
 
                 Expression left = blockTest.lambdaParameters.get(i);
                 // Infer the type of the left expression
-                Type leftType;
+                Type leftType = null;
                 if (args.size() == 3) {
                     leftType = Util.getTypeFromStr(args.get(2).toString().replace("\"", ""));
                     symbolTable.put(left.toString(), leftType);
+                } else {
+                    leftType = getTypeUsingJavaParser(symbolTable, left, leftType);
                 }
 
-                leftType = getVariableType(symbolTable, left, right);
+                if (leftType == null) {
+                    leftType = getVariableType(symbolTable, left, right);
+                }
 
                 GivenVariable givenVariable = new GivenVariable(leftType, left.toString(), left, right);
                 blockTest.givens.add(givenVariable);
@@ -455,14 +578,72 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             List<Expression> values = new ArrayList<>();
             blockTest.mockMethods.put(mockMethod, values);
 
-            for (int i = 1; i < args.size(); i++) {
-                values.add(args.get(i));
+            System.out.println("Mocking method: " + mockMethod + " (Util.loadXml is " + Util.loadXml + " and args.size() is " + args.size() + ")");
+            if (Util.loadXml && args.size() > 1) {
+                Expression right = args.get(1);
+                if (right.isStringLiteralExpr() && args.size() == 3 && right.toString().startsWith("\"@") &&
+                        (right.toString().endsWith(".xml\"") || right.toString().endsWith(".txt\"") || right.toString().endsWith(".java\""))) {
+                    Type rhsType = Util.getTypeFromStr(args.get(2).toString().replace("\"", ""));
+                    right = parseNonPrimitiveExpression(rhsType, right.asStringLiteralExpr().getValue());
+                    System.out.println("Adding mocked value for " + mockMethod + ": " + right);
+                    values.add(right);
+                } else if (right.isStringLiteralExpr() && args.size() == 2 && right.toString().startsWith("\"@") &&
+                        (right.toString().endsWith(".txt\""))) {
+                    Type rhsType = Util.getTypeFromStr("String");
+                    right = parseNonPrimitiveExpression(rhsType, right.asStringLiteralExpr().getValue());
+                    System.out.println("Adding mocked value for " + mockMethod + ": " + right);
+                    values.add(right);
+                } else {
+                    if (args.size() > 2) {
+                        System.out.println("loadXml is true and there are more than 2 arguments, removing the last argument...");
+                        for (int i = 1; i < args.size() - 1; i++) { // we need to remove type
+                            values.add(args.get(i));
+                        }
+                    } else {
+                        for (int i = 1; i < args.size(); i++) {
+                            values.add(args.get(i));
+                        }
+                    }
+                }
+            } else {
+                for (int i = 1; i < args.size(); i++) {
+                    values.add(args.get(i));
+                }
             }
         }
 
         if (methodCall.getScope().isPresent()) {
             parseBlockTest(methodCall.getScope().get(), blockTest, symbolTable);
         }
+    }
+
+    private Type getTypeUsingJavaParser(HashMap<String, Type> symbolTable, Expression left, Type leftType) {
+        try {
+            System.out.println("Determining the type of " + left + " using JavaParser");
+            String leftTypeStr = TypeResolver.sSymbolResolver.calculateType(left).describe();
+            leftType = Util.getTypeFromStr(leftTypeStr);
+
+            boolean wrongType = leftType != null && (leftType.toString().equals("java.lang.Class<?>") || leftType.toString().equals("U") || leftType.toString().contains("InferenceVariable_"));
+            if (leftType == null || leftType.isUnknownType() || wrongType) {
+                System.out.println("Unable to determine type");
+                return null;
+            }
+
+            if (leftType.isWildcardType()) {
+                // change ? super java.lang.String to java.lang.String
+                if (leftType.asWildcardType().getSuperType().isPresent()) {
+                    leftType = leftType.asWildcardType().getSuperType().get();
+                } else if (leftType.asWildcardType().getExtendedType().isPresent()) {
+                    leftType = leftType.asWildcardType().getExtendedType().get();
+                }
+            }
+
+            symbolTable.put(left.toString(), leftType);
+            System.out.println("JavaParser says the type is " + leftType + " (orig: " + leftTypeStr + ")");
+        } catch (Exception ignored) {
+            System.out.println("Unable to determine type");
+        }
+        return leftType;
     }
 
     private static Type getVariableType(HashMap<String, Type> symbolTable, Expression left, Expression right) {
@@ -505,6 +686,7 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 }
             }
         }
+        // TODO: update symbolTable?
         if (leftType != null && leftType.isWildcardType()) {
             // change ? super java.lang.String to java.lang.String
             if (leftType.asWildcardType().getSuperType().isPresent()) {
@@ -520,6 +702,11 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
     }
 
     private static Type inferElementType(Expression right, boolean primitive) {
+        if (right.isUnaryExpr()) {
+            // handle negative sign (-)
+            right = right.asUnaryExpr().getExpression();
+        }
+
         if (right.isObjectCreationExpr()) {
             ObjectCreationExpr oce = right.asObjectCreationExpr();
 
@@ -685,6 +872,8 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             }
 
             // Renamed variable based on given's renameGivenVariables
+            // TODO: clone CU so that test won't affect each other?
+//            parentNode = parentNode.clone(); // not sure if we need this
             Util.replaceExpressionsWithVariables(parentNode, blockTest.renameGivenVariables);
 
             // Searching target statement
@@ -966,6 +1155,55 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
         return false;
     }
 
+    // From inline test
+    // Source: https://github.com/EngineeringSoftware/inlinetest/blob/e109bf8d4c484b51b64b2d7183e9f69cd245e6e2/java/src/main/java/org/inlinetest/InlineTestRunnerSourceCode.java#L462
+    private static Expression parseNonPrimitiveExpression(Type type, String location) {
+        // if the expression is not primitive type, expression represent the path to
+        // serialized objects
+        // (Route) BTest.xstream.fromXML(java.nio.file.Paths.get(System.getProperty("user.dir") +
+        // "/.blocktests/serialized-data/" + "a.xml").toFile())
+        if (location.endsWith(".xml")) {
+            return new CastExpr(type, new MethodCallExpr(new NameExpr("BTest.xstream"), "fromXML")
+                    .addArgument(new MethodCallExpr(new MethodCallExpr(new NameExpr("java.nio.file.Paths"), "get")
+                            .addArgument(
+                                    new BinaryExpr().setLeft(
+                                                    new MethodCallExpr(new NameExpr("System"), "getProperty")
+                                                            .addArgument(new StringLiteralExpr("user.dir")))
+                                            .setOperator(BinaryExpr.Operator.PLUS)
+                                            .setRight(
+                                                    new BinaryExpr()
+                                                            .setLeft(new StringLiteralExpr("/.blocktests/serialized-data/"))
+                                                            .setOperator(BinaryExpr.Operator.PLUS)
+                                                            .setRight(new StringLiteralExpr(location.substring(1))))),
+                            "toFile")));
+        } else {
+            if (Util.appSrcPath == null) {
+                System.out.println("App src path " + Util.appSrcPath + " does not exist");
+                return null;
+            }
+            Path srcPath = Paths.get(Util.appSrcPath);
+            while (!Files.exists(Paths.get(srcPath + File.separator + ".blocktests" + File.separator + "serialized-data"))) {
+                srcPath = srcPath.getParent();
+            }
+            String dataPath = srcPath + File.separator + ".blocktests" + File.separator + "serialized-data" + File.separator + location.substring(1);
+            if (!Files.exists(Paths.get(dataPath))) {
+                System.out.println("Data file " + dataPath + " does not exist");
+                return null;
+            }
+
+            try {
+                String content = new String(Files.readAllBytes(Paths.get(dataPath)));
+                if (location.endsWith(".txt")) {
+                    return new StringLiteralExpr(content);
+                } else {
+                    return StaticJavaParser.parseExpression(content);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new NullLiteralExpr();
+            }
+        }
+    }
 
     @Override
     public void visit(BlockStmt blockStmt, Context ctx) {

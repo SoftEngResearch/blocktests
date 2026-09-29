@@ -4,9 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.stmt.CatchClause;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 public class VariablesCollectionVisitor extends VoidVisitorAdapter<Void> {
@@ -27,5 +29,13 @@ public class VariablesCollectionVisitor extends VoidVisitorAdapter<Void> {
             assignedVariables.add(target.asNameExpr().getNameAsString());
         }
         super.visit(ae, arg);
+    }
+
+    @Override
+    public void visit(CatchClause n, Void arg) {
+        Parameter p = n.getParameter();
+        String name = p.getNameAsString();
+        declaredVariables.add(name);
+        super.visit(n, arg);
     }
 }

@@ -8,18 +8,18 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
 import org.blocktest.types.GivenVariable;
-import org.checkerframework.checker.units.qual.A;
+
 
 import static org.blocktest.types.EndAt.LAST_REFERENCE;
 
 public class BlockTest implements Cloneable{
+
     public String testName;
     public int lineNo;
     public int startLineNo;
@@ -31,6 +31,7 @@ public class BlockTest implements Cloneable{
     public BlockStmt statements;
     public List<Node> junitAssertions;
     public List<Node> junitLambdaAssertions;
+    public boolean notReturn;
     public Set<String> assertedVariables;
     public Set<String> blockVariables;
     public Node exception;
@@ -41,6 +42,7 @@ public class BlockTest implements Cloneable{
     public boolean endAfter;
     public boolean endReversed;
     public List<Flow> flows;
+    public String controlFlow;
     public long delay;
     public Map<String, List<Expression>> mockMethods;
 
@@ -70,9 +72,12 @@ public class BlockTest implements Cloneable{
         this.endAfter = true;
         this.endReversed = false;
         this.flows = new ArrayList<>();
+        this.controlFlow = null;
         this.delay = 0;
         this.mockMethods = new HashMap<>();
         this.lambdaParameters = new ArrayList<>();
+
+        this.notReturn = false;
     }
 
     @Override
@@ -117,6 +122,8 @@ public class BlockTest implements Cloneable{
                 sb.append(" -> ").append(flow.toString());
             }
             sb.append("\n");
+        } else if (controlFlow != null) {
+            sb.append("Required control flow: ").append(controlFlow).append("\n");
         }
         sb.append("}\n");
 
@@ -138,6 +145,7 @@ public class BlockTest implements Cloneable{
             cloned.localSymbolTable = new HashMap<>(this.localSymbolTable);
             cloned.localAssignments = new HashMap<>(this.localAssignments);
             cloned.flows = new ArrayList<>(this.flows);
+            cloned.controlFlow = this.controlFlow;
             cloned.mockMethods = new HashMap<>();
             for (Map.Entry<String, List<Expression>> entry : this.mockMethods.entrySet()) {
                 cloned.mockMethods.put(entry.getKey(), new ArrayList<>(entry.getValue()));

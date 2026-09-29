@@ -22,6 +22,7 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
@@ -34,11 +35,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.EmptyStmt;import com.github.javaparser.ast.stmt.ExpressionStmt;import com.github.javaparser.ast.type.VoidType;import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;import org.blocktest.types.StaticMethod;
 import org.blocktest.utils.Util;
-import org.blocktest.visitors.BlockTestConversionVisitor;
-import org.blocktest.visitors.DeclarationRemovalVisitor;
-import org.blocktest.visitors.ExtractionVisitor;
-import org.blocktest.visitors.LambdaTransformationVisitor;
-import org.blocktest.visitors.ThisFieldReplacementVisitor;
+import org.blocktest.visitors.*;
 
 public class TestExtraction {
 
@@ -82,7 +79,9 @@ public class TestExtraction {
                         staticPrivateFields.add(classNameTmp);
                         fd.setPrivate(false);
                     }
-                    fd.getVariables().forEach(v -> staticFields.put(v.getNameAsString(), classNameTmp));
+                    if (Util.rewriteStaticVar) {
+                        fd.getVariables().forEach(v -> staticFields.put(v.getNameAsString(), classNameTmp));
+                    }
                 }
             });
         });
@@ -96,6 +95,7 @@ public class TestExtraction {
                 String name = n.getNameAsString();
                 if (staticFields.containsKey(name)) {
                     String className = staticFields.get(name);
+                    System.out.println("Replacing implicit static field access: " + name + " with " + className + "." + name);
                     n.replace(new FieldAccessExpr(new NameExpr(className), name));
                 }
             }
@@ -106,7 +106,22 @@ public class TestExtraction {
 
         cu.accept(new LambdaTransformationVisitor(), null);
 
+        cu.accept(new GivenTransformationVisitor(), null);
+
         cu.accept(new ThisFieldReplacementVisitor(), null);
+
+
+        // Here, we want to write CU to tmp file, then load CU again (with all the transformation)
+        try {
+            Path path = Files.createTempFile("blocktest_tmp", ".java");
+            Files.write(path, cu.toString().getBytes());
+            System.out.println("Writing to tmp file: " + path);
+            cu = StaticJavaParser.parse(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
 
         ExtractionVisitor visitor = new ExtractionVisitor(blockTests);
         visitor.visit(cu, new ExtractionVisitor.Context());
@@ -209,12 +224,38 @@ public class TestExtraction {
                     usedStaticMethods.add(sm);
                 }
             }
-            
+
+            // For each method, rename it (this cannot be done outside because block tests can reside in different classes),
+            // and replace "this" with the class name.
+            method.accept(new ThisVariableReplacementVisitor(blockTest.className), null);
+
+            // Previously, we insert class name to static variable (staticVar -> ClassName.staticVar)
+            // If given variables contain static variables, want to reverse the change (ClassName.staticVar -> staticVar)
+            if (!staticFields.isEmpty()) {
+                System.out.println("Checking for static field access to revert...");
+                method.accept(new VoidVisitorAdapter<Void>() {
+                    @Override
+                    public void visit(FieldAccessExpr n, Void arg) {
+                        super.visit(n, arg);
+
+                        String fieldName = n.getNameAsString();
+                        String className = n.getScope().toString();
+                        System.out.println("Checking field access variable " + fieldName + " is static and given variable");
+                        if (staticFields.containsKey(fieldName) && blockTest.givenVariables.stream().anyMatch(i -> i.split("__")[0].equals(fieldName))) {
+                            System.out.println("Reverting explicit static field access: " + className + "." + fieldName + " back to " + fieldName);
+                            n.replace(new NameExpr(fieldName));
+                        }
+                    }
+                }, null);
+            }
+
             if (coverage) {
                 MethodDeclaration method2 = method.setPublic(true).clone();
-                originalCU.findAll(ClassOrInterfaceDeclaration.class).forEach(cls -> {
+                originalCU.findAll(ClassOrInterfaceDeclaration.class).stream()
+                        .filter(cls -> !cls.isNestedType())
+                        .forEach(cls -> {
                     String classNameTmp = cls.getNameAsString();
-                    System.out.println("Coverage mode: found " + blockTest.className + " vs " + classNameTmp);
+                    System.out.println("Test Coverage mode: found " + blockTest.className + " vs " + classNameTmp);
                     cls.addMember(method2);
                 });
             } else {
@@ -262,6 +303,90 @@ public class TestExtraction {
         if (!staticPrivateFields.isEmpty()) {
             // We convert all private static fields to non-private
             changedToPublic = true;
+        }
+
+        if (Util.allPublic) {
+            // Convert inner classes to public
+            System.out.println("Rewriting all inner classes to public");
+            String fileNameWithoutExtension = Paths.get(inputFileSource).getFileName().toString().replaceAll("\\.java$", "");
+            for (ClassOrInterfaceDeclaration cls : originalCU.findAll(ClassOrInterfaceDeclaration.class)) {
+                boolean isTopLevel = cls.getParentNode()
+                        .map(p -> p instanceof CompilationUnit)
+                        .orElse(false);
+                System.out.println("Processing " + cls.getNameAsString() + " (is top level: " + isTopLevel + ", is public: " + cls.isPublic() + ")");
+                if (isTopLevel) {
+                    // Only make the top-level class public if its name matches the filename
+                    if (cls.getNameAsString().equals(fileNameWithoutExtension)) {
+                        if (!cls.isPublic()) {
+                            System.out.println("Changing class " + cls.getNameAsString() + " to public");
+                            cls.setPrivate(false);
+                            cls.setProtected(false);
+                            cls.setPublic(true);
+                            changedToPublic = true;
+                        }
+                    }
+                } else {
+                    // Inner/nested classes can all be made public safely
+                    if (!cls.isPublic()) {
+                        System.out.println("Changing inner class " + cls.getNameAsString() + " to public");
+                        cls.setPrivate(false);
+                        cls.setProtected(false);
+                        cls.setPublic(true);
+                        changedToPublic = true;
+                    }
+                }
+            }
+
+            System.out.println("Rewriting all static method to public");
+            for (MethodDeclaration method : originalCU.findAll(MethodDeclaration.class, MethodDeclaration::isStatic)) {
+                Optional<String> name = method.findAncestor(ClassOrInterfaceDeclaration.class)
+                        .map(ClassOrInterfaceDeclaration::getNameAsString);
+                if (name.isPresent() && !method.isPublic()) {
+                    method.setPrivate(false);
+                    method.setProtected(false);
+                    method.setPublic(true);
+                    changedToPublic = true;
+                }
+            }
+
+            // Convert all variables to public
+            System.out.println("Rewriting all field variables to public");
+            for (FieldDeclaration fd : originalCU.findAll(FieldDeclaration.class)) {
+                if (!fd.isPublic()) {
+                    fd.setPrivate(false);
+                    fd.setProtected(false);
+                    fd.setPublic(true);
+                    changedToPublic = true;
+                }
+            }
+
+            // Convert all enum to public
+            for (EnumDeclaration ed : originalCU.findAll(EnumDeclaration.class)) {
+                boolean isTopLevel = ed.getParentNode()
+                        .map(p -> p instanceof CompilationUnit)
+                        .orElse(false);
+
+
+                if (isTopLevel) {
+                    // Only make the top-level enum public if its name matches the filename
+                    if (ed.getNameAsString().equals(fileNameWithoutExtension)) {
+                        if (!ed.isPublic()) {
+                            ed.setPrivate(false);
+                            ed.setProtected(false);
+                            ed.setPublic(true);
+                            changedToPublic = true;
+                        }
+                    }
+                } else {
+                    // Inner/nested enum can all be made public safely
+                    if (!ed.isPublic()) {
+                        ed.setPrivate(false);
+                        ed.setProtected(false);
+                        ed.setPublic(true);
+                        changedToPublic = true;
+                    }
+                }
+            }
         }
 
         // Copy static methods to newCU
