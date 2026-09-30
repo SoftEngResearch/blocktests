@@ -1,10 +1,17 @@
 // From inlinetest
 package org.blocktest.utils;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Expression;
@@ -13,7 +20,6 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ArrayType;
@@ -398,5 +404,35 @@ public class Util {
         });
 
         return blockStmt;
+    }
+
+    public static boolean removeBlockTests(String filePath) {
+        FileInputStream in;
+        try {
+            in = new FileInputStream(filePath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+        CompilationUnit cu = StaticJavaParser.parse(in);
+        AtomicBoolean removed = new AtomicBoolean(false);
+        cu.findAll(ExpressionStmt.class).forEach(stmt -> {
+            if (stmt.getExpression() instanceof MethodCallExpr) {
+                MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
+                if (Util.isTestStatement(call)) {
+                    stmt.remove();
+                    removed.set(true);
+                }
+            }
+        });
+
+        if (removed.get()) {
+            try {
+                Path path = Paths.get(filePath);
+                Files.write(path, cu.toString().getBytes());
+            } catch (Exception ignored){}
+        }
+
+        return removed.get();
     }
 }
