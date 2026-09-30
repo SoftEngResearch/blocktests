@@ -131,7 +131,8 @@ public class Util {
             return isTestStatement(((ExpressionStmt) node).getExpression());
         } else if (node instanceof MethodCallExpr) {
             if (((MethodCallExpr) node).getNameAsString().equals(Constant.DECLARE_NAME)
-                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.DECLARE_NAME_LAMBDA)) {
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.DECLARE_NAME_LAMBDA)
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.DECLARE_NAME_PROP)) {
                 return matched;
             }
 
@@ -198,7 +199,8 @@ public class Util {
                 return isEndStatement(((MethodCallExpr) node).getScope().get(), true);
 
             } else if (matched && (methodCall.getNameAsString().equals(Constant.DECLARE_NAME)
-                    || methodCall.getNameAsString().equals(Constant.DECLARE_NAME_LAMBDA))) {
+                    || methodCall.getNameAsString().equals(Constant.DECLARE_NAME_LAMBDA)
+                    || methodCall.getNameAsString().equals(Constant.DECLARE_NAME_PROP))) {
                 // Match blocktest().end()
                 if (methodCall.getArguments().size() == 1) {
                     // Match blocktest(?).end()

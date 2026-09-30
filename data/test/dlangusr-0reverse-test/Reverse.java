@@ -1,4 +1,4 @@
-// FRAMEWORK: junit5
+// FRAMEWORK: jqwik
 package com.example;
 
 import org.blocktest.BTest;
@@ -19,7 +19,7 @@ public class Reverse {
         while (left < right) {
             T temp = list.get(left); // Cannot be inside block because of generics limitations
 
-            /* @blocktest().given(list, new ArrayList<Integer>(), "List<Integer>")
+            /* @propblocktest().given(list, new ArrayList<Integer>(), "List<Integer>")
                        .given(left, 0).given(right, 1).given(temp, 6, "Integer").setup(() -> { 
                             list.add(6);
                             list.add(7); 

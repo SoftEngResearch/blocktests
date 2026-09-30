@@ -18,6 +18,7 @@ public class Constant {
     }
 
     public final static String DECLARE_NAME = "blocktest";
+    public final static String DECLARE_NAME_PROP = "propblocktest";
     public final static String DECLARE_NAME_LAMBDA = "lambdatest";
     public final static String CHECK_FLOW = "checkFlow";
     public final static String CHECK_EQ = "checkEq";

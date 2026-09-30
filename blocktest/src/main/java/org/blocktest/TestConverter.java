@@ -88,8 +88,12 @@ public class TestConverter {
         MethodDeclaration method = new MethodDeclaration();
         method.setPublic(true);
 
-        if (blockTest.exception == null) {
-            method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Test");
+        if (blockTest.exception == null) { // `exception` flag to handle tests throwing exceptions
+            if  (Util.junitVersion.equals("jqwik")) {
+                method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Example");
+            } else {
+                method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Test");
+            }
         } else {
             if (Util.junitVersion.equals("junit4") || Util.junitVersion.equals("testng")) {
                 // JUnit 4 style
@@ -98,6 +102,8 @@ public class TestConverter {
                 annotation.setName("Test");
                 annotation.setPairs(new NodeList<>(pair));
                 method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addAnnotation(annotation);
+            } else if (Util.junitVersion.equals("jqwik")) {
+                // TODO: Handle tests that throw exceptions in `jqwik`
             } else {
                 // JUnit 5 style
                 LambdaExpr lambda = new LambdaExpr();

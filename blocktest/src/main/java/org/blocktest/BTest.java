@@ -17,6 +17,9 @@ public class BTest {
     public static BTest lambdatest() {
         return btest;
     }
+    public static BTest propblocktest() {
+        return btest;
+    }
 
     public static BTest blocktest(String name) {
         return btest;
