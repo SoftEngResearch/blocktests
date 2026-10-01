@@ -28,7 +28,7 @@ Then, add the block test dependency to your Maven project's `pom.xml`:
 ### Running Block Tests
 After adding block tests to your project, run them with:
 ```
-mvn edu.cornell:sit-runner:1.0-SNAPSHOT:test -DblockTestOnly=true
+mvn edu.cornell:sit-runner:1.0-SNAPSHOT:run -DblockTestOnly=true
 ```
 ### Running Block Tests in Isolation
 To run each block test in a separate JVM process:
