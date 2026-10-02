@@ -29,6 +29,9 @@ import com.github.javaparser.ast.visitor.Visitable;
 import org.blocktest.types.EndAt;
 
 public class BlockTestConversionVisitor extends ModifierVisitor<Void> {
+    /*
+        This converts comment block tests into actual block tests for us to parse later?
+    */
 
     private List<Statement> getBlock(NodeList<Statement> statements) {
         // Work on a copy of statements (to avoid concurrent modification)
@@ -47,7 +50,8 @@ public class BlockTestConversionVisitor extends ModifierVisitor<Void> {
                 stmt.getParentNode().get().getOrphanComments().stream()
                         .filter(i -> stmt.toString().contains(i.toString())).forEach(i -> {
                             String content2 = i.getContent().trim();
-                            if (content2.startsWith("@blocktest") || content2.startsWith("@lambdatest")) {
+                            if (content2.startsWith("@blocktest") || content2.startsWith("@lambdatest")
+                                || content2.startsWith("@propblocktest")) {
                                 String code2 = content2.substring(1).trim();
                                 Statement newStmt2 = code2.endsWith(";") ? StaticJavaParser.parseStatement(code2) : StaticJavaParser.parseStatement(code2 + ";");
                                 newStmts.add(newStmt2);
@@ -56,7 +60,8 @@ public class BlockTestConversionVisitor extends ModifierVisitor<Void> {
                             }
                         });
 
-                if (content.startsWith("@blocktest") || content.startsWith("@lambdatest")) {
+                if (content.startsWith("@blocktest") || content.startsWith("@lambdatest") 
+                    ||content.startsWith("@propblocktest")) {
                     System.out.println("@blocktest! CONVERTING blocktest in comment mode: " + content);
 
                     // Parse comment into code

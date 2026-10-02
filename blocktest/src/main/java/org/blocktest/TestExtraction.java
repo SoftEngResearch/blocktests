@@ -141,7 +141,8 @@ public class TestExtraction {
         } else {
             // remove JUnit and TestNG
             for (ImportDeclaration dec : imports) {
-                if (!dec.getNameAsString().startsWith("org.junit") && !dec.getNameAsString().startsWith("org.testng")) {
+                if (!dec.getNameAsString().startsWith("org.junit") && !dec.getNameAsString().startsWith("org.testng")
+                    && !dec.getNameAsString().startsWith("net.jqwik")) {
                     tmp.add(dec);
                 }
             }
@@ -155,6 +156,10 @@ public class TestExtraction {
         } else if (Util.junitVersion.equals("testng")) {
             testImports.add(new ImportDeclaration("org.testng.annotations.Test", false, false));
             testImports.add(new ImportDeclaration("org.testng.Assert", true, true));
+        } else if (Util.junitVersion.equals("jqwik")) {
+            // TODO: When writting properties need to bring in @Property
+            testImports.add(new ImportDeclaration("net.jqwik.api.Example", false, false));
+            testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true)); 
         } else {
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Test", false, false));
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));

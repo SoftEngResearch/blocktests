@@ -126,6 +126,9 @@ generate_test() {
 	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: testng") ]]; then
 		framework=" --junit_version=testng"
 		echo "TestNG"
+	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: jqwik") ]]; then
+		framework=" --junit_version=jqwik"
+		echo "jqwik"
 	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: junit4") ]]; then
 		echo "Adding JUnit"
 		export ADD_JUNIT=1
@@ -161,9 +164,10 @@ generate_test() {
 		exit 1
 	fi
 	
-	if [[ -z $(grep "@Test" ${fullpath_dir}/${TEST_FILENAME}.java) ]]; then
-		echo "No test case is generated"
-		exit 1
+	# TODO: Add @Property when implemented
+	if [[ -z $(grep -E "@Test|@Example" "${fullpath_dir}/${TEST_FILENAME}.java") ]]; then
+    	echo "No test case is generated"
+    	exit 1
 	fi
 	
 	echo ">>> Time to generate tests: ${DURATION}"

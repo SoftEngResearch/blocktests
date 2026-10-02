@@ -41,7 +41,7 @@ RUN \
   echo "If the step below failed, try changing 3.8.9 to 3.8.10"
 
 RUN \
-  wget http://mirrors.ibiblio.org/apache/maven/maven-3/3.8.9/binaries/apache-maven-3.8.9-bin.tar.gz && \
+  wget https://archive.apache.org/dist/maven/maven-3/3.8.9/binaries/apache-maven-3.8.9-bin.tar.gz && \
   tar -xzf apache-maven-3.8.9-bin.tar.gz && mv apache-maven-3.8.9/ apache-maven/ && \
   rm apache-maven-3.8.9-bin.tar.gz && \
   cd /home/blocktests/ && \

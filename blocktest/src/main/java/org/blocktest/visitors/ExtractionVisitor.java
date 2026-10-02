@@ -104,7 +104,8 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
         }
 
         MethodCallExpr methodCall = (MethodCallExpr) node;
-        if (methodCall.getName().asString().equals(Constant.DECLARE_NAME) || methodCall.getName().asString().equals(Constant.DECLARE_NAME_LAMBDA)) {
+        if (methodCall.getName().asString().equals(Constant.DECLARE_NAME) || methodCall.getName().asString().equals(Constant.DECLARE_NAME_LAMBDA)
+            || methodCall.getName().asString().equals(Constant.DECLARE_NAME_PROP)) {
             if (methodCall.getArguments().size() >= 3) {
                 throw new RuntimeException(methodCall.getName().asString() + " should have arguments less than 3");
             }
