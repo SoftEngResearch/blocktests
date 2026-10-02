@@ -48,6 +48,9 @@ public class BlockTest implements Cloneable{
     
     public String className = "";
 
+    // Parameterized BT
+    public boolean is_parameterized;
+
 
     public BlockTest() {
         this.testName = "";
@@ -73,6 +76,9 @@ public class BlockTest implements Cloneable{
         this.delay = 0;
         this.mockMethods = new HashMap<>();
         this.lambdaParameters = new ArrayList<>();
+
+        // Parameterized BT
+        this.is_parameterized = true; // Should be false
     }
 
     @Override

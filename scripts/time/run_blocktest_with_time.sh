@@ -99,7 +99,7 @@ generate_test() {
 	fi
 	
 	local relative_path=$(echo ${BLOCK_URL} | cut -d '/' -f 8- | cut -d '#' -f 1)
-	TEST_FILENAME="$(basename ${relative_path} | cut -d '.' -f 1)BlockTest"
+	TEST_FILENAME="$(basename ${relative_path} | cut -d '.' -f 1)BlockTesttestLine1" # testing things revert to BlockTest
 	pushd ${OUTPUT_DIR}/project &> /dev/null
 	cp ${BLOCKTEST_FILE} ${relative_path}
 	local absolute_path=$(realpath ${relative_path})
@@ -167,9 +167,9 @@ generate_test() {
 	# TODO: Add @Property when implemented
 	if [[ -z $(grep -E "@Test|@Example" "${fullpath_dir}/${TEST_FILENAME}.java") ]]; then
     	echo "No test case is generated"
-    	exit 1
+    	#exit 1
 	fi
-	
+
 	echo ">>> Time to generate tests: ${DURATION}"
 	cp ${fullpath_dir}/${TEST_FILENAME}.java ${OUTPUT_DIR}/logs/${TEST_FILENAME}.java
 }

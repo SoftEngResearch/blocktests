@@ -29,6 +29,7 @@ public class Constant {
     public final static String CHECK_RETURN_FALSE = "checkReturnFalse";
     public final static String CHECK_EXP = "expect";
     public final static String GIVEN = "given";
+    public final static String PARAMETERIZED = "parameterized";
     public final static String ARGS = "args";
     public final static String ARGS_VAR = "argsVar";
     public final static String END = "end";

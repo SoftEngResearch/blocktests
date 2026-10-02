@@ -1,23 +1,34 @@
 package org.blocktest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.ArrayCreationLevel;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.ArrayCreationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.LongLiteralExpr;
+import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.EmptyStmt;
@@ -25,6 +36,8 @@ import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.TryStmt;
+import com.github.javaparser.ast.type.ArrayType;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
@@ -125,6 +138,91 @@ public class TestConverter {
         System.out.println("\n===== Converted JUnit Test Method =====");
         System.out.println(method);
         return method;
+    }
+
+    public List<BodyDeclaration<?>> toParamJUnit(BlockTest blockTest, boolean coverage) {
+        List<BodyDeclaration<?>> declarations = new ArrayList<>();
+    
+        FieldDeclaration inputField = new FieldDeclaration();
+        inputField.setPublic(true);
+
+        Type int_type = new JavaParser()
+            .parseType("int")
+            .getResult()
+            .orElseThrow(() -> new RuntimeException("Invalid type: " + "int"));
+
+        inputField.addVariable(
+            new VariableDeclarator(
+                int_type,
+                "fInput"
+            )
+        );
+
+        inputField.addAnnotation(
+            new MarkerAnnotationExpr("Parameter")
+        );
+
+        FieldDeclaration expectedField = new FieldDeclaration();
+        expectedField.setPublic(true);
+
+        expectedField.addVariable(
+            new VariableDeclarator(
+                int_type,
+                "fExpected"
+            )
+        );
+
+        SingleMemberAnnotationExpr annotation =
+            new SingleMemberAnnotationExpr();
+
+        annotation.setName("Parameter");
+        annotation.setMemberValue(
+            new IntegerLiteralExpr(String.valueOf(1))
+        );
+
+        expectedField.addAnnotation(annotation);
+    
+        MethodDeclaration parametersMethod = new MethodDeclaration();
+        parametersMethod.setPublic(true);
+        parametersMethod.setStatic(true);
+        parametersMethod.setName("data");
+
+        // Collection<Object[]>
+        ClassOrInterfaceType collectionType =
+            new ClassOrInterfaceType(null, "Collection");
+
+        ClassOrInterfaceType objectType =
+            new ClassOrInterfaceType(null, "Object");
+
+        collectionType.setTypeArguments(
+            new ArrayType(objectType)
+        );
+
+        parametersMethod.setType(collectionType);
+
+        // @Parameterized.Parameters
+        parametersMethod.addAnnotation(
+            new MarkerAnnotationExpr("Parameterized.Parameters")
+        );
+
+        // return new ArrayList<>();
+        ObjectCreationExpr newArrayList =
+            new ObjectCreationExpr(
+                null,
+                new ClassOrInterfaceType(null, "ArrayList"),
+                new NodeList<>()
+            );
+        
+        parametersMethod.setBody(
+            new BlockStmt()
+                .addStatement(new ReturnStmt(newArrayList))
+        );
+    
+        declarations.add(parametersMethod);
+        declarations.add(inputField);
+        declarations.add(expectedField);
+    
+        return declarations;
     }
     
     public MethodDeclaration toSourceCode(BlockTest blockTest) {

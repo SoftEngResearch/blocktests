@@ -352,6 +352,41 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             GivenVariable givenVariable = new GivenVariable(leftType, left.toString(), left, right);
             blockTest.givens.add(givenVariable);
             blockTest.givenVariables.add(left.toString());
+        } else if (methodCall.getName().asString().equals(Constant.PARAMETERIZED)) {
+            // given(variable, value);
+            List<Expression> args = methodCall.getArguments();
+            if (args.size() != 3) {
+                throw new RuntimeException(Constant.GIVEN + " should have 2 or 3 arguments");
+            }
+
+            // given(a, 1) turns into int a = 1;, so it needs to know the type of `a`, which is an int
+            Expression left = args.get(0);
+            if (left instanceof StringLiteralExpr) {
+                left = new NameExpr(((StringLiteralExpr) left).asString());
+            }
+
+            if (left.toString().contains(".") || left.toString().contains("[")) {
+                // need to perform replacement
+                blockTest.renameGivenVariables.add(left.toString());
+                left = new NameExpr(Util.renameGiven(left.toString()));
+            }
+
+            // Infer the type of the left expression
+            Type leftType;
+            if (args.size() == 3) {
+                leftType = Util.getTypeFromStr(args.get(2).toString().replace("\"", ""));
+                symbolTable.put(left.toString(), leftType);
+                System.out.println("DEBUG: Type is provided for " + left.toString() + ": " + leftType.toString());
+            }
+
+            Expression right = args.get(1);
+
+            leftType = getVariableType(symbolTable, left, right);
+
+            GivenVariable givenVariable = new GivenVariable(leftType, left.toString(), left, right);
+            blockTest.givens.add(givenVariable);
+            blockTest.givenVariables.add(left.toString());
+
         } else if (methodCall.getName().asString().equals(Constant.ARGS)) {
             List<Expression> args = methodCall.getArguments();
             if (args.isEmpty()) {
