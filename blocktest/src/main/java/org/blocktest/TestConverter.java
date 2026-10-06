@@ -45,6 +45,7 @@ import com.github.javaparser.ast.visitor.Visitable;
 import org.blocktest.utils.Constant;
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
+import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.visitors.BreakReplacementVisitor;
 import org.blocktest.visitors.DeclarationRemovalVisitor;
 import org.blocktest.visitors.FlowControllingVisitor;
@@ -142,46 +143,24 @@ public class TestConverter {
 
     public List<BodyDeclaration<?>> toParamJUnit(BlockTest blockTest, boolean coverage) {
         List<BodyDeclaration<?>> declarations = new ArrayList<>();
-    
-        FieldDeclaration inputField = new FieldDeclaration();
-        inputField.setPublic(true);
 
-        Type int_type = new JavaParser()
-            .parseType("int")
-            .getResult()
-            .orElseThrow(() -> new RuntimeException("Invalid type: " + "int"));
+        if (blockTest.parameterizedGivens == null || blockTest.parameterizedGivens.isEmpty()
+                || blockTest.parameterValues == null) {
+            throw new RuntimeException("Parameterized block test is missing variables or parameter values");
+        }
 
-        inputField.addVariable(
-            new VariableDeclarator(
-                int_type,
-                "fInput"
-            )
-        );
+        for (GivenParameterizedVariable given : blockTest.parameterizedGivens) {
+            FieldDeclaration field = new FieldDeclaration();
+            field.setPublic(true);
+            field.addVariable(new VariableDeclarator(given.type.clone(), given.name));
 
-        inputField.addAnnotation(
-            new MarkerAnnotationExpr("Parameter")
-        );
+            SingleMemberAnnotationExpr parameterAnnotation = new SingleMemberAnnotationExpr();
+            parameterAnnotation.setName("Parameter");
+            parameterAnnotation.setMemberValue(new IntegerLiteralExpr(String.valueOf(given.index)));
+            field.addAnnotation(parameterAnnotation);
+            declarations.add(field);
+        }
 
-        FieldDeclaration expectedField = new FieldDeclaration();
-        expectedField.setPublic(true);
-
-        expectedField.addVariable(
-            new VariableDeclarator(
-                int_type,
-                "fExpected"
-            )
-        );
-
-        SingleMemberAnnotationExpr annotation =
-            new SingleMemberAnnotationExpr();
-
-        annotation.setName("Parameter");
-        annotation.setMemberValue(
-            new IntegerLiteralExpr(String.valueOf(1))
-        );
-
-        expectedField.addAnnotation(annotation);
-    
         MethodDeclaration parametersMethod = new MethodDeclaration();
         parametersMethod.setPublic(true);
         parametersMethod.setStatic(true);
@@ -205,23 +184,16 @@ public class TestConverter {
             new MarkerAnnotationExpr("Parameterized.Parameters")
         );
 
-        // return new ArrayList<>();
-        ObjectCreationExpr newArrayList =
-            new ObjectCreationExpr(
-                null,
-                new ClassOrInterfaceType(null, "ArrayList"),
-                new NodeList<>()
-            );
-        
         parametersMethod.setBody(
             new BlockStmt()
-                .addStatement(new ReturnStmt(newArrayList))
+                .addStatement(new ReturnStmt(new MethodCallExpr(
+                        new NameExpr("java.util.Arrays"),
+                        "asList",
+                        NodeList.nodeList(blockTest.parameterValues.clone())
+                )))
         );
-    
+
         declarations.add(parametersMethod);
-        declarations.add(inputField);
-        declarations.add(expectedField);
-    
         return declarations;
     }
     
@@ -285,6 +257,7 @@ public class TestConverter {
         collector.assignedVariables.addAll(inBothLocalSymbolTableAndBlock);
         collector.assignedVariables.removeAll(collector.declaredVariables);
         collector.assignedVariables.removeAll(blockTest.givenVariables); // inBothLocalSymbolTableAndBlock's removeAll will not remove given if the variable is already in collector.assignedVariables due to VariablesCollectionVisitor
+        collector.assignedVariables.removeAll(blockTest.parameterizedGivenVariables);
         System.out.println("AAABBB " + collector.assignedVariables + ", " + inBothLocalSymbolTableAndBlock);
 
         for (String var : collector.assignedVariables) {

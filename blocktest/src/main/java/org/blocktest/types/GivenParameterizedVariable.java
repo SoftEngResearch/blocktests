@@ -6,18 +6,18 @@ import com.github.javaparser.ast.expr.NullLiteralExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.type.Type;
 
-public class ParameterizedVariables {
+public class GivenParameterizedVariable {
     public Type type;
     public String name;
 
-    public Expression assignVar;
-    public Expression value;
+    public Expression declVar;
+    public int index;
 
-    public ParameterizedVariables(Type type, String name, Expression assignVar, Expression value) {
+    public GivenParameterizedVariable(Type type, String name, Expression declVar, int index) {
         this.type = type;
         this.name = name;
-        this.assignVar = assignVar;
-        this.value = value;
+        this.declVar = declVar;
+        this.index = index;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ParameterizedVariables {
             throw new RuntimeException("Type cannot be null for GivenVariable: " + name);
         }
 
-        if (this.value == null) {
+        //if (this.value == null) {
             // There is actually a reason why we set to null instead of just declaring the variable
             /*
                 Locale locale;
@@ -52,10 +52,10 @@ public class ParameterizedVariables {
             return new AssignExpr(new VariableDeclarationExpr(type, name),
                     new NullLiteralExpr(),
                     AssignExpr.Operator.ASSIGN);
-        }
+        //}
 
-        return new AssignExpr(new VariableDeclarationExpr(type, name),
-                value,
-                AssignExpr.Operator.ASSIGN);
+        //return new AssignExpr(new VariableDeclarationExpr(type, name),
+        //        value,
+        //        AssignExpr.Operator.ASSIGN);
     }
 }

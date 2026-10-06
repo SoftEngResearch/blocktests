@@ -14,6 +14,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
+import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.types.GivenVariable;
 import org.checkerframework.checker.units.qual.A;
 
@@ -50,6 +51,10 @@ public class BlockTest implements Cloneable{
 
     // Parameterized BT
     public boolean is_parameterized;
+    public List<GivenParameterizedVariable> parameterizedGivens;
+    public List<String> parameterizedGivenVariables;
+    public Set<String> renameParameterizedGivenVariables;
+    public Expression parameterValues;
 
 
     public BlockTest() {
@@ -78,7 +83,13 @@ public class BlockTest implements Cloneable{
         this.lambdaParameters = new ArrayList<>();
 
         // Parameterized BT
-        this.is_parameterized = true; // Should be false
+        this.is_parameterized = false;
+        this.parameterizedGivens = new ArrayList<>();
+        this.parameterizedGivenVariables = new ArrayList<>();
+        this.renameParameterizedGivenVariables = new HashSet<>();
+        this.parameterValues = null;
+
+
     }
 
     @Override

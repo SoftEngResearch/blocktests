@@ -33,6 +33,7 @@ import org.blocktest.BlockTest;
 import org.blocktest.TestExtraction;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
+import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.types.GivenVariable;
 import org.blocktest.utils.Constant;
 import org.blocktest.utils.TypeResolver;
@@ -353,39 +354,78 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             blockTest.givens.add(givenVariable);
             blockTest.givenVariables.add(left.toString());
         } else if (methodCall.getName().asString().equals(Constant.PARAMETERIZED)) {
-            // given(variable, value);
             List<Expression> args = methodCall.getArguments();
-            if (args.size() != 3) {
-                throw new RuntimeException(Constant.GIVEN + " should have 2 or 3 arguments");
+            if (args.size() < 3) {
+                throw new RuntimeException(Constant.PARAMETERIZED
+                        + " should have parameters, types, and variable names");
             }
 
-            // given(a, 1) turns into int a = 1;, so it needs to know the type of `a`, which is an int
-            Expression left = args.get(0);
-            if (left instanceof StringLiteralExpr) {
-                left = new NameExpr(((StringLiteralExpr) left).asString());
+            if (!args.get(0).isArrayCreationExpr()) {
+                throw new RuntimeException(Constant.PARAMETERIZED + " first argument needs to be an Object[][]");
             }
 
-            if (left.toString().contains(".") || left.toString().contains("[")) {
-                // need to perform replacement
-                blockTest.renameGivenVariables.add(left.toString());
-                left = new NameExpr(Util.renameGiven(left.toString()));
+            String typeNames = args.get(1).isStringLiteralExpr()
+                    ? args.get(1).asStringLiteralExpr().asString()
+                    : args.get(1).toString();
+            String[] parameterTypes = typeNames.trim().split("\\s+");
+            List<String> variableNames = new ArrayList<>();
+            for (Expression variableArg : args.subList(2, args.size())) {
+                List<Expression> names = new ArrayList<>();
+                if (variableArg.isArrayCreationExpr()
+                        && variableArg.asArrayCreationExpr().getInitializer().isPresent()) {
+                    names.addAll(variableArg.asArrayCreationExpr().getInitializer().get().getValues());
+                } else if (variableArg.isArrayInitializerExpr()) {
+                    names.addAll(variableArg.asArrayInitializerExpr().getValues());
+                } else {
+                    names.add(variableArg);
+                }
+
+                for (Expression name : names) {
+                    if (name.isStringLiteralExpr()) {
+                        variableNames.add(name.asStringLiteralExpr().asString());
+                    } else if (name.isNameExpr()) {
+                        variableNames.add(name.asNameExpr().getNameAsString());
+                    } else {
+                        throw new RuntimeException(Constant.PARAMETERIZED
+                                + " variable names must be identifiers or strings");
+                    }
+                }
             }
 
-            // Infer the type of the left expression
-            Type leftType;
-            if (args.size() == 3) {
-                leftType = Util.getTypeFromStr(args.get(2).toString().replace("\"", ""));
-                symbolTable.put(left.toString(), leftType);
-                System.out.println("DEBUG: Type is provided for " + left.toString() + ": " + leftType.toString());
+            if (parameterTypes.length != variableNames.size()) {
+                throw new RuntimeException(Constant.PARAMETERIZED
+                        + " should have the same number of types and variable names");
             }
 
-            Expression right = args.get(1);
+            ArrayCreationExpr array = args.get(0).asArrayCreationExpr();
+            if (!array.getInitializer().isPresent()) {
+                throw new RuntimeException(Constant.PARAMETERIZED + " parameters must have an initializer");
+            }
+            ArrayInitializerExpr initializer = array.getInitializer().get();
 
-            leftType = getVariableType(symbolTable, left, right);
+            for (Expression row : initializer.getValues()) {
+                if (!row.isArrayInitializerExpr()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED + " each row must be an array");
+                }
 
-            GivenVariable givenVariable = new GivenVariable(leftType, left.toString(), left, right);
-            blockTest.givens.add(givenVariable);
-            blockTest.givenVariables.add(left.toString());
+                if (row.asArrayInitializerExpr().getValues().size() != variableNames.size()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED
+                            + " each row must have one value for each variable");
+                }
+            }
+
+            blockTest.is_parameterized = true;
+            blockTest.parameterValues = args.get(0).clone();
+            blockTest.parameterizedGivens = new ArrayList<>();
+            blockTest.parameterizedGivenVariables = new ArrayList<>();
+            for (int i = 0; i < variableNames.size(); i++) {
+                String variableName = variableNames.get(i);
+                Type variableType = Util.getTypeFromStr(parameterTypes[i]);
+                blockTest.parameterizedGivens.add(new GivenParameterizedVariable(
+                        variableType, variableName, new NameExpr(variableName), i));
+                blockTest.parameterizedGivenVariables.add(variableName);
+                symbolTable.put(variableName, variableType);
+            }
 
         } else if (methodCall.getName().asString().equals(Constant.ARGS)) {
             List<Expression> args = methodCall.getArguments();

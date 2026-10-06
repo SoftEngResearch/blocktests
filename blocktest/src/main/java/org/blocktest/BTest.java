@@ -62,7 +62,7 @@ public class BTest {
         return btest;
     }
 
-    // We pass a collection containing values for tests, the types of each row in the collection, 
+    // We pass a collection containing values for tests, the types of each column in the collection, 
     // and the name of variables in the block to be "filled in" with the values from the collection
     public BTest parameterized(Object parameters, Object types, Object... variables) {
         return btest;
