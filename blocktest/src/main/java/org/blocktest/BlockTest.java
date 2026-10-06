@@ -14,6 +14,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
+import org.blocktest.types.GivenAllVariable;
 import org.blocktest.types.GivenVariable;
 import org.checkerframework.checker.units.qual.A;
 
@@ -25,6 +26,7 @@ public class BlockTest implements Cloneable{
     public int startLineNo;
     public int endLineNo;
     public List<GivenVariable> givens;
+    public List<GivenAllVariable> givenAlls;
     public List<String> givenVariables;
     public Set<String> renameGivenVariables;
     public BlockStmt setupBlock;
@@ -52,6 +54,7 @@ public class BlockTest implements Cloneable{
     public BlockTest() {
         this.testName = "";
         this.givens = new ArrayList<>();
+        this.givenAlls = new ArrayList<>();
         this.givenVariables = new ArrayList<>();
         this.renameGivenVariables = new HashSet<>();
         this.setupBlock = null;
@@ -82,6 +85,11 @@ public class BlockTest implements Cloneable{
         sb.append("Given:\n");
         for (GivenVariable given : givens) {
             sb.append("  ").append(given.toString()).append("\n");
+        }
+
+        sb.append("GivenAll:\n");
+        for (GivenAllVariable givenAll : givenAlls) {
+            sb.append("  ").append(givenAll.toString()).append("\n");
         }
 
         sb.append("Statement:\n");
@@ -129,6 +137,7 @@ public class BlockTest implements Cloneable{
             BlockTest cloned = (BlockTest) super.clone();
             
             cloned.givens = new ArrayList<>(this.givens);
+            cloned.givenAlls = new ArrayList<>(this.givenAlls);
             cloned.givenVariables = new ArrayList<>(this.givenVariables);
             cloned.renameGivenVariables = new HashSet<>(this.renameGivenVariables);
             cloned.junitAssertions = new ArrayList<>(this.junitAssertions);

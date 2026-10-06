@@ -27,6 +27,9 @@ public class BTest {
     public static BTest lambdatest(String name) {
         return btest;
     }
+    public static BTest propblocktest(String name) {
+        return btest;
+    }
 
     public BTest checkEq(Object actual, Object expected) {
         return btest;
@@ -57,6 +60,14 @@ public class BTest {
     }
 
     public BTest given(Object variable, Object value, Object type) {
+        return btest;
+    }
+
+    public BTest givenAll(Object variable) {
+        return btest;
+    }
+
+    public BTest givenAll(Object variable, Object type) {
         return btest;
     }
 

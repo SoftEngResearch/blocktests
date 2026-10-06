@@ -7,7 +7,9 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
@@ -29,6 +31,7 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
+import org.blocktest.types.GivenAllVariable;
 import org.blocktest.utils.Constant;
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
@@ -89,8 +92,13 @@ public class TestConverter {
         method.setPublic(true);
 
         if (blockTest.exception == null) { // `exception` flag to handle tests throwing exceptions
-            if  (Util.junitVersion.equals("jqwik")) {
-                method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Example");
+            if (Util.junitVersion.equals("jqwik")) {
+                if (!blockTest.givenAlls.isEmpty()) {
+                    method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Property");
+                    addGivenAllParameters(method, blockTest);
+                } else if (!blockTest.givens.isEmpty()) {
+                    method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Example");
+                }
             } else {
                 method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Test");
             }
@@ -164,6 +172,20 @@ public class TestConverter {
         
         method.setStatic(true);
         return method;
+    }
+
+    private void addGivenAllParameters(MethodDeclaration method, BlockTest blockTest) {
+        for (int i = blockTest.givenAlls.size() - 1; i >= 0; i--) {
+            // Build the parameter (annotation, type, name) from the givenAll variable
+            GivenAllVariable givenAll = blockTest.givenAlls.get(i);
+            VariableDeclarationExpr declaration = givenAll.toAssignExpr().asVariableDeclarationExpr();
+            VariableDeclarator declarator = declaration.getVariable(0);
+            Parameter parameter = new Parameter(declarator.getType().clone(), declarator.getNameAsString());
+            for (AnnotationExpr annotation : declaration.getAnnotations()) {
+                parameter.addAnnotation(annotation.clone());
+            }
+            method.addParameter(parameter);
+        }
     }
 
     private void addGivenStatements(BlockStmt body, BlockTest blockTest) {

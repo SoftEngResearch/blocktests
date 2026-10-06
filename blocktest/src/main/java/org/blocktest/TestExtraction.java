@@ -157,9 +157,14 @@ public class TestExtraction {
             testImports.add(new ImportDeclaration("org.testng.annotations.Test", false, false));
             testImports.add(new ImportDeclaration("org.testng.Assert", true, true));
         } else if (Util.junitVersion.equals("jqwik")) {
-            // TODO: When writting properties need to bring in @Property
-            testImports.add(new ImportDeclaration("net.jqwik.api.Example", false, false));
-            testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true)); 
+            testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));
+            if (blockTests.stream().anyMatch(blockTest -> !blockTest.givens.isEmpty())) {
+                testImports.add(new ImportDeclaration("net.jqwik.api.Example", false, false));
+            }
+            if (blockTests.stream().anyMatch(blockTest -> !blockTest.givenAlls.isEmpty())) {
+                testImports.add(new ImportDeclaration("net.jqwik.api.ForAll", false, false));
+                testImports.add(new ImportDeclaration("net.jqwik.api.Property", false, false));
+            }
         } else {
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Test", false, false));
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));
