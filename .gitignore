@@ -1,6 +1,8 @@
 blocktest/target
 blocktest/dependency-reduced-pom.xml
 
+scripts/*/target
+
 extension/target
 
 workspace/output
