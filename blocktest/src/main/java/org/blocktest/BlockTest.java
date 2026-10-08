@@ -8,15 +8,14 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
 import org.blocktest.types.GivenAllVariable;
+import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.types.GivenVariable;
-import org.checkerframework.checker.units.qual.A;
 
 import static org.blocktest.types.EndAt.LAST_REFERENCE;
 
@@ -50,6 +49,13 @@ public class BlockTest implements Cloneable{
     
     public String className = "";
 
+    // Parameterized BT
+    public boolean is_parameterized;
+    public List<GivenParameterizedVariable> parameterizedGivens;
+    public List<String> parameterizedGivenVariables;
+    public Set<String> renameParameterizedGivenVariables;
+    public Expression parameterValues;
+
 
     public BlockTest() {
         this.testName = "";
@@ -76,6 +82,15 @@ public class BlockTest implements Cloneable{
         this.delay = 0;
         this.mockMethods = new HashMap<>();
         this.lambdaParameters = new ArrayList<>();
+
+        // Parameterized BT
+        this.is_parameterized = false;
+        this.parameterizedGivens = new ArrayList<>();
+        this.parameterizedGivenVariables = new ArrayList<>();
+        this.renameParameterizedGivenVariables = new HashSet<>();
+        this.parameterValues = null;
+
+
     }
 
     @Override

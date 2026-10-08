@@ -1,32 +1,39 @@
 package org.blocktest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.expr.LongLiteralExpr;
+import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.TryStmt;
+import com.github.javaparser.ast.type.ArrayType;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
@@ -35,6 +42,7 @@ import org.blocktest.types.GivenAllVariable;
 import org.blocktest.utils.Constant;
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
+import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.visitors.BreakReplacementVisitor;
 import org.blocktest.visitors.DeclarationRemovalVisitor;
 import org.blocktest.visitors.FlowControllingVisitor;
@@ -134,6 +142,62 @@ public class TestConverter {
         System.out.println(method);
         return method;
     }
+
+    public List<BodyDeclaration<?>> toParamJUnit(BlockTest blockTest, boolean coverage) {
+        List<BodyDeclaration<?>> declarations = new ArrayList<>();
+
+        if (blockTest.parameterizedGivens == null || blockTest.parameterizedGivens.isEmpty()
+                || blockTest.parameterValues == null) {
+            throw new RuntimeException("Parameterized block test is missing variables or parameter values");
+        }
+
+        for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
+            FieldDeclaration field = new FieldDeclaration();
+            field.setPublic(true);
+            field.addVariable(new VariableDeclarator(parameterizedGiven.type.clone(), parameterizedGiven.name));
+
+            SingleMemberAnnotationExpr parameterAnnotation = new SingleMemberAnnotationExpr();
+            parameterAnnotation.setName("Parameter");
+            parameterAnnotation.setMemberValue(new IntegerLiteralExpr(String.valueOf(parameterizedGiven.index)));
+            field.addAnnotation(parameterAnnotation);
+            declarations.add(field);
+        }
+
+        MethodDeclaration parametersMethod = new MethodDeclaration();
+        parametersMethod.setPublic(true);
+        parametersMethod.setStatic(true);
+        parametersMethod.setName("data");
+
+        // Collection<Object[]>
+        ClassOrInterfaceType collectionType =
+            new ClassOrInterfaceType(null, "Collection");
+
+        ClassOrInterfaceType objectType =
+            new ClassOrInterfaceType(null, "Object");
+
+        collectionType.setTypeArguments(
+            new ArrayType(objectType)
+        );
+
+        parametersMethod.setType(collectionType);
+
+        // @Parameterized.Parameters
+        parametersMethod.addAnnotation(
+            new MarkerAnnotationExpr("Parameterized.Parameters")
+        );
+
+        parametersMethod.setBody(
+            new BlockStmt()
+                .addStatement(new ReturnStmt(new MethodCallExpr(
+                        new NameExpr("java.util.Arrays"),
+                        "asList",
+                        NodeList.nodeList(blockTest.parameterValues.clone())
+                )))
+        );
+
+        declarations.add(parametersMethod);
+        return declarations;
+    }
     
     public MethodDeclaration toSourceCode(BlockTest blockTest) {
         System.out.println(blockTest);
@@ -209,6 +273,7 @@ public class TestConverter {
         collector.assignedVariables.addAll(inBothLocalSymbolTableAndBlock);
         collector.assignedVariables.removeAll(collector.declaredVariables);
         collector.assignedVariables.removeAll(blockTest.givenVariables); // inBothLocalSymbolTableAndBlock's removeAll will not remove given if the variable is already in collector.assignedVariables due to VariablesCollectionVisitor
+        collector.assignedVariables.removeAll(blockTest.parameterizedGivenVariables);
         System.out.println("AAABBB " + collector.assignedVariables + ", " + inBothLocalSymbolTableAndBlock);
 
         for (String var : collector.assignedVariables) {
