@@ -1,0 +1,11 @@
+blocktest/target
+blocktest/dependency-reduced-pom.xml
+
+scripts/*/target
+
+extension/target
+
+workspace/output
+workspace/toy-app/target
+workspace/toy-app/src/test/java/toy/ReverseListBlockTest.java
+workspace/toy-app/.jqwik-database
