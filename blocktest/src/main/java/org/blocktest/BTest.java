@@ -1,7 +1,5 @@
 package org.blocktest;
 
-import java.util.Optional;
-
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
 

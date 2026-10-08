@@ -354,7 +354,9 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             blockTest.givens.add(givenVariable);
             blockTest.givenVariables.add(left.toString());
         } else if (methodCall.getName().asString().equals(Constant.PARAMETERIZED)) {
+            
             List<Expression> args = methodCall.getArguments();
+
             if (args.size() < 3) {
                 throw new RuntimeException(Constant.PARAMETERIZED
                         + " should have parameters, types, and variable names");
@@ -367,28 +369,19 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             String typeNames = args.get(1).isStringLiteralExpr()
                     ? args.get(1).asStringLiteralExpr().asString()
                     : args.get(1).toString();
-            String[] parameterTypes = typeNames.trim().split("\\s+");
-            List<String> variableNames = new ArrayList<>();
-            for (Expression variableArg : args.subList(2, args.size())) {
-                List<Expression> names = new ArrayList<>();
-                if (variableArg.isArrayCreationExpr()
-                        && variableArg.asArrayCreationExpr().getInitializer().isPresent()) {
-                    names.addAll(variableArg.asArrayCreationExpr().getInitializer().get().getValues());
-                } else if (variableArg.isArrayInitializerExpr()) {
-                    names.addAll(variableArg.asArrayInitializerExpr().getValues());
-                } else {
-                    names.add(variableArg);
-                }
 
-                for (Expression name : names) {
-                    if (name.isStringLiteralExpr()) {
-                        variableNames.add(name.asStringLiteralExpr().asString());
-                    } else if (name.isNameExpr()) {
-                        variableNames.add(name.asNameExpr().getNameAsString());
-                    } else {
-                        throw new RuntimeException(Constant.PARAMETERIZED
-                                + " variable names must be identifiers or strings");
-                    }
+            String[] parameterTypes = typeNames.trim().split("\\s+");
+
+            List<String> variableNames = new ArrayList<>();
+
+            for (Expression variableName : args.subList(2, args.size())) {
+                if (variableName.isStringLiteralExpr()) {
+                    variableNames.add(variableName.asStringLiteralExpr().asString());
+                } else if (variableName.isNameExpr()) {
+                    variableNames.add(variableName.asNameExpr().getNameAsString());
+                } else {
+                    throw new RuntimeException(Constant.PARAMETERIZED
+                            + " variable names must be identifiers or strings");
                 }
             }
 
@@ -418,13 +411,13 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             blockTest.parameterValues = args.get(0).clone();
             blockTest.parameterizedGivens = new ArrayList<>();
             blockTest.parameterizedGivenVariables = new ArrayList<>();
+
             for (int i = 0; i < variableNames.size(); i++) {
                 String variableName = variableNames.get(i);
                 Type variableType = Util.getTypeFromStr(parameterTypes[i]);
                 blockTest.parameterizedGivens.add(new GivenParameterizedVariable(
                         variableType, variableName, new NameExpr(variableName), i));
                 blockTest.parameterizedGivenVariables.add(variableName);
-                symbolTable.put(variableName, variableType);
             }
 
         } else if (methodCall.getName().asString().equals(Constant.ARGS)) {
