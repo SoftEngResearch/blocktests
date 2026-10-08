@@ -262,8 +262,6 @@ public class TestExtraction {
                 // Because all JUNIT4 tests in the same class
                 // share the same parameters we need to create a new 
                 // test class for each block assuming blocks do not share parameters
-
-                //TODO: Add call here, need to take blockTest
                 continue;
             }
         }
