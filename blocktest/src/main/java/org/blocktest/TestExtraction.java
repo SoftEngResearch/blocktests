@@ -60,7 +60,7 @@ public class TestExtraction {
 
     // The way this function executes depends a lot on the version of junit etc we should refactor to call 
     // specific function as needed for each tasting framework
-    static List extractTest(String inputFileSource, String testOutputFile, String testedClassName,
+    static List extractTestsToSameClass(String inputFileSource, String testOutputFile, String testedClassName,
                             String className, int duplicatedTestCount, boolean coverage, boolean rewrite, boolean compile) {
         FileInputStream in;
         try {
@@ -124,7 +124,6 @@ public class TestExtraction {
         cu.accept(new ThisFieldReplacementVisitor(), null);
 
         ExtractionVisitor visitor = new ExtractionVisitor(blockTests);
-        // Here is a block test is parameterized I need to generate a new class for it to run by itself
         visitor.visit(cu, new ExtractionVisitor.Context());
 
         String packageName = null;
@@ -269,8 +268,6 @@ public class TestExtraction {
             }
         }
 
-        System.out.println("PEPEGACLAP");
-        
         if (duplicatedTestCount > 1) {
             // Generate an empty method
              MethodDeclaration method = new MethodDeclaration();
@@ -339,7 +336,6 @@ public class TestExtraction {
             });
         }
 
-        System.out.println("DAVIDPEPEGA");
         try {
             Path path = Paths.get(testOutputFile);
             Files.createDirectories(path.getParent());
@@ -360,7 +356,7 @@ public class TestExtraction {
         }
         return blockTests;
     }
-    static void extractParamTest(String inputFileSource, String testOutputFile, String testedClassName,
+    static void extractTestsToNewClasses(String inputFileSource, String testOutputFile, String testedClassName,
                             String className, List<BlockTest> blockTests, int duplicatedTestCount, boolean coverage, boolean rewrite, boolean compile) {
         FileInputStream in;
         try {
@@ -497,7 +493,7 @@ public class TestExtraction {
                     testImports.add(new ImportDeclaration(testedClassName, true, true));
                 }
             }
-            
+
             if (blockTest.testName.isEmpty()) {
                 blockTest.testName = "testLine" + blockTest.lineNo;
             }
@@ -626,7 +622,7 @@ public class TestExtraction {
 
             String paramTestOutputFile;
             if (testOutputFile == null || testOutputFile.isEmpty()) {
-                System.out.println("DAVID No output file specified, skipping file write.");
+                System.out.println("No output file specified, skipping file write.");
                 continue;
             } else {
                 paramTestOutputFile = testOutputFile.replace(".java", "")+blockTest.testName + ".java";
