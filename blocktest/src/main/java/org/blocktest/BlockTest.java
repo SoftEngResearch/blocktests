@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
@@ -17,7 +16,6 @@ import org.blocktest.types.Flow;
 import org.blocktest.types.GivenAllVariable;
 import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.types.GivenVariable;
-import org.checkerframework.checker.units.qual.A;
 
 import static org.blocktest.types.EndAt.LAST_REFERENCE;
 

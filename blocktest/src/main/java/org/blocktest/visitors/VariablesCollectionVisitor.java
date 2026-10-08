@@ -3,7 +3,6 @@ package org.blocktest.visitors;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.Expression;

@@ -28,27 +28,22 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.ast.expr.ClassExpr;
-import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithName;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.EmptyStmt;import com.github.javaparser.ast.stmt.ExpressionStmt;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import com.github.javaparser.ast.type.VoidType;import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 
-import javassist.bytecode.Descriptor.Iterator;
+import com.github.javaparser.ast.type.VoidType;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+
 
 
 import org.blocktest.types.StaticMethod;
 import org.blocktest.utils.Util;
 import org.blocktest.visitors.BlockTestConversionVisitor;
-import org.blocktest.visitors.DeclarationRemovalVisitor;
 import org.blocktest.visitors.ExtractionVisitor;
 import org.blocktest.visitors.LambdaTransformationVisitor;
 import org.blocktest.visitors.ThisFieldReplacementVisitor;
