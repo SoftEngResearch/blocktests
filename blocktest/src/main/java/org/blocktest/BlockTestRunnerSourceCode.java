@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
@@ -86,8 +87,11 @@ public class BlockTestRunnerSourceCode {
             Util.predictValue = Boolean.parseBoolean(params.get("predict"));
         }
 
-        TestExtraction.extractTest(inputFilePath.toAbsolutePath().toString(), testOutputFile, publicClassName,
+        List<BlockTest> blockTests = TestExtraction.extractTest(inputFilePath.toAbsolutePath().toString(), testOutputFile, publicClassName,
                 testClassName, duplicatedTestCount, coverage, rewrite, compile);
+
+        TestExtraction.extractParamTest(inputFilePath.toAbsolutePath().toString(), testOutputFile, publicClassName,
+                testClassName, blockTests, duplicatedTestCount, coverage, rewrite, compile);
     }
 
     private static HashMap<String, String> convertToKeyValuePair(String[] args) {

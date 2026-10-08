@@ -149,14 +149,14 @@ public class TestConverter {
             throw new RuntimeException("Parameterized block test is missing variables or parameter values");
         }
 
-        for (GivenParameterizedVariable given : blockTest.parameterizedGivens) {
+        for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
             FieldDeclaration field = new FieldDeclaration();
             field.setPublic(true);
-            field.addVariable(new VariableDeclarator(given.type.clone(), given.name));
+            field.addVariable(new VariableDeclarator(parameterizedGiven.type.clone(), parameterizedGiven.name));
 
             SingleMemberAnnotationExpr parameterAnnotation = new SingleMemberAnnotationExpr();
             parameterAnnotation.setName("Parameter");
-            parameterAnnotation.setMemberValue(new IntegerLiteralExpr(String.valueOf(given.index)));
+            parameterAnnotation.setMemberValue(new IntegerLiteralExpr(String.valueOf(parameterizedGiven.index)));
             field.addAnnotation(parameterAnnotation);
             declarations.add(field);
         }
