@@ -210,7 +210,7 @@ public class TestExtraction {
             // In the future we might have this filter to handle "unlabeled" block tests
             // This function `extractTest` can also return the block tests that still need test extraction
             // but to their own java class
-            if (!blockTest.is_parameterized && !Util.junitVersion.equals("junit4")) {
+            if (!blockTest.is_parameterized || !Util.junitVersion.equals("junit4")) {
                 
                 System.out.println("Extracted BlockTest");
                 BlockTest blockTestTmp = blockTest.clone();
