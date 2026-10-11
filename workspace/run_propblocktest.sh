@@ -1,22 +1,22 @@
 #!/bin/bash
 #
-# Run the property block test on the local toy-app.
+# Run the property block test on toy-app-propblocktest.
 # Same steps as scripts/time/run_blocktest_with_time.sh:
 # 1. install the property block test,
 # 2. generate from inside the blocktest directory
 # 3. run the generated test.
-# Usage: bash run_blocktest.sh
+# Usage: bash run_propblocktest.sh
 #
 set -e
 
 SCRIPT_DIR=$( cd $( dirname $0 ) && pwd )
 REPO_ROOT=$( cd ${SCRIPT_DIR}/.. && pwd )
 
-OUTPUT_DIR=${SCRIPT_DIR}/output
+OUTPUT_DIR=${SCRIPT_DIR}/output/propblocktest
 BLOCKTEST_DIR=${REPO_ROOT}/blocktest
 EXTENSION_DIR=${REPO_ROOT}/extension
-TOY_APP=${SCRIPT_DIR}/toy-app
-TEST_FILENAME=ReverseListBlockTest
+TOY_APP=${SCRIPT_DIR}/toy-app-propblocktest
+TEST_FILENAME=ReverseListPropBlockTest
 
 mkdir -p ${OUTPUT_DIR}/logs
 
@@ -52,7 +52,7 @@ generate_test() {
 
 	pushd ${BLOCKTEST_DIR} &> /dev/null
 	# jqwik is the framework the current propblocktest skeleton emits (@Example).
-	local framework="--junit_version=jqwik"
+	local framework="--test_type=propblocktest"
 
 	# Dry run
 	(time mvn exec:java -Dexec.mainClass="org.blocktest.BlockTestRunnerSourceCode" -Dexec.args="--input_file=${absolute_path} ${framework} --dep_file_path=${deps_file} --app_src_path=${app_src}") >> ${OUTPUT_DIR}/logs/gen.log 2>&1
@@ -81,7 +81,7 @@ generate_test() {
 run_blocktest() {
 	echo "Running property block test..."
 	local extension_jar="${EXTENSION_DIR}/target/blocktest-extension-1.0.jar"
-	local tmp_dir="/tmp/toy-app"
+	local tmp_dir="/tmp/toy-app-propblocktest"
 
 	rm -rf ${tmp_dir} && mkdir ${tmp_dir}
 	pushd ${TOY_APP} &> /dev/null
