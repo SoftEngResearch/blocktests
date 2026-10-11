@@ -29,11 +29,28 @@ import com.github.javaparser.ast.type.WildcardType;
 public class Util {
     public static String depClassPaths;
     public static String appSrcPath;
+    public static String testType;
     public static String junitVersion = "junit4";
 
     public static boolean predictValue = false;
 
     public static boolean loadXml = true;
+
+    public static String testDeclareName(ExpressionStmt statement) {
+        MethodCallExpr current = (MethodCallExpr) statement.getExpression();
+        while (current.getScope().isPresent() && current.getScope().get() instanceof MethodCallExpr) {
+            current = (MethodCallExpr) current.getScope().get();
+        }
+        return current.getNameAsString();
+    }
+
+    public static boolean matchesTestType(String declareName) {
+        if (!testType.equals("propblocktest")) {
+            return Constant.DECLARE_NAME.equals(declareName)
+                || Constant.DECLARE_NAME_LAMBDA.equals(declareName);
+        }
+        return Constant.DECLARE_NAME_PROP.equals(declareName);
+    }
 
     public static Type getTypeFromStr(String input) {
         input = input.trim();
