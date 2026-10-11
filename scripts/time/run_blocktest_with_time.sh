@@ -99,7 +99,6 @@ generate_test() {
 	fi
 	
 	local relative_path=$(echo ${BLOCK_URL} | cut -d '/' -f 8- | cut -d '#' -f 1)
-	TEST_FILENAME="$(basename ${relative_path} | cut -d '.' -f 1)BlockTest" # testing things revert to BlockTest
 	pushd ${OUTPUT_DIR}/project &> /dev/null
 	cp ${BLOCKTEST_FILE} ${relative_path}
 	local absolute_path=$(realpath ${relative_path})
@@ -119,20 +118,23 @@ generate_test() {
 	fi
 	echo "Generating test"
 	
-	local framework=""
-	if [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: junit5") ]]; then
-		framework=" --junit_version=junit5"
+	local framework=" --test_type=blocktest"
+	local test_suffix="BlockTest"
+	if [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: jqwik") ]]; then
+		framework=" --test_type=propblocktest"
+		test_suffix="PropBlockTest"
+		echo "JQwik"
+	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: junit5") ]]; then
+		framework=" --test_type=blocktest --junit_version=junit5"
 		echo "JUnit 5"
 	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: testng") ]]; then
-		framework=" --junit_version=testng"
+		framework=" --test_type=blocktest --junit_version=testng"
 		echo "TestNG"
-	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: jqwik") ]]; then
-		framework=" --junit_version=jqwik"
-		echo "jqwik"
 	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: junit4") ]]; then
 		echo "Adding JUnit"
 		export ADD_JUNIT=1
 	fi
+	TEST_FILENAME="$(basename ${relative_path} | cut -d '.' -f 1)${test_suffix}"
 	
 	local deps_file=${OUTPUT_DIR}/deps.txt
 	local app_src=${OUTPUT_DIR}/project/src/main/java
@@ -164,8 +166,7 @@ generate_test() {
 		exit 1
 	fi
 	
-	# TODO: Add @Property when implemented
-	if [[ -z $(grep -E "@Test|@Example" "${fullpath_dir}/${TEST_FILENAME}.java") ]]; then
+	if [[ -z $(grep -E "@Test|@Example|@Property" "${fullpath_dir}/${TEST_FILENAME}.java") ]]; then
     	echo "No test case is generated"
     	exit 1
 	fi
