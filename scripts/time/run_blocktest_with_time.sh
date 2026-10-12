@@ -166,7 +166,7 @@ generate_test() {
 		exit 1
 	fi
 	
-	if [[ -z $(grep -E "@Test|@Example|@Property" "${fullpath_dir}/${TEST_FILENAME}.java") ]]; then
+	if [[ -z $(grep -E "@Test|@Example|@Property|@ParameterizedTest" "${fullpath_dir}/${TEST_FILENAME}.java") ]]; then
     	echo "No test case is generated"
     	exit 1
 	fi
