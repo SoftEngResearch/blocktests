@@ -2,6 +2,8 @@
 package toy;
 
 import static org.blocktest.BTest.blocktest;
+import static org.blocktest.types.EndAt.FIRST_BLOCK;
+import static org.blocktest.types.Flow.IfStmt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,8 +13,12 @@ public final class ReverseList {
     private ReverseList() {}
 
     public static <T> List<T> reverseList(List<T> items) {
-        // Column name for the parameterized expectation. The generated test supplies the value.
         List<String> expected = null;
+        // Generate a test for the null branch
+        blocktest("nullBranch").given(items, null, "List<String>").checkFlow(IfStmt().Then()).end(FIRST_BLOCK);
+        // Generate a test for the empty branch
+        blocktest("emptyBranch").given(items, new ArrayList<String>(), "List<String>").checkFlow(IfStmt().ElseIf().Then()).end(FIRST_BLOCK);
+        // Generate a parameterized test for the reverseList method
         blocktest("reverses")
                 .parameterized(new Object[][] {
                         {null, null},

@@ -75,7 +75,7 @@ generate_test() {
 	fi
 
 	echo ">>> Time to generate tests: ${DURATION}"
-	cp ${fullpath_dir}/${TEST_FILENAME}.java ${OUTPUT_DIR}/logs/${TEST_FILENAME}.java
+	cp ${fullpath_dir}/*BlockTest*.java ${OUTPUT_DIR}/logs/
 }
 
 run_blocktest() {
@@ -87,7 +87,7 @@ run_blocktest() {
 	pushd ${TOY_APP} &> /dev/null
 
 	local start=$(date +%s)
-	(time mvn -Djava.io.tmpdir=${tmp_dir} -Dmaven.ext.class.path=${extension_jar} test-compile surefire:test -Dtest="${TEST_FILENAME}") &> ${OUTPUT_DIR}/logs/run-timed.log
+	(time mvn -Djava.io.tmpdir=${tmp_dir} -Dmaven.ext.class.path=${extension_jar} test-compile surefire:test -Dtest=*BlockTest*) &> ${OUTPUT_DIR}/logs/run-timed.log
 	local end=$(date +%s)
 	DURATION=$((end - start))
 
