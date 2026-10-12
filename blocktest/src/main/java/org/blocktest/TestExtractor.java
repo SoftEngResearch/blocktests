@@ -199,6 +199,12 @@ public class TestExtractor {
         } else {
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Test", false, false));
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));
+            if (this.blockTests.stream().anyMatch(blockTest -> blockTest.is_parameterized)) {
+                testImports.add(new ImportDeclaration("org.junit.jupiter.params.ParameterizedTest", false, false));
+                testImports.add(new ImportDeclaration("org.junit.jupiter.params.provider.MethodSource", false, false));
+                testImports.add(new ImportDeclaration("org.junit.jupiter.params.provider.Arguments", false, false));
+                testImports.add(new ImportDeclaration("java.util.stream.Stream", false, false));
+            }
         }
 
         if (!inputStrings.contains("org.blocktest.BTest")) {
@@ -363,14 +369,19 @@ public class TestExtractor {
             // In the future we might have this filter to handle "unlabeled" block tests
             // This function `extractTest` can also return the block tests that still need test extraction
             // but to their own java class
-            // Change this to "if there are no configs associated with a test (no labels)." 
-            // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4)
-            if (!blockTest.is_parameterized ||
-                !blockTest.is_config || !Util.junitVersion.equals("junit4")) {
+            // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4).
+            if (!(Util.junitVersion.equals("junit4") && blockTest.is_parameterized && blockTest.is_config)) {
                 
                 System.out.println("Extracted BlockTest");
                 BlockTest blockTestTmp = blockTest.clone();
                 MethodDeclaration method = new TestConverter(this.globalSymbolTable).toJUnit(blockTest, coverage);
+
+                if (blockTest.is_parameterized && Util.junitVersion.equals("junit5")) {
+                    for (BodyDeclaration<?> declaration : new TestConverter(this.globalSymbolTable)
+                            .toParamJUnit(blockTest, coverage)) {
+                        testClass.addMember(declaration);
+                    }
+                }
 
                 if (coverage) {
                     testClass.addMember(method.setPublic(true));
@@ -573,7 +584,13 @@ public class TestExtractor {
             packageName = cu.getPackageDeclaration().get().getNameAsString();
         }
 
+        // JUnit 4 parameterized tests each need their own class, because every test in a
+        // @RunWith(Parameterized.class) class shares one parameter set.
         for (BlockTest blockTest : this.blockTests) {
+            if (!(blockTest.is_parameterized && Util.junitVersion.equals("junit4"))) {
+                continue;
+            }
+
             CompilationUnit newCU = new CompilationUnit();
             if (packageName != null && compile) {
                 newCU.setPackageDeclaration(new PackageDeclaration(new Name(packageName)));
