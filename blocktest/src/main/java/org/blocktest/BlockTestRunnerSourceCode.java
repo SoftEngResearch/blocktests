@@ -87,11 +87,14 @@ public class BlockTestRunnerSourceCode {
             Util.predictValue = Boolean.parseBoolean(params.get("predict"));
         }
 
-        List<BlockTest> blockTests = TestExtraction.extractTestsToSameClass(inputFilePath.toAbsolutePath().toString(), testOutputFile, publicClassName,
-                testClassName, duplicatedTestCount, coverage, rewrite, compile);
+        TestExtractor testExtractor = new TestExtractor(inputFilePath.toAbsolutePath().toString(),
+                                            publicClassName, coverage, rewrite, compile);
 
-        TestExtraction.extractTestsToNewClasses(inputFilePath.toAbsolutePath().toString(), testOutputFile, publicClassName,
-                testClassName, blockTests, duplicatedTestCount, coverage, rewrite, compile);
+        testExtractor.extractBlockTests();
+
+        testExtractor.extractTestsToSameClass(testOutputFile, publicClassName, duplicatedTestCount);
+
+        testExtractor.extractTestsToNewClasses(testOutputFile, publicClassName, duplicatedTestCount);
     }
 
     private static HashMap<String, String> convertToKeyValuePair(String[] args) {
