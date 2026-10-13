@@ -52,7 +52,6 @@ public class BlockTestRunnerSourceCode {
         TypeResolver.setup();
 
         String testClassName = publicClassName + "BlockTest";
-
         String testOutputFile;
         if (params.containsKey("output_file")) {
             testOutputFile = params.get("output_file");
