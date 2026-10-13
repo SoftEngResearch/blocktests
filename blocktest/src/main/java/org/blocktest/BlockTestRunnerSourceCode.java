@@ -41,27 +41,8 @@ public class BlockTestRunnerSourceCode {
             Util.appSrcPath = params.get("app_src_path");
         }
 
-        if (params.containsKey("test_type")) {
-            Util.testType = params.get("test_type").toLowerCase().replace(" ", "");
-            if (Util.testType.equals("blocktest")) {
-                if (params.containsKey("junit_version")) {
-                    String junitVersion = params.get("junit_version").toLowerCase().replace(" ", "");
-                    if (!junitVersion.equals("junit4") && !junitVersion.equals("junit5")
-                            && !junitVersion.equals("testng")) {
-                        throw new RuntimeException("junit_version must be junit4, junit5, or testng");
-                    }
-                    Util.junitVersion = junitVersion;
-                }
-            } else if (Util.testType.equals("propblocktest")) {
-                if (params.containsKey("junit_version")) {
-                    throw new RuntimeException("test_type=propblocktest does not take junit_version");
-                }
-                Util.junitVersion = "jqwik";
-            } else {
-                throw new RuntimeException("test_type must be blocktest or propblocktest");
-            }
-        } else {
-            throw new RuntimeException("test_type parameter is required: blocktest or propblocktest");
+        if (params.containsKey("junit_version")) {
+            Util.junitVersion = params.get("junit_version").toLowerCase().replace(" ", "");
         }
 
         String publicClassName = inputFilePath.getFileName().toString().split(".java")[0];
@@ -70,9 +51,7 @@ public class BlockTestRunnerSourceCode {
         // Notify java parser about all the types, based on jar (class path) or app_src_path
         TypeResolver.setup();
 
-        // Determine the test class suffix based on the test type
-        String testClassSuffix = Util.testType.equals("propblocktest") ? "PropBlockTest" : "BlockTest";
-        String testClassName = publicClassName + testClassSuffix;
+        String testClassName = publicClassName + "BlockTest";
 
         String testOutputFile;
         if (params.containsKey("output_file")) {

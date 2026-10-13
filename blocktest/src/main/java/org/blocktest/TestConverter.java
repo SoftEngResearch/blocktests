@@ -444,9 +444,9 @@ public class TestConverter {
 
         // Add assumptions
         if (blockTest.assumptions != null && !blockTest.assumptions.isEmpty()) {
-            if (!Util.testType.equals("propblocktest")) {
+            if (!Util.junitVersion.equals("jqwik")) {
                 // TODO: Support assume() for blocktest
-                throw new RuntimeException("assume() is only supported for propblocktest");
+                throw new RuntimeException("assume() is only supported for jqwik");
             } else {
                 // Iterate backwards to restore source order
                 for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {

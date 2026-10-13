@@ -76,11 +76,6 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
         super.visit(expressionStmt, ctx);
 
         if (Util.isTestStatement(expressionStmt)) {
-            // Skip generation if the test type does not match the declared test type
-            if (!Util.matchesTestType(Util.testDeclareName(expressionStmt))) {
-                return;
-            }
-
             BlockTest blockTest = new BlockTest();
             parseBlockTest(expressionStmt, blockTest, ctx.symbolTable);
 
