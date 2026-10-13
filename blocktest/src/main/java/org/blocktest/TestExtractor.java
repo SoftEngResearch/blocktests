@@ -356,7 +356,7 @@ public class TestExtractor {
         System.out.println("Compile is " + compile);
 
         newCU.setImports(this.imports);
-        ClassOrInterfaceDeclaration testClass = newCU.addClass(className+"BlockTest").setPublic(true);
+        ClassOrInterfaceDeclaration testClass = newCU.addClass(className).setPublic(true);
 
         System.out.println("STATIC METHODS: " + staticMethods);
 
@@ -596,7 +596,7 @@ public class TestExtractor {
             System.out.println("Compile is " + compile);
 
             newCU.setImports(this.imports);
-            ClassOrInterfaceDeclaration testClass = newCU.addClass(className+"BlockTest"+blockTest.testName).setPublic(true);
+            ClassOrInterfaceDeclaration testClass = newCU.addClass(className+blockTest.testName).setPublic(true);
 
             System.out.println("STATIC METHODS: " + staticMethods);
 
