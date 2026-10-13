@@ -369,8 +369,9 @@ public class TestExtractor {
             // In the future we might have this filter to handle "unlabeled" block tests
             // This function `extractTest` can also return the block tests that still need test extraction
             // but to their own java class
-            // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4).
-            if (!(Util.junitVersion.equals("junit4") && blockTest.is_parameterized && blockTest.is_config)) {
+            // Change this to "if there are no configs associated with a test (no labels)." 
+            // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4)
+            if (!(Util.junitVersion.equals("junit4") && (blockTest.is_parameterized || blockTest.is_config))) {
                 
                 System.out.println("Extracted BlockTest");
                 BlockTest blockTestTmp = blockTest.clone();
@@ -587,10 +588,6 @@ public class TestExtractor {
         // JUnit 4 parameterized tests each need their own class, because every test in a
         // @RunWith(Parameterized.class) class shares one parameter set.
         for (BlockTest blockTest : this.blockTests) {
-            if (!(blockTest.is_parameterized && Util.junitVersion.equals("junit4"))) {
-                continue;
-            }
-
             CompilationUnit newCU = new CompilationUnit();
             if (packageName != null && compile) {
                 newCU.setPackageDeclaration(new PackageDeclaration(new Name(packageName)));
