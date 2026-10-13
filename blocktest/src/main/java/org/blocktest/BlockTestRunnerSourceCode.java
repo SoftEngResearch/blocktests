@@ -93,9 +93,9 @@ public class BlockTestRunnerSourceCode {
 
         testExtractor.extractBlockTests();
 
-        testExtractor.extractTestsToSameClass(testOutputFile, testClassName, duplicatedTestCount);
+        testExtractor.extractTestsToSameClass(testOutputFile, publicClassName, duplicatedTestCount);
 
-        testExtractor.extractTestsToNewClasses(testOutputFile, testClassName, duplicatedTestCount);
+        testExtractor.extractTestsToNewClasses(testOutputFile, publicClassName, duplicatedTestCount);
     }
 
     private static HashMap<String, String> convertToKeyValuePair(String[] args) {

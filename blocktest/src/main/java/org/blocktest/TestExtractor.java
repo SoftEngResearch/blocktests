@@ -359,8 +359,7 @@ public class TestExtractor {
         System.out.println("Compile is " + compile);
 
         newCU.setImports(this.imports);
-        ClassOrInterfaceDeclaration testClass = newCU.addClass(className).setPublic(true);
-
+        ClassOrInterfaceDeclaration testClass = newCU.addClass(className+"BlockTest").setPublic(true);
         System.out.println("STATIC METHODS: " + staticMethods);
 
         Set<StaticMethod> usedStaticMethods = new HashSet<>();
@@ -374,13 +373,13 @@ public class TestExtractor {
             // but to their own java class
             // Change this to "if there are no configs associated with a test (no labels)." 
             // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4)
-            if (!(Util.junitVersion.equals("junit4") && (blockTest.is_parameterized || blockTest.is_config))) {
+            if (!(Util.junitVersion.equals("junit4") && blockTest.is_parameterized)) {
                 
                 System.out.println("Extracted BlockTest");
                 BlockTest blockTestTmp = blockTest.clone();
                 MethodDeclaration method = new TestConverter(this.globalSymbolTable).toJUnit(blockTest, coverage);
 
-                if (blockTest.is_parameterized && Util.junitVersion.equals("junit5")) {
+                if (blockTest.is_parameterized) {
                     for (BodyDeclaration<?> declaration : new TestConverter(this.globalSymbolTable)
                             .toParamJUnit(blockTest, coverage)) {
                         testClass.addMember(declaration);
@@ -588,8 +587,6 @@ public class TestExtractor {
             packageName = cu.getPackageDeclaration().get().getNameAsString();
         }
 
-        // JUnit 4 parameterized tests each need their own class, because every test in a
-        // @RunWith(Parameterized.class) class shares one parameter set.
         for (BlockTest blockTest : this.blockTests) {
             CompilationUnit newCU = new CompilationUnit();
             if (packageName != null && compile) {
@@ -599,7 +596,7 @@ public class TestExtractor {
             System.out.println("Compile is " + compile);
 
             newCU.setImports(this.imports);
-            ClassOrInterfaceDeclaration testClass = newCU.addClass(className+blockTest.testName).setPublic(true);
+            ClassOrInterfaceDeclaration testClass = newCU.addClass(className+"BlockTest"+blockTest.testName).setPublic(true);
 
             System.out.println("STATIC METHODS: " + staticMethods);
 
