@@ -256,26 +256,59 @@ public class TestExtractor {
         }
     }
 
-    //static List<BlockTest> extractBlockTestConfigs(List<BlockTest> blockTests) {
-    //    java.util.Iterator<BlockTest> blockTestIterator = blockTests.iterator();
-    //    while (blockTestIterator.hasNext()) {
-    //        BlockTest blockTest = blockTestIterator.next();
-    //        if (blockTest.is_blocktest_config) {
-    //            
-    //            System.out.println("Extracted BlockTest");
-    //            BlockTest blockTestTmp = blockTest.clone();
+    public void extractBlockTestConfigs() {
+        java.util.Iterator<BlockTest> blockTestIterator = blockTests.iterator();
 
-    //            this.blockTestConfigs = blockTestTmp.blockTestConfigs;
+        if (this.blockTestConfigs == null) {
+            this.blockTestConfigs = new java.util.HashMap<>();
+        }
 
-    //            blockTestIterator.remove();
-    //        } else {
-    //            continue;
-    //        }
-    //    }
+        while (blockTestIterator.hasNext()) {
+            BlockTest blockTest = blockTestIterator.next();
 
-    //    return blockTests;
-    //    
-    //}
+            if (blockTest.is_config) {
+                System.out.println("Extracted BlockTest DAVID");
+
+                BlockTest blockTestTmp = blockTest.clone();
+
+                if (blockTestTmp == null || blockTestTmp.configs == null) {
+                    throw new IllegalStateException(
+                        "BlockTest clone or configs is null"
+                    );
+                }
+
+                this.blockTestConfigs.putAll(blockTestTmp.configs);
+
+                blockTestIterator.remove();
+            }
+        }
+    }
+
+    public void applyBlockTestConfigs() {
+        java.util.Iterator<BlockTest> blockTestIterator = blockTests.iterator();
+
+        while (blockTestIterator.hasNext()) {
+            BlockTest blockTest = blockTestIterator.next();
+
+            if (blockTest.is_configed) {
+                System.out.println("Looking for config: " + blockTest.label);
+                System.out.println("Available configs: "
+                                        + this.blockTestConfigs.keySet());
+
+                BlockTestConfig blockTestConfig =
+                        this.blockTestConfigs.get(blockTest.label);
+
+                if (blockTestConfig == null) {
+                    throw new IllegalStateException(
+                        "No configuration found for BlockTest label: "
+                        + blockTest.label
+                    );
+                }
+
+                blockTest.parameterValues = blockTestConfig.parameterValues;
+            }
+        }
+    }
 
     // The way this function executes depends a lot on the version of junit etc we should refactor to call 
     // specific function as needed for each tasting framework
@@ -365,8 +398,7 @@ public class TestExtractor {
             // but to their own java class
             // Change this to "if there are no configs associated with a test (no labels)." 
             // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4)
-            if (!blockTest.is_parameterized ||
-                !blockTest.is_config || !Util.junitVersion.equals("junit4")) {
+            if (!blockTest.is_parameterized || !Util.junitVersion.equals("junit4")) {
                 
                 System.out.println("Extracted BlockTest");
                 BlockTest blockTestTmp = blockTest.clone();

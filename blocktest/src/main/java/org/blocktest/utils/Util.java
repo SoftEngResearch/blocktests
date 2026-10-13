@@ -137,7 +137,8 @@ public class Util {
             if (((MethodCallExpr) node).getNameAsString().equals(Constant.GIVEN)
                     || ((MethodCallExpr) node).getNameAsString().equals(Constant.GIVEN_ALL)
                     || ((MethodCallExpr) node).getNameAsString().equals(Constant.ARGS)
-                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.MOCK)) {
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.MOCK)
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.CONFIG)) {
                 matched = true;
             }
 

@@ -1,17 +1,17 @@
 package org.blocktest.types;
 
-public class BlockTestConfig {
-    public String methodName;
-    public String className;
-    public int argumentCount;
-    public BlockTestConfig(String className, String methodName, int argumentCount) {
-        this.className = className;
-        this.methodName = methodName;
-        this.argumentCount = argumentCount;
-    }
+import java.util.List;
+import java.util.Set;
 
-    @Override
-    public String toString() {
-        return className + "." + methodName + "(" + argumentCount + ")";
-    }
+import com.github.javaparser.ast.expr.Expression;
+
+public class BlockTestConfig {
+    
+    // Variables are duplicates from BlockTest, might need to refactor later
+    //public boolean is_parameterized;
+    public Expression parameterValues;
+
+
+
+
 }

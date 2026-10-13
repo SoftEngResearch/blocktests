@@ -58,10 +58,13 @@ public class BlockTest implements Cloneable{
     public Set<String> renameParameterizedGivenVariables;
     public Expression parameterValues;
 
-    // Bundle BT
+    // Config BT
     public boolean is_config;
-    Map<String, BlockTestConfig> configs;
-    String label;
+    public Map<String, BlockTestConfig> configs;
+
+    // Configed BT
+    public boolean is_configed;
+    public String label;
 
 
     public BlockTest() {
@@ -99,6 +102,7 @@ public class BlockTest implements Cloneable{
 
         // Bundle BT
         this.is_config = false;
+        this.is_configed = false;
         this.configs = null;
         this.label = null;
 

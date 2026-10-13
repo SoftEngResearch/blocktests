@@ -28,6 +28,7 @@ public class Constant {
     public final static String CHECK_RETURN_TRUE = "checkReturnTrue";
     public final static String CHECK_RETURN_FALSE = "checkReturnFalse";
     public final static String CHECK_EXP = "expect";
+    public final static String CONFIG = "config";
     public final static String GIVEN = "given";
     public final static String GIVEN_ALL = "givenAll";
     public final static String PARAMETERIZED = "parameterized";

@@ -92,6 +92,10 @@ public class BlockTestRunnerSourceCode {
 
         testExtractor.extractBlockTests();
 
+        testExtractor.extractBlockTestConfigs();
+
+        testExtractor.applyBlockTestConfigs();
+
         testExtractor.extractTestsToSameClass(testOutputFile, publicClassName, duplicatedTestCount);
 
         testExtractor.extractTestsToNewClasses(testOutputFile, publicClassName, duplicatedTestCount);

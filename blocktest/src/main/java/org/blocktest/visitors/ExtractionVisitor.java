@@ -31,6 +31,7 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import org.blocktest.BlockTest;
 import org.blocktest.TestExtractor;
+import org.blocktest.types.BlockTestConfig;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
 import org.blocktest.types.GivenParameterizedVariable;
@@ -406,8 +407,8 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                         + " should have parameters, types, and variable names");
             }
 
-            if (!args.get(0).isArrayCreationExpr()) {
-                throw new RuntimeException(Constant.PARAMETERIZED + " first argument needs to be an Object[][]");
+            if (!args.get(0).isArrayCreationExpr() && !args.get(0).isStringLiteralExpr()) {
+                throw new RuntimeException(Constant.PARAMETERIZED + " first argument needs to be an Object[][] or a String literal referencing a label");
             }
 
             String typeNames = args.get(1).isStringLiteralExpr()
@@ -434,25 +435,30 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                         + " should have the same number of types and variable names");
             }
 
-            ArrayCreationExpr array = args.get(0).asArrayCreationExpr();
-            if (!array.getInitializer().isPresent()) {
-                throw new RuntimeException(Constant.PARAMETERIZED + " parameters must have an initializer");
-            }
-            ArrayInitializerExpr initializer = array.getInitializer().get();
-
-            for (Expression row : initializer.getValues()) {
-                if (!row.isArrayInitializerExpr()) {
-                    throw new RuntimeException(Constant.PARAMETERIZED + " each row must be an array");
+            if (args.get(0).isArrayCreationExpr()) {
+                ArrayCreationExpr array = args.get(0).asArrayCreationExpr();
+                if (!array.getInitializer().isPresent()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED + " parameters must have an initializer");
                 }
+                ArrayInitializerExpr initializer = array.getInitializer().get();
 
-                if (row.asArrayInitializerExpr().getValues().size() != variableNames.size()) {
-                    throw new RuntimeException(Constant.PARAMETERIZED
-                            + " each row must have one value for each variable");
+                for (Expression row : initializer.getValues()) {
+                    if (!row.isArrayInitializerExpr()) {
+                        throw new RuntimeException(Constant.PARAMETERIZED + " each row must be an array");
+                    }
+
+                    if (row.asArrayInitializerExpr().getValues().size() != variableNames.size()) {
+                        throw new RuntimeException(Constant.PARAMETERIZED
+                                + " each row must have one value for each variable");
+                    }
                 }
+                blockTest.parameterValues = args.get(0).clone();
+            } else if (args.get(0).isStringLiteralExpr()) {
+                blockTest.is_configed = true;
+                blockTest.label = args.get(0).clone().asStringLiteralExpr().asString();
             }
 
             blockTest.is_parameterized = true;
-            blockTest.parameterValues = args.get(0).clone();
             blockTest.parameterizedGivens = new ArrayList<>();
             blockTest.parameterizedGivenVariables = new ArrayList<>();
 
@@ -464,7 +470,27 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 blockTest.parameterizedGivenVariables.add(variableName);
             }
 
-        } else if (methodCall.getName().asString().equals(Constant.ARGS)) {
+        } 
+        else if (methodCall.getName().asString().equals(Constant.CONFIG)) {
+            List<Expression> args = methodCall.getArguments();
+            if (args.size() != 2) {
+                throw new RuntimeException(Constant.CONFIG + " should have a label and a configuration expression");
+            }
+            if (!args.get(0).isStringLiteralExpr()) {
+                throw new RuntimeException(Constant.CONFIG + " label must be a string literal");
+            }
+
+            BlockTestConfig config = new BlockTestConfig();
+            //config.is_parameterized = true;
+            config.parameterValues = args.get(1).clone();
+
+            if (blockTest.configs == null) {
+                blockTest.configs = new HashMap<>();
+            }
+            blockTest.configs.put(args.get(0).asStringLiteralExpr().asString(), config);
+            blockTest.is_config = true;
+        } 
+        else if (methodCall.getName().asString().equals(Constant.ARGS)) {
             List<Expression> args = methodCall.getArguments();
             if (args.isEmpty()) {
                 throw new RuntimeException(Constant.ARGS + " should have more than 0 arguments");

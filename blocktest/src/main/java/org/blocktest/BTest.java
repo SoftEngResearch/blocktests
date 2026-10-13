@@ -77,6 +77,10 @@ public class BTest {
         return btest;
     }
 
+    public BTest config(String label, Object configuration) {
+        return btest;
+    }
+
     public BTest setup(String setupFunction) { // Sadly this cannot take Runnable otherwise code will not compile
         return btest;
     }
