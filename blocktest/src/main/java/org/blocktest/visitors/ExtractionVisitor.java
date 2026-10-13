@@ -30,7 +30,7 @@ import com.github.javaparser.ast.stmt.ThrowStmt;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import org.blocktest.BlockTest;
-import org.blocktest.TestExtraction;
+import org.blocktest.TestExtractor;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
 import org.blocktest.types.GivenParameterizedVariable;
@@ -551,8 +551,8 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                         super.visit(n, arg);
 
                         String name = n.getNameAsString();
-                        if (TestExtraction.staticFields.containsKey(name)) {
-                            String className = TestExtraction.staticFields.get(name);
+                        if (TestExtractor.staticFields.containsKey(name)) {
+                            String className = TestExtractor.staticFields.get(name);
                             n.replace(new FieldAccessExpr(new NameExpr(className), name));
                         }
                     }
