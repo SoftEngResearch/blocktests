@@ -441,6 +441,28 @@ public class TestConverter {
                 body.addStatement(statement);
             }
         }
+
+        // Add assumptions
+        if (blockTest.assumptions != null && !blockTest.assumptions.isEmpty()) {
+            if (!Util.testType.equals("propblocktest")) {
+                // TODO: Support assume() for blocktest
+                throw new RuntimeException("assume() is only supported for propblocktest");
+            } else {
+                // Iterate backwards to restore source order
+                for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
+                    // Generate the assume statement
+                    Expression condition = blockTest.assumptions.get(i).clone();
+                    MethodCallExpr assumeThat = new MethodCallExpr(new NameExpr("Assume"), "that", NodeList.nodeList(condition));
+                    ExpressionStmt statement = new ExpressionStmt(assumeThat);
+
+                    // Replace the variables with the renamed variables
+                    Util.replaceExpressionsWithVariables(statement, blockTest.renameGivenVariables);
+
+                    // Add the assume statement to the body
+                    body.addStatement(statement);
+                }
+            }
+        }
     }
 
     private void addTargetBlock(BlockStmt body, BlockStmt initBody, BlockStmt assertBody, BlockTest blockTest, boolean coverage) {

@@ -30,6 +30,7 @@ public class Constant {
     public final static String CHECK_EXP = "expect";
     public final static String GIVEN = "given";
     public final static String GIVEN_ALL = "givenAll";
+    public final static String ASSUME = "assume";
     public final static String PARAMETERIZED = "parameterized";
     public final static String ARGS = "args";
     public final static String ARGS_VAR = "argsVar";

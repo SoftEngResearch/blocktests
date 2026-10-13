@@ -196,6 +196,9 @@ public class TestExtractor {
                 testImports.add(new ImportDeclaration("net.jqwik.api.ForAll", false, false));
                 testImports.add(new ImportDeclaration("net.jqwik.api.Property", false, false));
             }
+            if (this.blockTests.stream().anyMatch(blockTest -> !blockTest.assumptions.isEmpty())) {
+                testImports.add(new ImportDeclaration("net.jqwik.api.Assume", false, false));
+            }
         } else {
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Test", false, false));
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));
