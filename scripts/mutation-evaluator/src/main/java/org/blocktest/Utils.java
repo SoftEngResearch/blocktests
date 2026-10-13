@@ -214,12 +214,6 @@ public class Utils {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        boolean propblocktest = framework.contains("jqwik");
-        if (propblocktest) {
-            framework = " --test_type=propblocktest";
-        } else {
-            framework = " --test_type=blocktest" + framework;
-        }
         ProcessBuilder pb = new ProcessBuilder(
             "mvn",
             "exec:java",
@@ -244,8 +238,7 @@ public class Utils {
             new File(testParentForBTest).mkdirs();
         }
         try {
-            String generatedSuffix = propblocktest ? "PropBlockTest.java" : "BlockTest.java";
-            Files.copy(Paths.get(extractedTestsDir + File.separator + new File(src).getName().replace(".java", generatedSuffix)), Paths.get(testParentForBTest + File.separator + new File(src).getName().replace(".java", generatedSuffix)), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(Paths.get(extractedTestsDir + File.separator + new File(src).getName().replace(".java", "BlockTest.java")), Paths.get(testParentForBTest + File.separator + new File(src).getName().replace(".java", "BlockTest.java")), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

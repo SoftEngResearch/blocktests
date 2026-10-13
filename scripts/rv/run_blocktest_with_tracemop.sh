@@ -130,11 +130,11 @@ generate_test() {
 	fi
 	echo "Generating test"
 	
-	local framework=" --test_type=blocktest"
+	local framework=""
 	if [[ -n $(head -n 2 ${BLOCKTEST_FILE} | grep "FRAMEWORK: junit5") ]]; then
-		framework=" --test_type=blocktest --junit_version=junit5"
+		framework=" --junit_version=junit5"
 	elif [[ -n $(head -n 2 ${BLOCKTEST_FILE} | grep "FRAMEWORK: testng") ]]; then
-		framework=" --test_type=blocktest --junit_version=testng"
+		framework=" --junit_version=testng"
 	fi
 	
 	pushd ${SCRIPT_DIR}/../../blocktest &> /dev/null
