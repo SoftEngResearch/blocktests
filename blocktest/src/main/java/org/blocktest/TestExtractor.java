@@ -268,7 +268,7 @@ public class TestExtractor {
             BlockTest blockTest = blockTestIterator.next();
 
             if (blockTest.is_config) {
-                System.out.println("Extracted BlockTest DAVID");
+                System.out.println("Extracted Config BlockTest");
 
                 BlockTest blockTestTmp = blockTest.clone();
 
@@ -292,10 +292,6 @@ public class TestExtractor {
             BlockTest blockTest = blockTestIterator.next();
 
             if (blockTest.is_configed) {
-                System.out.println("Looking for config: " + blockTest.label);
-                System.out.println("Available configs: "
-                                        + this.blockTestConfigs.keySet());
-
                 BlockTestParamConfig blockTestConfig =
                         this.blockTestConfigs.get(blockTest.label);
 
@@ -405,7 +401,7 @@ public class TestExtractor {
             // but to their own java class
             // Change this to "if there are no configs associated with a test (no labels)." 
             // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4)
-            if (!blockTest.is_parameterized || !Util.junitVersion.equals("junit4")) {
+            if (!(blockTest.is_parameterized && Util.junitVersion.equals("junit4"))) {
                 
                 System.out.println("Extracted BlockTest");
                 BlockTest blockTestTmp = blockTest.clone();

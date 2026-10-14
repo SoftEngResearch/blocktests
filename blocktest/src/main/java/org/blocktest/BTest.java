@@ -80,7 +80,7 @@ public class BTest {
         return btest;
     }
 
-    public BTest config(String label, Object types, Object configuration) {
+    public BTest configParam(String label, Object types, Object configuration) {
         return btest;
     }
 

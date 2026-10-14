@@ -500,9 +500,6 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 throw new RuntimeException(Constant.CONFIG_PARAM + " label must be a string literal");
             }
 
-            BlockTestParamConfig config = new BlockTestParamConfig();
-            //config.is_parameterized = true;
-            config.parameterValues = args.get(2).clone();
 
             String typeNames = args.get(1).isStringLiteralExpr()
                     ? args.get(1).asStringLiteralExpr().asString()
@@ -532,12 +529,14 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 }
             }
 
+            BlockTestParamConfig config = new BlockTestParamConfig();
+            config.parameterValues = args.get(2).clone();
             config.parameterizedGivenTypes = types;
 
             if (blockTest.configs == null) {
                 blockTest.configs = new HashMap<>();
             }
-            
+
             blockTest.configs.put(args.get(0).asStringLiteralExpr().asString(), config);
             blockTest.is_config = true;
         } 

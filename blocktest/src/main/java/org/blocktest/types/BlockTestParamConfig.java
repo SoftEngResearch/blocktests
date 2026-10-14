@@ -3,16 +3,19 @@ package org.blocktest.types;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.blocktest.BlockTest;
+
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.Type;
 
-public class BlockTestParamConfig {
+public class BlockTestParamConfig extends BlockTest {
     
     // Variables are duplicates from BlockTest, might need to refactor later
-    //public boolean is_parameterized;
-    public Expression parameterValues;
-    public List<Type> parameterizedGivenTypes;
+
+    // Used from BlockTest Class
+    //public Expression parameterValues;
+    //public List<Type> parameterizedGivenTypes;
 
     public List<GivenParameterizedVariable> getParameterizedGivens(List<String> variableNames) {
         List<GivenParameterizedVariable> parameterizedGivens = new ArrayList<>();
