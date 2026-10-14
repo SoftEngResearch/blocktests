@@ -50,7 +50,7 @@ generate_test() {
 	local app_src=${TOY_APP}/src/main/java
 
 	pushd ${BLOCKTEST_DIR} &> /dev/null
-	local framework="--test_type=blocktest --junit_version=junit4"
+	local framework="--junit_version=junit4"
 
 	# Dry run
 	(time mvn exec:java -Dexec.mainClass="org.blocktest.BlockTestRunnerSourceCode" -Dexec.args="--input_file=${absolute_path} ${framework} --dep_file_path=${deps_file} --app_src_path=${app_src}") >> ${OUTPUT_DIR}/logs/gen.log 2>&1

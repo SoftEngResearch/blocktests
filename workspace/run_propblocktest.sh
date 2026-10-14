@@ -16,7 +16,7 @@ OUTPUT_DIR=${SCRIPT_DIR}/output/propblocktest
 BLOCKTEST_DIR=${REPO_ROOT}/blocktest
 EXTENSION_DIR=${REPO_ROOT}/extension
 TOY_APP=${SCRIPT_DIR}/toy-app-propblocktest
-TEST_FILENAME=ReverseListPropBlockTest
+TEST_FILENAME=ReverseListBlockTest
 
 mkdir -p ${OUTPUT_DIR}/logs
 
@@ -52,7 +52,7 @@ generate_test() {
 
 	pushd ${BLOCKTEST_DIR} &> /dev/null
 	# jqwik is the framework the current propblocktest skeleton emits (@Example).
-	local framework="--test_type=propblocktest"
+	local framework="--junit_version=jqwik"
 
 	# Dry run
 	(time mvn exec:java -Dexec.mainClass="org.blocktest.BlockTestRunnerSourceCode" -Dexec.args="--input_file=${absolute_path} ${framework} --dep_file_path=${deps_file} --app_src_path=${app_src}") >> ${OUTPUT_DIR}/logs/gen.log 2>&1

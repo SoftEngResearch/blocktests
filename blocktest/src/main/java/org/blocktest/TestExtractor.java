@@ -360,6 +360,7 @@ public class TestExtractor {
 
         newCU.setImports(this.imports);
         ClassOrInterfaceDeclaration testClass = newCU.addClass(className+"BlockTest").setPublic(true);
+    
         System.out.println("STATIC METHODS: " + staticMethods);
 
         Set<StaticMethod> usedStaticMethods = new HashSet<>();

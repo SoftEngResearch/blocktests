@@ -293,7 +293,7 @@ public class TestConverter {
         // Add MethodSource annotation
         SingleMemberAnnotationExpr methodSource = new SingleMemberAnnotationExpr();
         methodSource.setName("MethodSource");
-        methodSource.setMemberValue(new StringLiteralExpr(parameterSourceMethodName(blockTest)));
+        methodSource.setMemberValue(new StringLiteralExpr(generateJUnit5ParameterSourceMethodName(blockTest)));
         method.addAnnotation(methodSource);
 
         // Add parameters into the test method signature
