@@ -41,7 +41,8 @@ import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import org.blocktest.types.StaticMethod;
-import org.blocktest.types.BlockTestConfig;
+import org.blocktest.types.BlockTestParamConfig;
+import org.blocktest.utils.Constant;
 import org.blocktest.utils.Util;
 import org.blocktest.visitors.BlockTestConversionVisitor;
 import org.blocktest.visitors.ExtractionVisitor;
@@ -68,7 +69,7 @@ public class TestExtractor {
 
     public HashMap<String, HashSet<Type>> globalSymbolTable = new HashMap<>();
 
-    Map<String, BlockTestConfig> blockTestConfigs = new HashMap<>();
+    Map<String, BlockTestParamConfig> blockTestConfigs = new HashMap<>();
     List<BlockTest> blockTests = new ArrayList<BlockTest>();
 
     public TestExtractor(String inputFileSource, String testedClassName, 
@@ -295,7 +296,7 @@ public class TestExtractor {
                 System.out.println("Available configs: "
                                         + this.blockTestConfigs.keySet());
 
-                BlockTestConfig blockTestConfig =
+                BlockTestParamConfig blockTestConfig =
                         this.blockTestConfigs.get(blockTest.label);
 
                 if (blockTestConfig == null) {
@@ -305,7 +306,13 @@ public class TestExtractor {
                     );
                 }
 
+                if (blockTest.parameterizedGivenVariables.size() != blockTestConfig.parameterizedGivenTypes.size()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED
+                        + " number of parameterized variables is not equal to number of columns or types in parameters");
+                }
+
                 blockTest.parameterValues = blockTestConfig.parameterValues;
+                blockTest.parameterizedGivens = blockTestConfig.getParameterizedGivens(blockTest.parameterizedGivenVariables);
             }
         }
     }
