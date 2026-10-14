@@ -127,11 +127,7 @@ public class TestConverter {
             } else {
                 method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
                 if (Util.junitVersion.equals("junit5")) {
-                    if (!blockTest.is_parameterized) {
-                        method.addMarkerAnnotation("Test");
-                    } else {
-                        applyJUnit5TestAnnotation(method, blockTest);
-                    }
+                    applyJUnit5TestAnnotation(method, blockTest);
                 } else {
                     method.addMarkerAnnotation("Test");
                 }
@@ -178,6 +174,7 @@ public class TestConverter {
             throw new RuntimeException("Parameterized block test is missing variables or parameter values");
         }
 
+        // JUnit 5 parameterized tests
         if (Util.junitVersion.equals("junit5")) {
             MethodDeclaration method = new MethodDeclaration();
             method.setPublic(true);
@@ -230,54 +227,57 @@ public class TestConverter {
             // Set the body of the method to return the Stream of Arguments and add it to the declarations
             method.setBody(new BlockStmt().addStatement(new ReturnStmt(returned)));
             declarations.add(method);
-            return declarations;
+        }
+        
+        // JUnit 4 parameterized tests
+        else if (Util.junitVersion.equals("junit4")) {
+            for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
+                FieldDeclaration field = new FieldDeclaration();
+                field.setPublic(true);
+                field.addVariable(new VariableDeclarator(parameterizedGiven.type.clone(), parameterizedGiven.name));
+
+                SingleMemberAnnotationExpr parameterAnnotation = new SingleMemberAnnotationExpr();
+                parameterAnnotation.setName("Parameter");
+                parameterAnnotation.setMemberValue(new IntegerLiteralExpr(String.valueOf(parameterizedGiven.index)));
+                field.addAnnotation(parameterAnnotation);
+                declarations.add(field);
+            }
+
+            MethodDeclaration parametersMethod = new MethodDeclaration();
+            parametersMethod.setPublic(true);
+            parametersMethod.setStatic(true);
+            parametersMethod.setName("data");
+
+            // Collection<Object[]>
+            ClassOrInterfaceType collectionType =
+                new ClassOrInterfaceType(null, "Collection");
+
+            ClassOrInterfaceType objectType =
+                new ClassOrInterfaceType(null, "Object");
+
+            collectionType.setTypeArguments(
+                new ArrayType(objectType)
+            );
+
+            parametersMethod.setType(collectionType);
+
+            // @Parameterized.Parameters
+            parametersMethod.addAnnotation(
+                new MarkerAnnotationExpr("Parameterized.Parameters")
+            );
+
+            parametersMethod.setBody(
+                new BlockStmt()
+                    .addStatement(new ReturnStmt(new MethodCallExpr(
+                            new NameExpr("java.util.Arrays"),
+                            "asList",
+                            NodeList.nodeList(blockTest.parameterValues.clone())
+                    )))
+            );
+
+            declarations.add(parametersMethod);
         }
 
-        for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
-            FieldDeclaration field = new FieldDeclaration();
-            field.setPublic(true);
-            field.addVariable(new VariableDeclarator(parameterizedGiven.type.clone(), parameterizedGiven.name));
-
-            SingleMemberAnnotationExpr parameterAnnotation = new SingleMemberAnnotationExpr();
-            parameterAnnotation.setName("Parameter");
-            parameterAnnotation.setMemberValue(new IntegerLiteralExpr(String.valueOf(parameterizedGiven.index)));
-            field.addAnnotation(parameterAnnotation);
-            declarations.add(field);
-        }
-
-        MethodDeclaration parametersMethod = new MethodDeclaration();
-        parametersMethod.setPublic(true);
-        parametersMethod.setStatic(true);
-        parametersMethod.setName("data");
-
-        // Collection<Object[]>
-        ClassOrInterfaceType collectionType =
-            new ClassOrInterfaceType(null, "Collection");
-
-        ClassOrInterfaceType objectType =
-            new ClassOrInterfaceType(null, "Object");
-
-        collectionType.setTypeArguments(
-            new ArrayType(objectType)
-        );
-
-        parametersMethod.setType(collectionType);
-
-        // @Parameterized.Parameters
-        parametersMethod.addAnnotation(
-            new MarkerAnnotationExpr("Parameterized.Parameters")
-        );
-
-        parametersMethod.setBody(
-            new BlockStmt()
-                .addStatement(new ReturnStmt(new MethodCallExpr(
-                        new NameExpr("java.util.Arrays"),
-                        "asList",
-                        NodeList.nodeList(blockTest.parameterValues.clone())
-                )))
-        );
-
-        declarations.add(parametersMethod);
         return declarations;
     }
 
