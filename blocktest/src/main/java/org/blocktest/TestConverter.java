@@ -124,13 +124,12 @@ public class TestConverter {
                 } else if (!blockTest.givens.isEmpty()) {
                     method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Example");
                 }
+            } else if (Util.junitVersion.equals("junit5")) {
+                method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
+                applyJUnit5TestAnnotation(method, blockTest);
             } else {
                 method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
-                if (Util.junitVersion.equals("junit5")) {
-                    applyJUnit5TestAnnotation(method, blockTest);
-                } else {
-                    method.addMarkerAnnotation("Test");
-                }
+                method.addMarkerAnnotation("Test");
             }
         } else {
             if (Util.junitVersion.equals("junit4") || Util.junitVersion.equals("testng")) {
@@ -179,7 +178,7 @@ public class TestConverter {
             MethodDeclaration method = new MethodDeclaration();
             method.setPublic(true);
             method.setStatic(true);
-            method.setName(parameterSourceMethodName(blockTest));
+            method.setName(generateJUnit5ParameterSourceMethodName(blockTest));
             ClassOrInterfaceType streamType = new ClassOrInterfaceType(null, "Stream");
             streamType.setTypeArguments(new ClassOrInterfaceType(null, "Arguments"));
             method.setType(streamType);
@@ -310,7 +309,7 @@ public class TestConverter {
         }
     }
 
-    private String parameterSourceMethodName(BlockTest blockTest) {
+    private String generateJUnit5ParameterSourceMethodName(BlockTest blockTest) {
         // Generate the name of the method that for parameter source of JUnit5
         String testName = blockTest.testName == null || blockTest.testName.isEmpty()
                 ? "TestLine" + blockTest.lineNo
