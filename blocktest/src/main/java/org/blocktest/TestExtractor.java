@@ -177,6 +177,7 @@ public class TestExtractor {
             this.imports = tmp;
         }
 
+        // TODO: Refactor all these imports into functions
         NodeList<ImportDeclaration> testImports = new NodeList<>(imports);
         if (Util.junitVersion.equals("junit4")) {
             testImports.add(new ImportDeclaration("org.junit.Test", false, false));
@@ -184,6 +185,7 @@ public class TestExtractor {
             testImports.add(new ImportDeclaration("org.junit.runners.Parameterized", false, false));
             testImports.add(new ImportDeclaration(" org.junit.runners.Parameterized.Parameter", false, false));
             testImports.add(new ImportDeclaration("org.junit.runner.RunWith", false, false));
+            testImports.add(new ImportDeclaration("org.junit.Assume.assumeTrue", true, false));
             testImports.add(new ImportDeclaration("java.util.Collection", false, false));
         } else if (Util.junitVersion.equals("testng")) {
             testImports.add(new ImportDeclaration("org.testng.annotations.Test", false, false));
@@ -205,6 +207,7 @@ public class TestExtractor {
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));
             if (this.blockTests.stream().anyMatch(blockTest -> blockTest.is_parameterized)) {
                 testImports.add(new ImportDeclaration("org.junit.jupiter.params.ParameterizedTest", false, false));
+                testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assumptions.assumeTrue", true, false));
                 testImports.add(new ImportDeclaration("org.junit.jupiter.params.provider.MethodSource", false, false));
                 testImports.add(new ImportDeclaration("org.junit.jupiter.params.provider.Arguments", false, false));
                 testImports.add(new ImportDeclaration("java.util.stream.Stream", false, false));
