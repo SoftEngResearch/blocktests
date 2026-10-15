@@ -444,8 +444,18 @@ public class TestConverter {
         // Add assumptions
         if (blockTest.assumptions != null && !blockTest.assumptions.isEmpty()) {
             if (!Util.junitVersion.equals("jqwik")) {
-                // TODO: Support assume() for blocktest
-                throw new RuntimeException("assume() is only supported for jqwik");
+                for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
+                    // Generate the assume statement
+                    Expression condition = blockTest.assumptions.get(i).clone();
+                    MethodCallExpr assumeTrue = new MethodCallExpr(null, "assumeTrue", NodeList.nodeList(condition));
+                    ExpressionStmt statement = new ExpressionStmt(assumeTrue);
+
+                    // Replace the variables with the renamed variables
+                    Util.replaceExpressionsWithVariables(statement, blockTest.renameGivenVariables);
+
+                    // Add the assume statement to the body
+                    body.addStatement(statement);
+                }
             } else {
                 // Iterate backwards to restore source order
                 for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
