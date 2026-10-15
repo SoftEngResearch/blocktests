@@ -13,7 +13,10 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.ArrayCreationLevel;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.ArrayCreationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.ClassExpr;
 import com.github.javaparser.ast.expr.EnclosedExpr;
 import com.github.javaparser.ast.expr.Expression;
@@ -26,6 +29,7 @@ import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
+import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
@@ -70,6 +74,19 @@ public class TestConverter {
             BlockStmt givenBody = body;
             BlockStmt targetBlockBody = new BlockStmt();
             BlockStmt assertionBody = new BlockStmt();
+            
+            // Special handling for parameterized tests with expected-exception
+            // This is useful when paramterized tests is used with expected-exception in JUnit5
+            if (blockTest.is_parameterized && Util.junitVersion.equals("junit5") && blockTest.exception != null) {
+                // Add a new assignment statement for each parameterized given variable for expected-exception tests
+                for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
+                    Type paramType = parameterizedGiven.type.clone();
+                    NameExpr paramNewName = new NameExpr(parameterizedGiven.name + "BlockTestParam");
+                    VariableDeclarator declarator = new VariableDeclarator(paramType, parameterizedGiven.name, paramNewName);
+                    givenBody.addStatement(new VariableDeclarationExpr(declarator));
+                }
+            }
+
             // Add given statements
             addGivenStatements(givenBody, blockTest);
     
@@ -107,8 +124,12 @@ public class TestConverter {
                 } else if (!blockTest.givens.isEmpty()) {
                     method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Example");
                 }
+            } else if (Util.junitVersion.equals("junit5")) {
+                method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
+                applyJUnit5TestAnnotation(method, blockTest);
             } else {
-                method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Test");
+                method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
+                method.addMarkerAnnotation("Test");
             }
         } else {
             if (Util.junitVersion.equals("junit4") || Util.junitVersion.equals("testng")) {
@@ -133,7 +154,8 @@ public class TestConverter {
                 );
 
                 BlockStmt newBody = new BlockStmt().addStatement(assertThrowsCall);
-                method.setName(blockTest.testName).setType(new VoidType()).setBody(newBody).addMarkerAnnotation("Test");
+                method.setName(blockTest.testName).setType(new VoidType()).setBody(newBody);
+                applyJUnit5TestAnnotation(method, blockTest);
             }
         }
         new JavaParser().parseClassOrInterfaceType("Exception").getResult().ifPresent(method::addThrownException);
@@ -151,54 +173,150 @@ public class TestConverter {
             throw new RuntimeException("Parameterized block test is missing variables or parameter values");
         }
 
-        for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
-            FieldDeclaration field = new FieldDeclaration();
-            field.setPublic(true);
-            field.addVariable(new VariableDeclarator(parameterizedGiven.type.clone(), parameterizedGiven.name));
+        // JUnit 5 parameterized tests
+        if (Util.junitVersion.equals("junit5")) {
+            MethodDeclaration method = new MethodDeclaration();
+            method.setPublic(true);
+            method.setStatic(true);
+            method.setName(generateJUnit5ParameterSourceMethodName(blockTest));
+            ClassOrInterfaceType streamType = new ClassOrInterfaceType(null, "Stream");
+            streamType.setTypeArguments(new ClassOrInterfaceType(null, "Arguments"));
+            method.setType(streamType);
 
-            SingleMemberAnnotationExpr parameterAnnotation = new SingleMemberAnnotationExpr();
-            parameterAnnotation.setName("Parameter");
-            parameterAnnotation.setMemberValue(new IntegerLiteralExpr(String.valueOf(parameterizedGiven.index)));
-            field.addAnnotation(parameterAnnotation);
-            declarations.add(field);
+            if (!blockTest.parameterValues.isArrayCreationExpr()
+                    || !blockTest.parameterValues.asArrayCreationExpr().getInitializer().isPresent()) {
+                throw new RuntimeException("JUnit 5 parameterized block test parameters must be an initialized array");
+            }
+
+            NodeList<Expression> rows = new NodeList<>();
+            for (Expression row : blockTest.parameterValues.asArrayCreationExpr().getInitializer().get().getValues()) {
+                NodeList<Expression> values = new NodeList<>();
+
+                // Check if the row is an initialized array and get the initializer
+                ArrayInitializerExpr initializer = null;
+                if (row.isArrayInitializerExpr()) {  // For array literals like {1, 2, 3}
+                    initializer = row.asArrayInitializerExpr();
+                } else if (row.isArrayCreationExpr() && row.asArrayCreationExpr().getInitializer().isPresent()) {  // For array creations like new int[] {1, 2, 3}
+                    initializer = row.asArrayCreationExpr().getInitializer().get();
+                } else {
+                    throw new RuntimeException("JUnit 5 parameterized block test rows must be arrays");
+                }
+
+                // Iterate through the initializer values and create a new Object array for each value
+                for (Expression value : initializer.getValues()) {
+                    if (value.isArrayInitializerExpr()) {  // For array literals like {1, 2, 3}
+                        values.add(new ArrayCreationExpr(
+                                new ClassOrInterfaceType(null, "Object"),
+                                NodeList.nodeList(new ArrayCreationLevel()),
+                                value.asArrayInitializerExpr().clone()));
+                    } else {  // For non-array literals like Arrays.asList("a", "b", "c")
+                        values.add(value.clone());
+                    }
+                }
+                rows.add(new MethodCallExpr(new NameExpr("Arguments"), "of", values));
+            }
+
+            Expression returned;
+            if (rows.isEmpty()) {
+                returned = new MethodCallExpr(new NameExpr("Stream"), "empty");
+            } else {
+                returned = new MethodCallExpr(new NameExpr("Stream"), "of", rows);
+            }
+
+            // Set the body of the method to return the Stream of Arguments and add it to the declarations
+            method.setBody(new BlockStmt().addStatement(new ReturnStmt(returned)));
+            declarations.add(method);
+        }
+        
+        // JUnit 4 parameterized tests
+        else if (Util.junitVersion.equals("junit4")) {
+            for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
+                FieldDeclaration field = new FieldDeclaration();
+                field.setPublic(true);
+                field.addVariable(new VariableDeclarator(parameterizedGiven.type.clone(), parameterizedGiven.name));
+
+                SingleMemberAnnotationExpr parameterAnnotation = new SingleMemberAnnotationExpr();
+                parameterAnnotation.setName("Parameter");
+                parameterAnnotation.setMemberValue(new IntegerLiteralExpr(String.valueOf(parameterizedGiven.index)));
+                field.addAnnotation(parameterAnnotation);
+                declarations.add(field);
+            }
+
+            MethodDeclaration parametersMethod = new MethodDeclaration();
+            parametersMethod.setPublic(true);
+            parametersMethod.setStatic(true);
+            parametersMethod.setName("data");
+
+            // Collection<Object[]>
+            ClassOrInterfaceType collectionType =
+                new ClassOrInterfaceType(null, "Collection");
+
+            ClassOrInterfaceType objectType =
+                new ClassOrInterfaceType(null, "Object");
+
+            collectionType.setTypeArguments(
+                new ArrayType(objectType)
+            );
+
+            parametersMethod.setType(collectionType);
+
+            // @Parameterized.Parameters
+            parametersMethod.addAnnotation(
+                new MarkerAnnotationExpr("Parameterized.Parameters")
+            );
+
+            parametersMethod.setBody(
+                new BlockStmt()
+                    .addStatement(new ReturnStmt(new MethodCallExpr(
+                            new NameExpr("java.util.Arrays"),
+                            "asList",
+                            NodeList.nodeList(blockTest.parameterValues.clone())
+                    )))
+            );
+
+            declarations.add(parametersMethod);
         }
 
-        MethodDeclaration parametersMethod = new MethodDeclaration();
-        parametersMethod.setPublic(true);
-        parametersMethod.setStatic(true);
-        parametersMethod.setName("data");
-
-        // Collection<Object[]>
-        ClassOrInterfaceType collectionType =
-            new ClassOrInterfaceType(null, "Collection");
-
-        ClassOrInterfaceType objectType =
-            new ClassOrInterfaceType(null, "Object");
-
-        collectionType.setTypeArguments(
-            new ArrayType(objectType)
-        );
-
-        parametersMethod.setType(collectionType);
-
-        // @Parameterized.Parameters
-        parametersMethod.addAnnotation(
-            new MarkerAnnotationExpr("Parameterized.Parameters")
-        );
-
-        parametersMethod.setBody(
-            new BlockStmt()
-                .addStatement(new ReturnStmt(new MethodCallExpr(
-                        new NameExpr("java.util.Arrays"),
-                        "asList",
-                        NodeList.nodeList(blockTest.parameterValues.clone())
-                )))
-        );
-
-        declarations.add(parametersMethod);
         return declarations;
     }
-    
+
+    private void applyJUnit5TestAnnotation(MethodDeclaration method, BlockTest blockTest) {
+        // If the test is not parameterized, add the Test annotation
+        if (!blockTest.is_parameterized) {
+            method.addMarkerAnnotation("Test");
+            return;
+        }
+
+        // Add ParameterizedTest annotation
+        method.addMarkerAnnotation("ParameterizedTest");
+
+        // Add MethodSource annotation
+        SingleMemberAnnotationExpr methodSource = new SingleMemberAnnotationExpr();
+        methodSource.setName("MethodSource");
+        methodSource.setMemberValue(new StringLiteralExpr(generateJUnit5ParameterSourceMethodName(blockTest)));
+        method.addAnnotation(methodSource);
+
+        // Add parameters into the test method signature
+        for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
+            Type paramType = parameterizedGiven.type.clone();
+            String paramName;
+            if (blockTest.exception != null) {
+                paramName = parameterizedGiven.name + "BlockTestParam";
+            } else {
+                paramName = parameterizedGiven.name;
+            }
+            method.addParameter(new Parameter(paramType, paramName));
+        }
+    }
+
+    private String generateJUnit5ParameterSourceMethodName(BlockTest blockTest) {
+        // Generate the name of the method that for parameter source of JUnit5
+        String testName = blockTest.testName == null || blockTest.testName.isEmpty()
+                ? "TestLine" + blockTest.lineNo
+                : blockTest.testName;
+        return "blockTestParamSource" + testName;
+    }
+
     public MethodDeclaration toSourceCode(BlockTest blockTest) {
         System.out.println(blockTest);
         BlockStmt body = new BlockStmt();
@@ -322,16 +440,45 @@ public class TestConverter {
                 body.addStatement(statement);
             }
         }
+
+        // Add assumptions
+        if (blockTest.assumptions != null && !blockTest.assumptions.isEmpty()) {
+            if (!Util.junitVersion.equals("jqwik")) {
+                // TODO: Support assume() for blocktest
+                throw new RuntimeException("assume() is only supported for jqwik");
+            } else {
+                // Iterate backwards to restore source order
+                for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
+                    // Generate the assume statement
+                    Expression condition = blockTest.assumptions.get(i).clone();
+                    MethodCallExpr assumeThat = new MethodCallExpr(new NameExpr("Assume"), "that", NodeList.nodeList(condition));
+                    ExpressionStmt statement = new ExpressionStmt(assumeThat);
+
+                    // Replace the variables with the renamed variables
+                    Util.replaceExpressionsWithVariables(statement, blockTest.renameGivenVariables);
+
+                    // Add the assume statement to the body
+                    body.addStatement(statement);
+                }
+            }
+        }
     }
 
     private void addTargetBlock(BlockStmt body, BlockStmt initBody, BlockStmt assertBody, BlockTest blockTest, boolean coverage) {
         System.out.println("\n===== Preventing variable redeclaration in target block =====");
         BlockStmt block = blockTest.statements;
 
-        if (blockTest.junitLambdaAssertions.isEmpty())
-            // if there are no lambda assertions, we can remove the return statements
+        if (blockTest.junitLambdaAssertions.isEmpty()) {
+            List<String> alreadyDeclared = new ArrayList<>(blockTest.givenVariables);
+
+            // Add the parameterized given variables to the already declared variables
+            if (blockTest.parameterizedGivenVariables != null) {
+                alreadyDeclared.addAll(blockTest.parameterizedGivenVariables);
+            }
+
             block = (BlockStmt) blockTest.statements
-                    .accept(new DeclarationRemovalVisitor(blockTest.givenVariables), null);
+                    .accept(new DeclarationRemovalVisitor(alreadyDeclared), null);
+        }
 
         System.out.println("\n===== Flow controlling =====");
         FlowControllingVisitor visitor = new FlowControllingVisitor(blockTest);

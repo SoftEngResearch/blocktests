@@ -28,6 +28,7 @@ public class BlockTest implements Cloneable{
     public int endLineNo;
     public List<GivenVariable> givens;
     public List<GivenAllVariable> givenAlls;
+    public List<Expression> assumptions;
     public List<String> givenVariables;
     public Set<String> renameGivenVariables;
     public BlockStmt setupBlock;
@@ -68,6 +69,7 @@ public class BlockTest implements Cloneable{
         this.testName = "";
         this.givens = new ArrayList<>();
         this.givenAlls = new ArrayList<>();
+        this.assumptions = new ArrayList<>();
         this.givenVariables = new ArrayList<>();
         this.renameGivenVariables = new HashSet<>();
         this.setupBlock = null;
@@ -118,6 +120,11 @@ public class BlockTest implements Cloneable{
             sb.append("  ").append(givenAll.toString()).append("\n");
         }
 
+        sb.append("Assume:\n");
+        for (Expression assumption : assumptions) {
+            sb.append("  ").append(assumption.toString()).append("\n");
+        }
+
         sb.append("Statement:\n");
         for (Node stmt : statements.getStatements()) {
             sb.append("  ").append(stmt.toString()).append("\n");
@@ -164,6 +171,7 @@ public class BlockTest implements Cloneable{
             
             cloned.givens = new ArrayList<>(this.givens);
             cloned.givenAlls = new ArrayList<>(this.givenAlls);
+            cloned.assumptions = new ArrayList<>(this.assumptions);
             cloned.givenVariables = new ArrayList<>(this.givenVariables);
             cloned.renameGivenVariables = new HashSet<>(this.renameGivenVariables);
             cloned.junitAssertions = new ArrayList<>(this.junitAssertions);

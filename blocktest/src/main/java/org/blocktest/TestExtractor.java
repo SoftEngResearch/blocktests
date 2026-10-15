@@ -196,9 +196,18 @@ public class TestExtractor {
                 testImports.add(new ImportDeclaration("net.jqwik.api.ForAll", false, false));
                 testImports.add(new ImportDeclaration("net.jqwik.api.Property", false, false));
             }
+            if (this.blockTests.stream().anyMatch(blockTest -> !blockTest.assumptions.isEmpty())) {
+                testImports.add(new ImportDeclaration("net.jqwik.api.Assume", false, false));
+            }
         } else {
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Test", false, false));
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));
+            if (this.blockTests.stream().anyMatch(blockTest -> blockTest.is_parameterized)) {
+                testImports.add(new ImportDeclaration("org.junit.jupiter.params.ParameterizedTest", false, false));
+                testImports.add(new ImportDeclaration("org.junit.jupiter.params.provider.MethodSource", false, false));
+                testImports.add(new ImportDeclaration("org.junit.jupiter.params.provider.Arguments", false, false));
+                testImports.add(new ImportDeclaration("java.util.stream.Stream", false, false));
+            }
         }
 
         if (!inputStrings.contains("org.blocktest.BTest")) {
@@ -351,7 +360,7 @@ public class TestExtractor {
 
         newCU.setImports(this.imports);
         ClassOrInterfaceDeclaration testClass = newCU.addClass(className+"BlockTest").setPublic(true);
-
+    
         System.out.println("STATIC METHODS: " + staticMethods);
 
         Set<StaticMethod> usedStaticMethods = new HashSet<>();
@@ -365,12 +374,18 @@ public class TestExtractor {
             // but to their own java class
             // Change this to "if there are no configs associated with a test (no labels)." 
             // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4)
-            if (!blockTest.is_parameterized ||
-                !blockTest.is_config || !Util.junitVersion.equals("junit4")) {
+            if (!(Util.junitVersion.equals("junit4") && blockTest.is_parameterized)) {
                 
                 System.out.println("Extracted BlockTest");
                 BlockTest blockTestTmp = blockTest.clone();
                 MethodDeclaration method = new TestConverter(this.globalSymbolTable).toJUnit(blockTest, coverage);
+
+                if (blockTest.is_parameterized) {
+                    for (BodyDeclaration<?> declaration : new TestConverter(this.globalSymbolTable)
+                            .toParamJUnit(blockTest, coverage)) {
+                        testClass.addMember(declaration);
+                    }
+                }
 
                 if (coverage) {
                     testClass.addMember(method.setPublic(true));
