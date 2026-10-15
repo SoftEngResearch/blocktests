@@ -41,7 +41,8 @@ import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import org.blocktest.types.StaticMethod;
-import org.blocktest.types.BlockTestConfig;
+import org.blocktest.types.BlockTestParamConfig;
+import org.blocktest.utils.Constant;
 import org.blocktest.utils.Util;
 import org.blocktest.visitors.BlockTestConversionVisitor;
 import org.blocktest.visitors.ExtractionVisitor;
@@ -68,7 +69,7 @@ public class TestExtractor {
 
     public HashMap<String, HashSet<Type>> globalSymbolTable = new HashMap<>();
 
-    Map<String, BlockTestConfig> blockTestConfigs = new HashMap<>();
+    Map<String, BlockTestParamConfig> blockTestConfigs = new HashMap<>();
     List<BlockTest> blockTests = new ArrayList<BlockTest>();
 
     public TestExtractor(String inputFileSource, String testedClassName, 
@@ -265,26 +266,61 @@ public class TestExtractor {
         }
     }
 
-    //static List<BlockTest> extractBlockTestConfigs(List<BlockTest> blockTests) {
-    //    java.util.Iterator<BlockTest> blockTestIterator = blockTests.iterator();
-    //    while (blockTestIterator.hasNext()) {
-    //        BlockTest blockTest = blockTestIterator.next();
-    //        if (blockTest.is_blocktest_config) {
-    //            
-    //            System.out.println("Extracted BlockTest");
-    //            BlockTest blockTestTmp = blockTest.clone();
+    public void extractBlockTestConfigs() {
+        java.util.Iterator<BlockTest> blockTestIterator = blockTests.iterator();
 
-    //            this.blockTestConfigs = blockTestTmp.blockTestConfigs;
+        if (this.blockTestConfigs == null) {
+            this.blockTestConfigs = new java.util.HashMap<>();
+        }
 
-    //            blockTestIterator.remove();
-    //        } else {
-    //            continue;
-    //        }
-    //    }
+        while (blockTestIterator.hasNext()) {
+            BlockTest blockTest = blockTestIterator.next();
 
-    //    return blockTests;
-    //    
-    //}
+            if (blockTest.is_config) {
+                System.out.println("Extracted Config BlockTest");
+
+                BlockTest blockTestTmp = blockTest.clone();
+
+                if (blockTestTmp == null || blockTestTmp.configs == null) {
+                    throw new IllegalStateException(
+                        "BlockTest clone or configs is null"
+                    );
+                }
+
+                this.blockTestConfigs.putAll(blockTestTmp.configs);
+
+                blockTestIterator.remove();
+            }
+        }
+    }
+
+    public void applyBlockTestConfigs() {
+        java.util.Iterator<BlockTest> blockTestIterator = blockTests.iterator();
+
+        while (blockTestIterator.hasNext()) {
+            BlockTest blockTest = blockTestIterator.next();
+
+            if (blockTest.is_configed) {
+                BlockTestParamConfig blockTestConfig =
+                        this.blockTestConfigs.get(blockTest.label);
+
+                if (blockTestConfig == null) {
+                    throw new IllegalStateException(
+                        "No configuration found for BlockTest label: "
+                        + blockTest.label
+                    );
+                }
+
+                if (blockTest.parameterizedGivenVariables.size() != blockTestConfig.parameterizedGivenTypes.size()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED
+                        + " number of parameterized variables is not equal to number of columns or types in parameters");
+                }
+
+                blockTest.parameterValues = blockTestConfig.parameterValues;
+                blockTest.parameterizedGivens = blockTestConfig.getParameterizedGivens(blockTest.parameterizedGivenVariables);
+            }
+        }
+    }
 
     // The way this function executes depends a lot on the version of junit etc we should refactor to call 
     // specific function as needed for each tasting framework

@@ -12,7 +12,7 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
 
-import org.blocktest.types.BlockTestConfig;
+import org.blocktest.types.BlockTestParamConfig;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
 import org.blocktest.types.GivenAllVariable;
@@ -56,13 +56,17 @@ public class BlockTest implements Cloneable{
     public boolean is_parameterized;
     public List<GivenParameterizedVariable> parameterizedGivens;
     public List<String> parameterizedGivenVariables;
+    public List<Type> parameterizedGivenTypes;
     public Set<String> renameParameterizedGivenVariables;
     public Expression parameterValues;
 
-    // Bundle BT
+    // Config BT
     public boolean is_config;
-    Map<String, BlockTestConfig> configs;
-    String label;
+    public Map<String, BlockTestParamConfig> configs;
+
+    // Configed BT
+    public boolean is_configed;
+    public String label;
 
 
     public BlockTest() {
@@ -96,11 +100,13 @@ public class BlockTest implements Cloneable{
         this.is_parameterized = false;
         this.parameterizedGivens = new ArrayList<>();
         this.parameterizedGivenVariables = new ArrayList<>();
+        this.parameterizedGivenTypes = new ArrayList<>();
         this.renameParameterizedGivenVariables = new HashSet<>();
         this.parameterValues = null;
 
         // Bundle BT
         this.is_config = false;
+        this.is_configed = false;
         this.configs = null;
         this.label = null;
 
