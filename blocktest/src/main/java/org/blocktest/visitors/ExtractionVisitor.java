@@ -398,6 +398,29 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             GivenAllVariable givenAll = new GivenAllVariable(leftType, left.toString());
             blockTest.givenAlls.add(givenAll);
             blockTest.givenVariables.add(left.toString());
+        } else if (methodCall.getName().asString().equals(Constant.ASSUME)) {
+            // assume(condition); This take one argument
+            // The condition can be a string or an expression
+            List<Expression> args = methodCall.getArguments();
+            if (args.size() != 1) {
+                throw new RuntimeException(Constant.ASSUME + " should have 1 argument");
+            }
+
+            // Parse the condition expression
+            Expression condition = args.get(0);
+            if (condition instanceof StringLiteralExpr) {
+                String conditionStr = ((StringLiteralExpr) condition).asString();
+                try {
+                    condition = StaticJavaParser.parseExpression(conditionStr);
+                } catch (Exception e) {
+                    throw new RuntimeException(Constant.ASSUME + " could not parse condition: " + conditionStr);
+                }
+            } else {
+                condition = condition.clone();
+            }
+
+            // Add the condition to the assumptions list
+            blockTest.assumptions.add(condition);
         } else if (methodCall.getName().asString().equals(Constant.PARAMETERIZED)) {
             
             List<Expression> args = methodCall.getArguments();

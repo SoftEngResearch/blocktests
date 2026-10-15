@@ -28,6 +28,7 @@ public final class ReverseList {
         propblocktest("preservesSize").givenAll(items, "List<String>")
                 .checkEq("reversed.size()", items.size()).end(FIRST_BLOCK);
         propblocktest("reversesTwice").givenAll(items, "List<String>")
+                .assume(items != null && !items.isEmpty())
                 .checkEq("reverseList(reverseList(items))", items).end(FIRST_BLOCK);
         List reversed = new ArrayList(items.size());
         for (int index = items.size() - 1; index >= 0; index--) {

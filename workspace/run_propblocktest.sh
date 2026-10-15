@@ -1,21 +1,21 @@
 #!/bin/bash
 #
-# Run the property block test on the local toy-app.
+# Run the property block test on toy-app-propblocktest.
 # Same steps as scripts/time/run_blocktest_with_time.sh:
 # 1. install the property block test,
 # 2. generate from inside the blocktest directory
 # 3. run the generated test.
-# Usage: bash run_blocktest.sh
+# Usage: bash run_propblocktest.sh
 #
 set -e
 
 SCRIPT_DIR=$( cd $( dirname $0 ) && pwd )
 REPO_ROOT=$( cd ${SCRIPT_DIR}/.. && pwd )
 
-OUTPUT_DIR=${SCRIPT_DIR}/output
+OUTPUT_DIR=${SCRIPT_DIR}/output/propblocktest
 BLOCKTEST_DIR=${REPO_ROOT}/blocktest
 EXTENSION_DIR=${REPO_ROOT}/extension
-TOY_APP=${SCRIPT_DIR}/toy-app
+TOY_APP=${SCRIPT_DIR}/toy-app-propblocktest
 TEST_FILENAME=ReverseListBlockTest
 
 mkdir -p ${OUTPUT_DIR}/logs
@@ -75,19 +75,19 @@ generate_test() {
 	fi
 
 	echo ">>> Time to generate tests: ${DURATION}"
-	cp ${fullpath_dir}/${TEST_FILENAME}.java ${OUTPUT_DIR}/logs/${TEST_FILENAME}.java
+	cp ${fullpath_dir}/*BlockTest*.java ${OUTPUT_DIR}/logs/
 }
 
 run_blocktest() {
 	echo "Running property block test..."
 	local extension_jar="${EXTENSION_DIR}/target/blocktest-extension-1.0.jar"
-	local tmp_dir="/tmp/toy-app"
+	local tmp_dir="/tmp/toy-app-propblocktest"
 
 	rm -rf ${tmp_dir} && mkdir ${tmp_dir}
 	pushd ${TOY_APP} &> /dev/null
 
 	local start=$(date +%s)
-	(time mvn -Djava.io.tmpdir=${tmp_dir} -Dmaven.ext.class.path=${extension_jar} test-compile surefire:test -Dtest="${TEST_FILENAME}") &> ${OUTPUT_DIR}/logs/run-timed.log
+	(time mvn -Djava.io.tmpdir=${tmp_dir} -Dmaven.ext.class.path=${extension_jar} test-compile surefire:test -Dtest=*BlockTest*) &> ${OUTPUT_DIR}/logs/run-timed.log
 	local end=$(date +%s)
 	DURATION=$((end - start))
 
