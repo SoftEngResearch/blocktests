@@ -26,7 +26,6 @@ public class Reverse {
 
             /* @blocktest().given(list, new ArrayList<Integer>(), "List<Integer>") 
                         .parameterized("test_inputs", right, left, expected0, expected1)
-                        .assume(expected0 != expected1)
                         .given(temp, 6, "Integer")
                         .setup(() -> { 
                             list.add(6);
