@@ -520,7 +520,7 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 throw new RuntimeException(Constant.CONFIG_PARAM + " label must be a string literal");
             }
             if (!args.get(1).isStringLiteralExpr()) {
-                throw new RuntimeException(Constant.CONFIG_PARAM + " label must be a string literal");
+                throw new RuntimeException(Constant.CONFIG_PARAM + " types must be a string literal");
             }
 
 

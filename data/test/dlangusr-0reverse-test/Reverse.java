@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class Reverse {
     public static <T> void reverse(List<T> list) {
-    // @blocktest().config("test_inputs", new Object[][] {{1, 0, 7, 6}, {0, 1, 6, 6}});
+    // @blocktest().configParam("test_inputs", "int int int int", new Object[][] {{1, 0, 7, 6}, {0, 1, 6, 6}});
         int left = 0;
         int right = list.size() - 1;
 
@@ -25,8 +25,8 @@ public class Reverse {
             // This is why we need the block test to be in a comment
 
             /* @blocktest().given(list, new ArrayList<Integer>(), "List<Integer>") 
-                        .parameterized("test_inputs", 
-                            "int int int int", right, left, expected0, expected1)
+                        .parameterized("test_inputs", right, left, expected0, expected1)
+                        .assume(expected0 != expected1)
                         .given(temp, 6, "Integer")
                         .setup(() -> { 
                             list.add(6);
