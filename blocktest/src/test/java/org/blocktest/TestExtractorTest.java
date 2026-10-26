@@ -24,7 +24,7 @@ import org.blocktest.utils.Util;
 import org.junit.Test;
 import org.junit.runner.Result;
 
-public class TestExtractionTest extends AstTestSupport {
+public class TestExtractorTest extends AstTestSupport {
   private static final String BASIC = "extraction/basic/Sample.java";
   private static final String INPUT = "sample/Sample.java";
   private static final String OUTPUT = "generated/SampleBlockTest.java";
@@ -41,15 +41,14 @@ public class TestExtractionTest extends AstTestSupport {
       String fixture, int duplicates, boolean coverage, boolean rewrite, boolean compile)
       throws Exception {
     sourceFixture(fixture, INPUT);
-    TestExtraction.extractTest(
-        input().toString(),
-        output().toString(),
-        "Sample",
-        "SampleBlockTest",
-        duplicates,
-        coverage,
-        rewrite,
-        compile);
+
+    TestExtractor testExtractor = new TestExtractor(input().toString(), "Sample", 
+                                coverage, rewrite, compile);
+
+
+    testExtractor.extractBlockTests();
+    testExtractor.extractTestsToSameClass(output().toString(), "Sample", duplicates);
+
     assertTrue(Files.exists(output()));
     return StaticJavaParser.parse(output());
   }
@@ -168,8 +167,8 @@ public class TestExtractionTest extends AstTestSupport {
   public void rewritesPrivateStaticHelpersAndFieldsOnlyWhenNeeded() throws Exception {
     CompilationUnit generated = extractFixture("extraction/static-helpers/Sample.java");
     assertTrue(generated.toString().contains("Sample.helper(x)"));
-    assertEquals("Sample", TestExtraction.staticFields.get("VALUE"));
-    assertTrue(TestExtraction.staticPrivateFields.contains("Sample"));
+    assertEquals("Sample", TestExtractor.staticFields.get("VALUE"));
+    assertTrue(TestExtractor.staticPrivateFields.contains("Sample"));
 
     CompilationUnit rewrittenSource = StaticJavaParser.parse(input());
     assertFalse(rewrittenSource.findFirst(FieldDeclaration.class).get().isPrivate());
@@ -187,7 +186,7 @@ public class TestExtractionTest extends AstTestSupport {
   public void staticFieldRewritingCanBeDisabled() throws Exception {
     Util.rewriteStaticVar = false;
     CompilationUnit generated = extractFixture("extraction/static-disabled/Sample.java");
-    assertTrue(TestExtraction.staticFields.isEmpty());
+    assertTrue(TestExtractor.staticFields.isEmpty());
     assertTrue(generated.toString().contains("x = VALUE;"));
   }
 
@@ -225,12 +224,22 @@ public class TestExtractionTest extends AstTestSupport {
     sourceFixture(BASIC, "Sample.java");
     Path original = temporary.getRoot().toPath().resolve("Sample.java");
     Path output = temporary.getRoot().toPath().resolve("out.java");
-    TestExtraction.extractTest(
-        original + ".missing", output.toString(), "Sample", "Out", 0, false, false, true);
+    
+    TestExtractor testExtractor = new TestExtractor(original + ".missing", "Sample", 
+                                false, false, true);
+
+
+    testExtractor.extractBlockTests();
+    testExtractor.extractTestsToSameClass(output().toString(), "Out", 0);
+    
     assertFalse(Files.exists(output));
     for (String destination : Arrays.asList(null, "")) {
-      TestExtraction.extractTest(
-          original.toString(), destination, "Sample", "Out", 0, true, true, true);
+      TestExtractor te = new TestExtractor(original.toString(), "Sample", 
+                                true, true, true);
+
+
+      te.extractBlockTests();
+      te.extractTestsToSameClass(destination, "Out", 0);
     }
     assertEquals(
         fixtureText(BASIC), new String(Files.readAllBytes(original), StandardCharsets.UTF_8));
@@ -273,15 +282,12 @@ public class TestExtractionTest extends AstTestSupport {
     ByteArrayOutputStream errors = new ByteArrayOutputStream();
     try (PrintStream captured = new PrintStream(errors, true, "UTF-8")) {
       System.setErr(captured);
-      TestExtraction.extractTest(
-          original.toString(),
-          output.toString(),
-          "Sample",
-          "SampleBlockTest",
-          0,
-          false,
-          false,
-          true);
+      TestExtractor testExtractor = new TestExtractor(original.toString(), "Sample", 
+                                false, false, true);
+
+
+      testExtractor.extractBlockTests();
+      testExtractor.extractTestsToSameClass(output.toString(), "Sample", 0);
     } finally {
       System.setErr(originalError);
     }

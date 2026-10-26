@@ -283,6 +283,9 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
 
             if (left instanceof StringLiteralExpr) {
                 String leftStr = ((StringLiteralExpr) left).asString();
+                if (leftStr.startsWith("this.")) {
+                    leftStr = leftStr.substring(5); // strip "this." → "foo"
+                }
                 // Allow assertions on variables
                 if (leftStr.matches("[A-Za-z_$][A-Za-z0-9_$]*")) {
                     left = new NameExpr(leftStr);

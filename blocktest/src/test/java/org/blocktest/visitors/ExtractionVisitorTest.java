@@ -12,7 +12,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.*;
 import org.blocktest.BlockTest;
-import org.blocktest.TestExtraction;
+import org.blocktest.TestExtractor;
 import org.blocktest.support.AstTestSupport;
 import org.blocktest.types.*;
 import org.blocktest.utils.Util;
@@ -283,7 +283,7 @@ public class ExtractionVisitorTest extends AstTestSupport {
   public void mocksSupportWildcardsFieldsMultipleValuesAndRemoval() throws Exception {
     BlockTest b = oneCase("mockReplacement");
     assertBlock("{ int a=1; int b=2; int c=3; int d=4; }", b.statements);
-    TestExtraction.staticFields.put("VALUE", "Owner");
+    TestExtractor.staticFields.put("VALUE", "Owner");
     b = chain("mockString(\"VALUE + 1\",9).end(FIRST_STATEMENT)");
     assertTrue(b.mockMethods.containsKey("Owner.VALUE + 1"));
     Util.loadXml = true;

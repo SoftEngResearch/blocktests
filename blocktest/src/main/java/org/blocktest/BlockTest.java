@@ -184,6 +184,11 @@ public class BlockTest implements Cloneable{
             BlockTest cloned = (BlockTest) super.clone();
             
             cloned.givens = new ArrayList<>(this.givens);
+            cloned.parameterizedGivens = new ArrayList<>(this.parameterizedGivens);
+            cloned.parameterizedGivenVariables = new ArrayList<>(this.parameterizedGivenVariables);
+            cloned.parameterizedGivenVariables = new ArrayList<>(this.parameterizedGivenVariables);
+            cloned.parameterizedGivenTypes = new ArrayList<>(this.parameterizedGivenTypes);
+            cloned.renameParameterizedGivenVariables = new HashSet<>(this.renameParameterizedGivenVariables);
             cloned.givenAlls = new ArrayList<>(this.givenAlls);
             cloned.assumptions = new ArrayList<>(this.assumptions);
             cloned.givenVariables = new ArrayList<>(this.givenVariables);
