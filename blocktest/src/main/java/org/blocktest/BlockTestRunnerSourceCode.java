@@ -71,6 +71,11 @@ public class BlockTestRunnerSourceCode {
         boolean coverage = false;
         if (params.containsKey("coverage")) {
             coverage = Boolean.parseBoolean(params.get("coverage"));
+            Util.coverage = coverage;
+        }
+
+        if (params.containsKey("with_assertion")) {
+            Util.withAssertion = Boolean.parseBoolean(params.get("with_assertion"));
         }
         
         boolean rewrite = false;
@@ -85,6 +90,22 @@ public class BlockTestRunnerSourceCode {
 
         if (params.containsKey("predict")) {
             Util.predictValue = Boolean.parseBoolean(params.get("predict"));
+        }
+
+        if (params.containsKey("loadXml")) {
+            Util.loadXml = Boolean.parseBoolean(params.get("loadXml"));
+        }
+
+        if (params.containsKey("rewriteStaticVar")) {
+            Util.rewriteStaticVar = Boolean.parseBoolean(params.get("rewriteStaticVar"));
+        }
+
+        if (params.containsKey("public_var")) {
+            Util.allPublic = Boolean.parseBoolean(params.get("public_var"));
+        }
+
+        if (params.containsKey("generated_tests")) {
+            Util.generatedTests = Boolean.parseBoolean(params.get("generated_tests"));
         }
 
         TestExtractor testExtractor = new TestExtractor(inputFilePath.toAbsolutePath().toString(),

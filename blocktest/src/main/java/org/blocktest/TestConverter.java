@@ -31,11 +31,13 @@ import com.github.javaparser.ast.expr.NormalAnnotationExpr;
 import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
+import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.TryStmt;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
@@ -47,10 +49,7 @@ import org.blocktest.utils.Constant;
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
 import org.blocktest.types.GivenParameterizedVariable;
-import org.blocktest.visitors.BreakReplacementVisitor;
-import org.blocktest.visitors.DeclarationRemovalVisitor;
-import org.blocktest.visitors.FlowControllingVisitor;
-import org.blocktest.visitors.VariablesCollectionVisitor;
+import org.blocktest.visitors.*;
 
 public class TestConverter {
     private HashMap<String, HashSet<Type>> globalSymbolTable;
@@ -88,6 +87,14 @@ public class TestConverter {
             }
 
             // Add given statements
+            if (!blockTest.junitLambdaAssertions.isEmpty()) {
+                body.addStatement(new ExpressionStmt(new VariableDeclarationExpr(
+                        new VariableDeclarator(Util.getTypeFromStr("boolean"), Constant.RETURN_STMT_REACHED, new NameExpr(blockTest.notReturn ? "true" : "false"))
+                )));
+                MethodCallExpr assertReturned = new MethodCallExpr(new NameExpr("org.blocktest.Assertion"),
+                        "assertTrue", new NodeList<>(new NameExpr(Constant.RETURN_STMT_REACHED)));
+                blockTest.junitAssertions.add(assertReturned);
+            }
             addGivenStatements(givenBody, blockTest);
     
             TryStmt tryStmt = new TryStmt();
@@ -134,7 +141,7 @@ public class TestConverter {
         } else {
             if (Util.junitVersion.equals("junit4") || Util.junitVersion.equals("testng")) {
                 // JUnit 4 style
-                MemberValuePair pair = new MemberValuePair("expected", (ClassExpr) blockTest.exception);
+                MemberValuePair pair = new MemberValuePair(Util.junitVersion.equals("junit4") ? "expected" : "expectedExceptions", (ClassExpr) blockTest.exception);
                 NormalAnnotationExpr annotation = new NormalAnnotationExpr();
                 annotation.setName("Test");
                 annotation.setPairs(new NodeList<>(pair));
@@ -159,6 +166,33 @@ public class TestConverter {
             }
         }
         new JavaParser().parseClassOrInterfaceType("Exception").getResult().ifPresent(method::addThrownException);
+
+        if (blockTest.controlFlow != null && !coverage) {
+            TryStmt tryStmt = new TryStmt();
+            BlockStmt tmp = new BlockStmt();
+            tryStmt.setTryBlock(method.getBody().orElse(new BlockStmt()));
+
+            MethodCallExpr flowAssertCall = new MethodCallExpr(
+                    new NameExpr("org.blocktest.Assertion"),
+                    "assertEquals",
+                    new NodeList<>(new NameExpr(blockTest.controlFlow), new MethodCallExpr(new NameExpr("BLOCKGEN_FLOW_INTERNAL"), "toString"))
+            );
+            tmp.addStatement(new ExpressionStmt(flowAssertCall));
+            tryStmt.setFinallyBlock(tmp);
+            BlockStmt tmp2 = new BlockStmt();
+            ClassOrInterfaceType sbType = new ClassOrInterfaceType(null, "java.lang.StringBuilder");
+            tmp2.addStatement(new ExpressionStmt(
+                    new VariableDeclarationExpr(
+                            new VariableDeclarator(
+                                    sbType,
+                                    "BLOCKGEN_FLOW_INTERNAL",
+                                    new ObjectCreationExpr(null, sbType.clone(), new NodeList<>())
+                            )
+                    )
+            ));
+            tmp2.addStatement(tryStmt);
+            method.setBody(tmp2);
+        }
 
         System.out.println("\n===== Converted JUnit Test Method =====");
         System.out.println(method);
@@ -326,6 +360,8 @@ public class TestConverter {
         // Add given statements
         addGivenStatements(givenBody, blockTest);
 
+        System.out.println(body);
+
         TryStmt tryStmt = new TryStmt();
         tryStmt.setTryBlock(targetBlockBody);
         tryStmt.setFinallyBlock(new BlockStmt());
@@ -377,6 +413,7 @@ public class TestConverter {
         }
 
         // Declare variables in statements that are not in given
+        System.out.println("\n===== Declare variables in statements that are not in given =====");
         VariablesCollectionVisitor collector = new VariablesCollectionVisitor();
         blockTest.statements.accept(collector, null);
 
@@ -385,11 +422,17 @@ public class TestConverter {
         // (2): all the variables that are assigned in target block
         // (3): then remove all the variables that are declared in target block
         HashSet<String> inBothLocalSymbolTableAndBlock = new HashSet<>(blockTest.localSymbolTable.keySet());
+        System.out.println("localSymbolTable: " + blockTest.localSymbolTable.keySet());
         inBothLocalSymbolTableAndBlock.retainAll(blockTest.blockVariables);
+        System.out.println("blockTest.blockVariables: " + blockTest.blockVariables);
         inBothLocalSymbolTableAndBlock.removeAll(blockTest.givenVariables);
+        System.out.println("blockTest.givenVariables: " + blockTest.givenVariables);
+        System.out.println("inBothLocalSymbolTableAndBlock: " + inBothLocalSymbolTableAndBlock);
 
+        System.out.println("before collector.assignedVariables: " + collector.assignedVariables);
         collector.assignedVariables.addAll(inBothLocalSymbolTableAndBlock);
         collector.assignedVariables.removeAll(collector.declaredVariables);
+        System.out.println("collector.declaredVariables: " + collector.declaredVariables);
         collector.assignedVariables.removeAll(blockTest.givenVariables); // inBothLocalSymbolTableAndBlock's removeAll will not remove given if the variable is already in collector.assignedVariables due to VariablesCollectionVisitor
         collector.assignedVariables.removeAll(blockTest.parameterizedGivenVariables);
         System.out.println("AAABBB " + collector.assignedVariables + ", " + inBothLocalSymbolTableAndBlock);
@@ -400,7 +443,7 @@ public class TestConverter {
 
             if (varType == null) {
                 // Try to find the type in global symbol table
-                HashSet<Type> tmp = globalSymbolTable.getOrDefault(var, null);
+                HashSet<Type> tmp = globalSymbolTable.getOrDefault(var, new HashSet<>());
                 if (tmp.size() == 1) {
                     varType = tmp.iterator().next();
                 }
@@ -414,7 +457,9 @@ public class TestConverter {
                     String leftTypeStr = TypeResolver.sSymbolResolver.calculateType(new NameExpr(var)).describe();
                     varType = Util.getTypeFromStr(leftTypeStr);
                 } catch (Exception e) {
-                    throw new RuntimeException("Unable to resolve type for variable " + var + ": " + e.getMessage());
+                   System.err.println("Unable to resolve type for variable " + var + ": " + e.getMessage() + " in collector.assignedVariables");
+                   System.err.println("Default to object!");
+                   varType = Util.getTypeFromStr("java.lang.Object");
                 }
             }
 
@@ -486,9 +531,11 @@ public class TestConverter {
                 alreadyDeclared.addAll(blockTest.parameterizedGivenVariables);
             }
 
-            block = (BlockStmt) blockTest.statements
-                    .accept(new DeclarationRemovalVisitor(alreadyDeclared), null);
+            block = (BlockStmt) blockTest.statements.accept(new DeclarationRemovalVisitor(alreadyDeclared), null);
         }
+
+        System.out.println("Post DeclarationRemovalVisitor:");
+        System.out.println(block);
 
         System.out.println("\n===== Flow controlling =====");
         FlowControllingVisitor visitor = new FlowControllingVisitor(blockTest);
@@ -531,6 +578,11 @@ public class TestConverter {
                             block.addStatement(assertCall);
                         }
 
+                        if (blockTest.notReturn) {
+                            block.addStatement(new AssignExpr(new NameExpr(Constant.RETURN_STMT_REACHED), new NameExpr("false"), AssignExpr.Operator.ASSIGN));
+                        } else {
+                            block.addStatement(new AssignExpr(new NameExpr(Constant.RETURN_STMT_REACHED), new NameExpr("true"), AssignExpr.Operator.ASSIGN));
+                        }
                         block.addStatement(new ReturnStmt()); // bare return;
                         return block;
                     }
@@ -540,9 +592,21 @@ public class TestConverter {
         } else {
             // replace return xxx; with return;
             block.accept(new ModifierVisitor<Void>() {
+                int counter = 0;
                 @Override
-                public ReturnStmt visit(ReturnStmt rs, Void arg) {
-                    if (rs.getExpression().isPresent()) rs.removeExpression();
+                public Visitable visit(ReturnStmt rs, Void arg) {
+                    if (rs.getExpression().isPresent()) {
+                        BlockStmt block = new BlockStmt();
+
+                        VariableDeclarator decl = new VariableDeclarator(
+                                new ClassOrInterfaceType(null, "Object"),
+                                "RETURN_STATEMENT_" + (++counter),
+                                rs.getExpression().get().clone()
+                        );
+                        block.addStatement(new ExpressionStmt(new VariableDeclarationExpr(decl)));
+                        block.addStatement(new ReturnStmt());
+                        return block;
+                    }
                     return rs;
                 }
             }, null);
@@ -550,6 +614,10 @@ public class TestConverter {
 
         BreakReplacementVisitor replacer = new BreakReplacementVisitor();
         block.accept(replacer, null);
+
+        if (blockTest.controlFlow != null && !coverage) {
+            block.accept(new ControlFlowInstrumentVisitor("BLOCKGEN_FLOW_INTERNAL"), null);
+        }
 
         for (Statement statement : block.getStatements()) {
             body.addStatement(statement);
@@ -583,6 +651,8 @@ public class TestConverter {
             }
         }
 
+        System.out.println("^^** Cleaned block: ");
+        System.out.println(cleanedBlock);
         return cleanedBlock;
     }
 
@@ -604,5 +674,14 @@ public class TestConverter {
             body.addStatement(expressionStmt);
             System.out.println("ADDING ASSERTION: " + expressionStmt);
         }
+
+//        if (blockTest.controlFlow != null) {
+//            MethodCallExpr flowAssertCall = new MethodCallExpr(
+//                    new NameExpr("org.blocktest.Assertion"),
+//                    "assertEquals",
+//                    new NodeList<>(new NameExpr(blockTest.controlFlow), new MethodCallExpr(new NameExpr("BLOCKGEN_FLOW_INTERNAL"), "toString"))
+//            );
+//            body.addStatement(new ExpressionStmt(flowAssertCall));
+//        }
     }
 }

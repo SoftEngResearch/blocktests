@@ -1,0 +1,16 @@
+BlockTest(sample) at line 8 {
+Given:
+  int n = 2
+Statement:
+  n++;
+Assertions:
+  assertTrue(n > 0)
+Lambda Assertions:
+  assertTrue(methodReturn)
+Given Variables:
+  - n
+Asserted Variables:
+  - n
+End at LAST_REFERENCE
+Required control flow: if,
+}

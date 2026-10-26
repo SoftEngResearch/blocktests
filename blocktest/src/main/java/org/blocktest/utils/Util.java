@@ -1,13 +1,16 @@
 // From inlinetest
 package org.blocktest.utils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Expression;
@@ -17,6 +20,7 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.IntersectionType;
@@ -33,7 +37,14 @@ public class Util {
 
     public static boolean predictValue = false;
 
-    public static boolean loadXml = true;
+    public static boolean loadXml = false;
+
+    public static boolean rewriteStaticVar = true;
+    public static boolean coverage = false;
+    public static boolean generatedTests = false;
+    public static boolean withAssertion = false;
+
+    public static boolean allPublic = false;
 
     public static Type getTypeFromStr(String input) {
         input = input.trim();
@@ -106,14 +117,40 @@ public class Util {
         // Handle generic types (simplified example)
         if (input.contains("<") && input.contains(">")) {
             String baseType = input.substring(0, input.indexOf('<'));
-            String typeParam = input.substring(input.indexOf('<') + 1, input.lastIndexOf('>'));
+            String typeParams = input.substring(input.indexOf('<') + 1, input.lastIndexOf('>'));
+
+            // Split on top-level commas only (not commas inside nested <>)
+            List<String> typeArgStrings = splitTopLevel(typeParams, ',');
+
+            NodeList<Type> typeArguments = new NodeList<>();
+            for (String typeArg : typeArgStrings) {
+                typeArguments.add(getTypeFromStr(typeArg.trim()));
+            }
+
             return new ClassOrInterfaceType()
                     .setName(baseType)
-                    .setTypeArguments(getTypeFromStr(typeParam));
+                    .setTypeArguments(typeArguments);
         }
 
         // Handle simple class or interface types
         return new ClassOrInterfaceType().setName(input);
+    }
+
+    private static List<String> splitTopLevel(String input, char delimiter) {
+        List<String> parts = new ArrayList<>();
+        int depth = 0;
+        int start = 0;
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            if (c == '<') depth++;
+            else if (c == '>') depth--;
+            else if (c == delimiter && depth == 0) {
+                parts.add(input.substring(start, i));
+                start = i + 1;
+            }
+        }
+        parts.add(input.substring(start));
+        return parts;
     }
 
     public static boolean isConstant(String name) {
@@ -231,8 +268,20 @@ public class Util {
             return;
 
         blockStmt.findAll(Expression.class).forEach(expr -> {
+            boolean insideBlocktest = expr.findAncestor(MethodCallExpr.class,
+                    Util::isBlockTest).isPresent();
+            if (insideBlocktest) return;
+
             String exprString = expr.toString();
             if (replacements.contains(exprString)) {
+                Node current = expr;
+                while (current != null && !(current instanceof Statement)) {
+                    current = current.getParentNode().orElse(null);
+                }
+                Statement parentStatement = (Statement) current;
+                System.out.println("Replacing expression " + exprString + " with variable in statement: " + parentStatement);
+
+
                 String replacementVar = renameGiven(exprString);
                 NameExpr replacement = new NameExpr(replacementVar);
                 expr.replace(replacement);
@@ -360,5 +409,35 @@ public class Util {
         });
 
         return blockStmt;
+    }
+
+    public static boolean removeBlockTests(String filePath) {
+        FileInputStream in;
+        try {
+            in = new FileInputStream(filePath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+        CompilationUnit cu = StaticJavaParser.parse(in);
+        AtomicBoolean removed = new AtomicBoolean(false);
+        cu.findAll(ExpressionStmt.class).forEach(stmt -> {
+            if (stmt.getExpression() instanceof MethodCallExpr) {
+                MethodCallExpr call = (MethodCallExpr) stmt.getExpression();
+                if (Util.isTestStatement(call)) {
+                    stmt.remove();
+                    removed.set(true);
+                }
+            }
+        });
+
+        if (removed.get()) {
+            try {
+                Path path = Paths.get(filePath);
+                Files.write(path, cu.toString().getBytes());
+            } catch (Exception ignored){}
+        }
+
+        return removed.get();
     }
 }
