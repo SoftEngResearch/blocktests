@@ -30,32 +30,8 @@ public class GivenParameterizedVariable {
             throw new RuntimeException("Type cannot be null for GivenVariable: " + name);
         }
 
-        //if (this.value == null) {
-            // There is actually a reason why we set to null instead of just declaring the variable
-            /*
-                Locale locale;
-                if (null != currencyCode) {
-                    if (S.eq("AUD", currencyCode)) {
-                        locale = new Locale(lan, "AU");
-                    } else if (S.eq("USD", currencyCode)) {
-                        locale = Locale.US;
-                    } else if (S.eq("GBP", currencyCode)) {
-                        locale = Locale.UK;
-                    }
-                }
-                assertEquals(Locale.US, locale);
-
-                the above code will not work because if currentCode is null,
-                locale is not initialized and compiler will complain
-             */
-//            return new VariableDeclarationExpr(type, name);
             return new AssignExpr(new VariableDeclarationExpr(type, name),
                     new NullLiteralExpr(),
                     AssignExpr.Operator.ASSIGN);
-        //}
-
-        //return new AssignExpr(new VariableDeclarationExpr(type, name),
-        //        value,
-        //        AssignExpr.Operator.ASSIGN);
     }
 }
