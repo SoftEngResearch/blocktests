@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.blocktest.BlockTest;
 
-import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.Type;
 
