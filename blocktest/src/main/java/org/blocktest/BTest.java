@@ -58,10 +58,8 @@ public class BTest {
     public static BTest blocktest() {
         return btest;
     }
+    
     public static BTest lambdatest() {
-        return btest;
-    }
-    public static BTest propblocktest() {
         return btest;
     }
 
@@ -69,9 +67,6 @@ public class BTest {
         return btest;
     }
     public static BTest lambdatest(String name) {
-        return btest;
-    }
-    public static BTest propblocktest(String name) {
         return btest;
     }
 
@@ -104,14 +99,6 @@ public class BTest {
     }
 
     public BTest given(Object variable, Object value, Object type) {
-        return btest;
-    }
-
-    public BTest givenAll(Object variable) {
-        return btest;
-    }
-
-    public BTest givenAll(Object variable, Object type) {
         return btest;
     }
 

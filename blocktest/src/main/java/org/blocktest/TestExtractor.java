@@ -193,8 +193,7 @@ public class TestExtractor {
         } else {
             // remove JUnit and TestNG
             for (ImportDeclaration dec : this.imports) {
-                if (!dec.getNameAsString().startsWith("org.junit") && !dec.getNameAsString().startsWith("org.testng")
-                    && !dec.getNameAsString().startsWith("net.jqwik")) {
+                if (!dec.getNameAsString().startsWith("org.junit") && !dec.getNameAsString().startsWith("org.testng")) {
                     tmp.add(dec);
                 }
             }
@@ -214,18 +213,6 @@ public class TestExtractor {
         } else if (Util.junitVersion.equals("testng")) {
             testImports.add(new ImportDeclaration("org.testng.annotations.Test", false, false));
             testImports.add(new ImportDeclaration("org.testng.Assert", true, true));
-        } else if (Util.junitVersion.equals("jqwik")) {
-            testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));
-            if (this.blockTests.stream().anyMatch(blockTest -> !blockTest.givens.isEmpty())) {
-                testImports.add(new ImportDeclaration("net.jqwik.api.Example", false, false));
-            }
-            if (this.blockTests.stream().anyMatch(blockTest -> !blockTest.givenAlls.isEmpty())) {
-                testImports.add(new ImportDeclaration("net.jqwik.api.ForAll", false, false));
-                testImports.add(new ImportDeclaration("net.jqwik.api.Property", false, false));
-            }
-            if (this.blockTests.stream().anyMatch(blockTest -> !blockTest.assumptions.isEmpty())) {
-                testImports.add(new ImportDeclaration("net.jqwik.api.Assume", false, false));
-            }
         } else {
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Test", false, false));
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));

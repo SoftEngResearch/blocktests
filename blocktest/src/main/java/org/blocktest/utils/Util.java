@@ -167,13 +167,11 @@ public class Util {
             return isTestStatement(((ExpressionStmt) node).getExpression());
         } else if (node instanceof MethodCallExpr) {
             if (((MethodCallExpr) node).getNameAsString().equals(Constant.DECLARE_NAME)
-                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.DECLARE_NAME_LAMBDA)
-                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.DECLARE_NAME_PROP)) {
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.DECLARE_NAME_LAMBDA)) {
                 return matched;
             }
 
             if (((MethodCallExpr) node).getNameAsString().equals(Constant.GIVEN)
-                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.GIVEN_ALL)
                     || ((MethodCallExpr) node).getNameAsString().equals(Constant.PARAMETERIZED)
                     || ((MethodCallExpr) node).getNameAsString().equals(Constant.ARGS)
                     || ((MethodCallExpr) node).getNameAsString().equals(Constant.MOCK)
@@ -239,8 +237,7 @@ public class Util {
                 return isEndStatement(((MethodCallExpr) node).getScope().get(), true);
 
             } else if (matched && (methodCall.getNameAsString().equals(Constant.DECLARE_NAME)
-                    || methodCall.getNameAsString().equals(Constant.DECLARE_NAME_LAMBDA)
-                    || methodCall.getNameAsString().equals(Constant.DECLARE_NAME_PROP))) {
+                    || methodCall.getNameAsString().equals(Constant.DECLARE_NAME_LAMBDA))) {
                 // Match blocktest().end()
                 if (methodCall.getArguments().size() == 1) {
                     // Match blocktest(?).end()

@@ -18,7 +18,6 @@ public class Constant {
     }
 
     public final static String DECLARE_NAME = "blocktest";
-    public final static String DECLARE_NAME_PROP = "propblocktest";
     public final static String DECLARE_NAME_LAMBDA = "lambdatest";
     public final static String CHECK_FLOW = "checkFlow";
     public final static String CHECK_CONTROL_FLOW = "checkControlFlow";
@@ -32,7 +31,6 @@ public class Constant {
     public final static String CHECK_EXP = "expect";
     public final static String CONFIG_PARAM = "configParam";
     public final static String GIVEN = "given";
-    public final static String GIVEN_ALL = "givenAll";
     public final static String ASSUME = "assume";
     public final static String PARAMETERIZED = "parameterized";
     public final static String ARGS = "args";

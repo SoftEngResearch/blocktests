@@ -15,7 +15,6 @@ import com.github.javaparser.ast.type.Type;
 import org.blocktest.types.BlockTestParamConfig;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
-import org.blocktest.types.GivenAllVariable;
 import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.types.GivenVariable;
 
@@ -28,7 +27,6 @@ public class BlockTest implements Cloneable{
     public int startLineNo;
     public int endLineNo;
     public List<GivenVariable> givens;
-    public List<GivenAllVariable> givenAlls;
     public List<Expression> assumptions;
     public List<String> givenVariables;
     public Set<String> renameGivenVariables;
@@ -75,7 +73,6 @@ public class BlockTest implements Cloneable{
     public BlockTest() {
         this.testName = "";
         this.givens = new ArrayList<>();
-        this.givenAlls = new ArrayList<>();
         this.assumptions = new ArrayList<>();
         this.givenVariables = new ArrayList<>();
         this.renameGivenVariables = new HashSet<>();
@@ -125,11 +122,6 @@ public class BlockTest implements Cloneable{
         sb.append("Given:\n");
         for (GivenVariable given : givens) {
             sb.append("  ").append(given.toString()).append("\n");
-        }
-
-        sb.append("GivenAll:\n");
-        for (GivenAllVariable givenAll : givenAlls) {
-            sb.append("  ").append(givenAll.toString()).append("\n");
         }
 
         sb.append("Assume:\n");
@@ -189,7 +181,6 @@ public class BlockTest implements Cloneable{
             cloned.parameterizedGivenVariables = new ArrayList<>(this.parameterizedGivenVariables);
             cloned.parameterizedGivenTypes = new ArrayList<>(this.parameterizedGivenTypes);
             cloned.renameParameterizedGivenVariables = new HashSet<>(this.renameParameterizedGivenVariables);
-            cloned.givenAlls = new ArrayList<>(this.givenAlls);
             cloned.assumptions = new ArrayList<>(this.assumptions);
             cloned.givenVariables = new ArrayList<>(this.givenVariables);
             cloned.renameGivenVariables = new HashSet<>(this.renameGivenVariables);

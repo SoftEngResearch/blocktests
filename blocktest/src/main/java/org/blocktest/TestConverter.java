@@ -44,7 +44,6 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
-import org.blocktest.types.GivenAllVariable;
 import org.blocktest.utils.Constant;
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
@@ -124,14 +123,7 @@ public class TestConverter {
         method.setPublic(true);
 
         if (blockTest.exception == null) { // `exception` flag to handle tests throwing exceptions
-            if (Util.junitVersion.equals("jqwik")) {
-                if (!blockTest.givenAlls.isEmpty()) {
-                    method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Property");
-                    addGivenAllParameters(method, blockTest);
-                } else if (!blockTest.givens.isEmpty()) {
-                    method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addMarkerAnnotation("Example");
-                }
-            } else if (Util.junitVersion.equals("junit5")) {
+            if (Util.junitVersion.equals("junit5")) {
                 method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
                 applyJUnit5TestAnnotation(method, blockTest);
             } else {
@@ -146,8 +138,6 @@ public class TestConverter {
                 annotation.setName("Test");
                 annotation.setPairs(new NodeList<>(pair));
                 method.setName(blockTest.testName).setType(new VoidType()).setBody(body).addAnnotation(annotation);
-            } else if (Util.junitVersion.equals("jqwik")) {
-                // TODO: Handle tests that throw exceptions in `jqwik`
             } else {
                 // JUnit 5 style
                 LambdaExpr lambda = new LambdaExpr();
@@ -392,20 +382,6 @@ public class TestConverter {
         return method;
     }
 
-    private void addGivenAllParameters(MethodDeclaration method, BlockTest blockTest) {
-        for (int i = blockTest.givenAlls.size() - 1; i >= 0; i--) {
-            // Build the parameter (annotation, type, name) from the givenAll variable
-            GivenAllVariable givenAll = blockTest.givenAlls.get(i);
-            VariableDeclarationExpr declaration = givenAll.toAssignExpr().asVariableDeclarationExpr();
-            VariableDeclarator declarator = declaration.getVariable(0);
-            Parameter parameter = new Parameter(declarator.getType().clone(), declarator.getNameAsString());
-            for (AnnotationExpr annotation : declaration.getAnnotations()) {
-                parameter.addAnnotation(annotation.clone());
-            }
-            method.addParameter(parameter);
-        }
-    }
-
     private void addGivenStatements(BlockStmt body, BlockTest blockTest) {
         for (int i = blockTest.givens.size() - 1; i >= 0; i--) {
             Expression expression = blockTest.givens.get(i).toAssignExpr().clone();
@@ -488,33 +464,17 @@ public class TestConverter {
 
         // Add assumptions
         if (blockTest.assumptions != null && !blockTest.assumptions.isEmpty()) {
-            if (!Util.junitVersion.equals("jqwik")) {
-                for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
-                    // Generate the assume statement
-                    Expression condition = blockTest.assumptions.get(i).clone();
-                    MethodCallExpr assumeTrue = new MethodCallExpr(null, "assumeTrue", NodeList.nodeList(condition));
-                    ExpressionStmt statement = new ExpressionStmt(assumeTrue);
+            for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
+                // Generate the assume statement
+                Expression condition = blockTest.assumptions.get(i).clone();
+                MethodCallExpr assumeTrue = new MethodCallExpr(null, "assumeTrue", NodeList.nodeList(condition));
+                ExpressionStmt statement = new ExpressionStmt(assumeTrue);
 
-                    // Replace the variables with the renamed variables
-                    Util.replaceExpressionsWithVariables(statement, blockTest.renameGivenVariables);
+                // Replace the variables with the renamed variables
+                Util.replaceExpressionsWithVariables(statement, blockTest.renameGivenVariables);
 
-                    // Add the assume statement to the body
-                    body.addStatement(statement);
-                }
-            } else {
-                // Iterate backwards to restore source order
-                for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
-                    // Generate the assume statement
-                    Expression condition = blockTest.assumptions.get(i).clone();
-                    MethodCallExpr assumeThat = new MethodCallExpr(new NameExpr("Assume"), "that", NodeList.nodeList(condition));
-                    ExpressionStmt statement = new ExpressionStmt(assumeThat);
-
-                    // Replace the variables with the renamed variables
-                    Util.replaceExpressionsWithVariables(statement, blockTest.renameGivenVariables);
-
-                    // Add the assume statement to the body
-                    body.addStatement(statement);
-                }
+                // Add the assume statement to the body
+                body.addStatement(statement);
             }
         }
     }

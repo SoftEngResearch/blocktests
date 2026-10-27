@@ -41,7 +41,6 @@ import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
 import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.types.GivenVariable;
-import org.blocktest.types.GivenAllVariable;
 import org.blocktest.utils.Constant;
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
@@ -112,8 +111,7 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
         }
 
         MethodCallExpr methodCall = (MethodCallExpr) node;
-        if (methodCall.getName().asString().equals(Constant.DECLARE_NAME) || methodCall.getName().asString().equals(Constant.DECLARE_NAME_LAMBDA)
-            || methodCall.getName().asString().equals(Constant.DECLARE_NAME_PROP)) {
+        if (methodCall.getName().asString().equals(Constant.DECLARE_NAME) || methodCall.getName().asString().equals(Constant.DECLARE_NAME_LAMBDA)) {
             if (methodCall.getArguments().size() >= 3) {
                 throw new RuntimeException(methodCall.getName().asString() + " should have arguments less than 3");
             }
@@ -282,23 +280,25 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             }
 
             if (left instanceof StringLiteralExpr) {
-                String leftStr = ((StringLiteralExpr) left).asString();
-                if (leftStr.startsWith("this.")) {
-                    leftStr = leftStr.substring(5); // strip "this." → "foo"
+                String name = ((StringLiteralExpr) left).asString();
+                if (name.startsWith("this.")) {
+                    name = name.substring(5); // strip "this." → "foo"
                 }
                 // Allow assertions on variables
-                if (leftStr.matches("[A-Za-z_$][A-Za-z0-9_$]*")) {
-                    left = new NameExpr(leftStr);
-                    blockTest.assertedVariables.add(leftStr);
-                }
-                // Allow assertions on expressions
-                else {
-                    left = StaticJavaParser.parseExpression(leftStr);
-                    List<NameExpr> names = left.findAll(NameExpr.class);
-                    for (NameExpr name : names) {
-                        blockTest.assertedVariables.add(name.getNameAsString());
-                    }
-                }
+                //if (leftStr.matches("[A-Za-z_$][A-Za-z0-9_$]*")) {
+                //    left = new NameExpr(leftStr);
+                //    blockTest.assertedVariables.add(leftStr);
+                //}
+                //// Allow assertions on expressions
+                //else {
+                //    left = StaticJavaParser.parseExpression(leftStr);
+                //    List<NameExpr> names = left.findAll(NameExpr.class);
+                //    for (NameExpr name : names) {
+                //        blockTest.assertedVariables.add(name.getNameAsString());
+                //    }
+                //}
+                left = new NameExpr(name);
+                blockTest.assertedVariables.add(left.toString());
             } else {
                 left.findAll(NameExpr.class).stream()
                         .filter(name -> {
@@ -485,37 +485,6 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             GivenVariable givenVariable = new GivenVariable(leftType, left.toString(), left, right);
             blockTest.givens.add(givenVariable);
             blockTest.givenVariables.add(left.toString());
-        } else if (methodCall.getName().asString().equals(Constant.GIVEN_ALL)) {
-            // givenAll(variable, type); This can take 1 or 2 arguments due to type inference
-            List<Expression> args = methodCall.getArguments();
-            if (args.size() != 1 && args.size() != 2) {
-                throw new RuntimeException(Constant.GIVEN_ALL + " should have 1 or 2 arguments");
-            }
-
-            // givenAll(variable) turns into @ForAll type variable; so it needs to know the type of `variable`, which is a type
-            Expression left = args.get(0);
-            if (left instanceof StringLiteralExpr) {
-                left = new NameExpr(((StringLiteralExpr) left).asString());
-            }
-
-            if (left.toString().contains(".") || left.toString().contains("[")) {
-                blockTest.renameGivenVariables.add(left.toString());
-                left = new NameExpr(Util.renameGiven(left.toString()));
-            }
-
-            // Infer the type of the left expression
-            Type leftType;
-            if (args.size() == 2) {
-                leftType = Util.getTypeFromStr(args.get(1).toString().replace("\"", ""));
-                symbolTable.put(left.toString(), leftType);
-                System.out.println("DEBUG: Type is provided for " + left.toString() + ": " + leftType.toString());
-            }
-            leftType = getVariableType(symbolTable, left, null);
-
-            // Create the givenAll variable
-            GivenAllVariable givenAll = new GivenAllVariable(leftType, left.toString());
-            blockTest.givenAlls.add(givenAll);
-            blockTest.givenVariables.add(left.toString());
         } else if (methodCall.getName().asString().equals(Constant.ASSUME)) {
             // assume(condition); This take one argument
             // The condition can be a string or an expression
@@ -680,8 +649,7 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
 
             blockTest.configs.put(args.get(0).asStringLiteralExpr().asString(), config);
             blockTest.is_config = true;
-        } 
-        else if (methodCall.getName().asString().equals(Constant.ARGS)) {
+        } else if (methodCall.getName().asString().equals(Constant.ARGS)) {
             List<Expression> args = methodCall.getArguments();
             if (args.isEmpty()) {
                 throw new RuntimeException(Constant.ARGS + " should have more than 0 arguments");
