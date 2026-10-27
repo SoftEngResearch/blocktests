@@ -122,9 +122,6 @@ generate_test() {
 	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: testng") ]]; then
 		framework=" --junit_version=testng"
 		echo "TestNG"
-	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: jqwik") ]]; then
-		framework=" --junit_version=jqwik"
-		echo "jqwik"
 	elif [[ -n $(head -n 3 ${BLOCKTEST_FILE} | grep "FRAMEWORK: junit4") ]]; then
 		echo "Adding JUnit"
 		export ADD_JUNIT=1
@@ -147,9 +144,11 @@ generate_test() {
 		duplicated_test_count=" --duplicated_test_count=${DUPLICATE}"
 	fi
 	
+	local start=$(date +%s%3N)
 	# Actually generate tests
 	(time mvn -Dmaven.repo.local=${OUTPUT_DIR}/repo exec:java -Dexec.mainClass="org.blocktest.BlockTestRunnerSourceCode" -Dexec.args="--input_file=${absolute_path} --output_dir=${fullpath_dir}${framework}${duplicated_test_count} --dep_file_path=${deps_file} --app_src_path=${app_src}") &>> ${OUTPUT_DIR}/logs/gen-timed.log
 	check_status_code "test_generation_timed"
+	local end=$(date +%s%3N)
 	DURATION=$((end - start))
 	popd &> /dev/null
 
@@ -158,11 +157,11 @@ generate_test() {
 		exit 1
 	fi
 	
-	# TODO: Add @Property when implemented
-	if [[ -z $(grep -E "@Test|@Example|@Property" "${fullpath_dir}/${TEST_FILENAME}.java") ]]; then
-    	echo "No test case is generated"
-    	exit 1
+	if [[ -z $(grep "@Test" ${fullpath_dir}/${TEST_FILENAME}.java) ]]; then
+		echo "No test case is generated"
+		exit 1
 	fi
+	
 	echo ">>> Time to generate tests: ${DURATION}"
 	cp ${fullpath_dir}/${TEST_FILENAME}.java ${OUTPUT_DIR}/logs/${TEST_FILENAME}.java
 }
@@ -197,8 +196,10 @@ run_blocktest() {
 	rm -rf target/surefire-reports ${tmp_dir} && mkdir ${tmp_dir}
 
 	# Actually running tests
+	local start=$(date +%s%3N)
 	(time mvn ${SKIP} -Djava.io.tmpdir=${tmp_dir} -Dmaven.repo.local=${OUTPUT_DIR}/repo -Dmaven.ext.class.path=${extension_jar} test-compile surefire:test -Dtest="${TEST_FILENAME}") &> ${OUTPUT_DIR}/logs/run-timed.log
 	check_status_code "run_blocktest_timed"
+	local end=$(date +%s%3N)
 	DURATION=$((end - start))
 	
 	if [[ -d target/surefire-reports ]]; then
