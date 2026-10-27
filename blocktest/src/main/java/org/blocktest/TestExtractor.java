@@ -69,7 +69,6 @@ public class TestExtractor {
 
     String packageName = null;
     NodeList<ImportDeclaration> imports = null;
-    List<StaticMethod> staticMethods = new ArrayList<>();
 
     public HashMap<String, HashSet<Type>> globalSymbolTable = new HashMap<>();
 
@@ -86,11 +85,6 @@ public class TestExtractor {
         this.compile = compile;
     }
 
-    private static void logException(String action, Exception e) {
-        System.err.println("Exception while " + action + ": " + e.getMessage());
-        e.printStackTrace(System.err);
-    }
-
     public void extractBlockTests() {
         FileInputStream in;
         try {
@@ -102,21 +96,8 @@ public class TestExtractor {
 
         CompilationUnit cu = StaticJavaParser.parse(in); // parse input file
         CompilationUnit originalCU = cu.clone();
-        boolean changedToPublic = false; // If changedToPublic is true, this mean we need to update the original file
-
-        // Collect all static methods
-        for (MethodDeclaration method : cu.findAll(MethodDeclaration.class, MethodDeclaration::isStatic)) {
-            Optional<String> name = method.findAncestor(ClassOrInterfaceDeclaration.class)
-                    .map(ClassOrInterfaceDeclaration::getNameAsString);
-            if (name.isPresent()) {
-                String klassName = name.get();
-                String methodName = method.getNameAsString();
-                int argumentCount = method.getParameters().size();
-                this.staticMethods.add(new StaticMethod(klassName, methodName, argumentCount));
-            }
-        }
         
-        // Collect all static variables
+        // Collect static fields before extraction so captured references can be qualified.
         originalCU.findAll(ClassOrInterfaceDeclaration.class).forEach(cls -> {
             String classNameTmp = cls.getNameAsString();
             cls.findAll(FieldDeclaration.class).forEach(fd -> {
@@ -132,7 +113,7 @@ public class TestExtractor {
             });
         });
 
-        // Replace implicit static field accesses with explicit ones (staticField -> ClassName.staticField)
+        // Replace implicit static field accesses with explicit ones (staticField -> ClassName.staticField).
         cu.accept(new VoidVisitorAdapter<Void>() {
             @Override
             public void visit(NameExpr n, Void arg) {
@@ -162,7 +143,7 @@ public class TestExtractor {
             System.out.println("Writing to tmp file: " + path);
             cu = StaticJavaParser.parse(path);
         } catch (IOException e) {
-            logException("creating temporary parser input", e);
+            e.printStackTrace();
             System.exit(1);
         }
 
@@ -240,7 +221,7 @@ public class TestExtractor {
 
         this.imports = testImports;
 
-        System.out.println("STATIC METHODS: " + this.staticMethods);
+        //System.out.println("STATIC METHODS: " + this.staticMethods);
 
         this.globalSymbolTable = visitor.globalSymbolTable;
 
@@ -251,10 +232,10 @@ public class TestExtractor {
                 blockTest.testName = "testLine" + blockTest.lineNo;
             }
 
-            if (!staticPrivateFields.isEmpty()) {
-                // We convert all private static fields to non-private
-                changedToPublic = true;
-            }
+            //if (!staticPrivateFields.isEmpty()) {
+            //    // We convert all private static fields to non-private
+            //    changedToPublic = true;
+            //}
 
             if (this.rewrite) {
                 originalCU.findAll(ExpressionStmt.class).forEach(stmt -> {
@@ -337,7 +318,7 @@ public class TestExtractor {
             return;
         }
 
-
+        List<StaticMethod> staticMethods = new ArrayList<>();
         CompilationUnit cu = StaticJavaParser.parse(in); // parse input file
         CompilationUnit originalCU = cu.clone();
         boolean changedToPublic = false; // If changedToPublic is true, this mean we need to update the original file
@@ -370,39 +351,6 @@ public class TestExtractor {
             });
         });
 
-        // Replace implicit static field accesses with explicit ones (staticField -> ClassName.staticField)
-        cu.accept(new VoidVisitorAdapter<Void>() {
-            @Override
-            public void visit(NameExpr n, Void arg) {
-                super.visit(n, arg);
-
-                String name = n.getNameAsString();
-                if (staticFields.containsKey(name)) {
-                    String className = staticFields.get(name);
-                    n.replace(new FieldAccessExpr(new NameExpr(className), name));
-                }
-            }
-        }, null);
-
-        cu.accept(new BlockTestConversionVisitor(), null);
-
-        cu.accept(new LambdaTransformationVisitor(), null);
-
-        cu.accept(new GivenTransformationVisitor(), null);
-
-        cu.accept(new ThisFieldReplacementVisitor(), null);
-
-        // Here, we want to write CU to tmp file, then load CU again (with all the transformation)
-        try {
-            Path path = Files.createTempFile("blocktest_tmp", ".java");
-            Files.write(path, cu.toString().getBytes(StandardCharsets.UTF_8));
-            System.out.println("Writing to tmp file: " + path);
-            cu = StaticJavaParser.parse(path);
-        } catch (IOException e) {
-            logException("creating temporary parser input", e);
-            System.exit(1);
-        }
-
         if (cu.getPackageDeclaration().isPresent()) {
             packageName = cu.getPackageDeclaration().get().getNameAsString();
         }
@@ -425,11 +373,7 @@ public class TestExtractor {
         while (blockTestIterator.hasNext()) {
             BlockTest blockTest = blockTestIterator.next();
 
-            // In the future we might have this filter to handle "unlabeled" block tests
-            // This function `extractTest` can also return the block tests that still need test extraction
-            // but to their own java class
-            // Change this to "if there are no configs associated with a test (no labels)." 
-            // Filters out non-vanilla blocktests (i.e. Config. BT and Param. BT in junit4)
+            // Skips Blocktest if on junit4 and parameterized else run this branch
             if (!(Util.junitVersion.equals("junit4") && blockTest.is_parameterized)) {
                 
                 System.out.println("Extracted BlockTest");
@@ -466,29 +410,29 @@ public class TestExtractor {
                     }
                 }
 
-            // For each method, rename it (this cannot be done outside because block tests can reside in different classes),
-            // and replace "this" with the class name.
-            method.accept(new ThisVariableReplacementVisitor(blockTest.className), null);
+                // For each method, rename it (this cannot be done outside because block tests can reside in different classes),
+                // and replace "this" with the class name.
+                method.accept(new ThisVariableReplacementVisitor(blockTest.className), null);
 
-            // Previously, we insert class name to static variable (staticVar -> ClassName.staticVar)
-            // If given variables contain static variables, want to reverse the change (ClassName.staticVar -> staticVar)
-            if (!staticFields.isEmpty()) {
-                System.out.println("Checking for static field access to revert...");
-                method.accept(new VoidVisitorAdapter<Void>() {
-                    @Override
-                    public void visit(FieldAccessExpr n, Void arg) {
-                        super.visit(n, arg);
+                // Previously, we insert class name to static variable (staticVar -> ClassName.staticVar)
+                // If given variables contain static variables, want to reverse the change (ClassName.staticVar -> staticVar)
+                if (!staticFields.isEmpty()) {
+                    System.out.println("Checking for static field access to revert...");
+                    method.accept(new VoidVisitorAdapter<Void>() {
+                        @Override
+                        public void visit(FieldAccessExpr n, Void arg) {
+                            super.visit(n, arg);
 
-                        String fieldName = n.getNameAsString();
-                        String className = n.getScope().toString();
-                        System.out.println("Checking field access variable " + fieldName + " is static and given variable");
-                        if (staticFields.containsKey(fieldName) && blockTest.givenVariables.stream().anyMatch(i -> i.split("__")[0].equals(fieldName))) {
-                            System.out.println("Reverting explicit static field access: " + className + "." + fieldName + " back to " + fieldName);
-                            n.replace(new NameExpr(fieldName));
+                            String fieldName = n.getNameAsString();
+                            String className = n.getScope().toString();
+                            System.out.println("Checking field access variable " + fieldName + " is static and given variable");
+                            if (staticFields.containsKey(fieldName) && blockTest.givenVariables.stream().anyMatch(i -> i.split("__")[0].equals(fieldName))) {
+                                System.out.println("Reverting explicit static field access: " + className + "." + fieldName + " back to " + fieldName);
+                                n.replace(new NameExpr(fieldName));
+                            }
                         }
-                    }
-                }, null);
-            }
+                    }, null);
+                }
             
                 if (coverage) {
                     MethodDeclaration method2 = method.setPublic(true).clone();
@@ -680,7 +624,7 @@ public class TestExtractor {
             Files.write(path, newCU.toString().getBytes(StandardCharsets.UTF_8));
             System.out.println("Writing to " + testOutputFile);
         } catch (Exception e) {
-            logException("writing generated tests to " + testOutputFile, e);
+            e.printStackTrace();
         }
 
         if (changedToPublic || coverage || rewrite) {
@@ -689,7 +633,7 @@ public class TestExtractor {
                 Files.write(path, originalCU.toString().getBytes(StandardCharsets.UTF_8));
                 System.out.println("Writing to " + inputFileSource);
             } catch (Exception e) {
-                logException("writing rewritten source file " + inputFileSource, e);
+                e.printStackTrace();
             }
         }
     }
@@ -702,6 +646,7 @@ public class TestExtractor {
             return;
         }
 
+        List<StaticMethod> staticMethods = new ArrayList<>();
         CompilationUnit cu = StaticJavaParser.parse(in); // parse input file
         CompilationUnit originalCU = cu.clone();
         boolean changedToPublic = false; // If changedToPublic is true, this mean we need to update the original file
@@ -733,26 +678,6 @@ public class TestExtractor {
                 }
             });
         });
-
-        // Replace implicit static field accesses with explicit ones (staticField -> ClassName.staticField)
-        cu.accept(new VoidVisitorAdapter<Void>() {
-            @Override
-            public void visit(NameExpr n, Void arg) {
-                super.visit(n, arg);
-
-                String name = n.getNameAsString();
-                if (staticFields.containsKey(name)) {
-                    String className = staticFields.get(name);
-                    n.replace(new FieldAccessExpr(new NameExpr(className), name));
-                }
-            }
-        }, null);
-
-        cu.accept(new BlockTestConversionVisitor(), null);
-
-        cu.accept(new LambdaTransformationVisitor(), null);
-
-        cu.accept(new ThisFieldReplacementVisitor(), null);
 
         //String packageName = null;
         if (cu.getPackageDeclaration().isPresent()) {
@@ -890,7 +815,7 @@ public class TestExtractor {
             String paramTestOutputFile;
             if (testOutputFile == null || testOutputFile.isEmpty()) {
                 System.out.println("No output file specified, skipping file write.");
-                continue;
+                return;
             } else {
                 paramTestOutputFile = testOutputFile.replace(".java", "")+blockTest.testName + ".java";
             }
@@ -916,7 +841,7 @@ public class TestExtractor {
                 Files.write(path, newCU.toString().getBytes(StandardCharsets.UTF_8));
                 System.out.println("Writing to " + paramTestOutputFile);
             } catch (Exception e) {
-                logException("writing generated tests to " + paramTestOutputFile, e);
+                e.printStackTrace();
             }
 
             if (changedToPublic || coverage || rewrite) {
@@ -925,7 +850,7 @@ public class TestExtractor {
                     Files.write(path, originalCU.toString().getBytes(StandardCharsets.UTF_8));
                     System.out.println("Writing to " + inputFileSource);
                 } catch (Exception e) {
-                    logException("writing rewritten source file " + inputFileSource, e);
+                    e.printStackTrace();
                 }
             }
         }
