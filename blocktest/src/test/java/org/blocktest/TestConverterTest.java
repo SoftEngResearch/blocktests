@@ -231,4 +231,139 @@ public class TestConverterTest extends AstTestSupport {
     assertFalse(source.contains("BLOCKGEN_FLOW_INTERNAL"));
     assertFalse(source.contains("assertEquals"));
   }
+
+  private BlockTest parameterizedBlock(String values, boolean withException) {
+    BlockTest b = block("{ use(n); }");
+    b.testName = "numbers";
+    b.is_parameterized = true;
+    b.parameterValues = StaticJavaParser.parseExpression(values);
+    b.parameterizedGivens.add(
+        new GivenParameterizedVariable(PrimitiveType.intType(), "n", new NameExpr("n"), 0));
+    if (withException) {
+      b.exception = StaticJavaParser.parseExpression("IllegalArgumentException.class");
+    }
+    return b;
+  }
+
+  @Test
+  public void generatesJUnit5ParameterizedSourcesForRowsAndEmptyData() {
+    Util.junitVersion = "junit5";
+    BlockTest b = parameterizedBlock("new Object[][] {{1}, {2}}", false);
+    List<com.github.javaparser.ast.body.BodyDeclaration<?>> declarations =
+        converter().toParamJUnit(b, false);
+    assertEquals(1, declarations.size());
+    MethodDeclaration source = (MethodDeclaration) declarations.get(0);
+    assertEquals("blockTestParamSourcenumbers", source.getNameAsString());
+    assertTrue(source.isStatic());
+    assertEquals("Stream<Arguments>", source.getType().toString());
+    assertTrue(source.toString().contains("Stream.of(Arguments.of(1), Arguments.of(2))"));
+
+    b.parameterValues = StaticJavaParser.parseExpression("new Object[][] {}");
+    source = (MethodDeclaration) converter().toParamJUnit(b, false).get(0);
+    assertTrue(source.toString().contains("Stream.empty()"));
+  }
+
+  @Test
+  public void junit5ParameterizedAnnotationsAndExpectedExceptionParametersAreGenerated() {
+    Util.junitVersion = "junit5";
+    BlockTest b = parameterizedBlock("new Object[][] {{1}}", false);
+    MethodDeclaration test = junit(b);
+    assertTrue(test.getAnnotationByName("ParameterizedTest").isPresent());
+    assertTrue(test.toString().contains("@MethodSource(\"blockTestParamSourcenumbers\")"));
+    assertEquals("int n", test.getParameter(0).toString());
+
+    b = parameterizedBlock("new Object[][] {{1}}", true);
+    test = junit(b);
+    assertTrue(test.toString().contains("nBlockTestParam"));
+    assertEquals("nBlockTestParam", test.getParameter(0).getNameAsString());
+  }
+
+  @Test
+  public void rejectsIncompleteOrMalformedParameterizedJUnit5Data() {
+    Util.junitVersion = "junit5";
+    BlockTest missingValues = parameterizedBlock("new Object[][] {{1}}", false);
+    missingValues.parameterizedGivens.clear();
+    assertTrue(
+        assertThrows(RuntimeException.class, () -> converter().toParamJUnit(missingValues, false))
+            .getMessage()
+            .contains("missing variables"));
+
+    BlockTest notArray = parameterizedBlock("1", false);
+    assertTrue(
+        assertThrows(RuntimeException.class, () -> converter().toParamJUnit(notArray, false))
+            .getMessage()
+            .contains("initialized array"));
+
+    BlockTest uninitializedArray = parameterizedBlock("new Object[1][]", false);
+    assertTrue(
+        assertThrows(
+                RuntimeException.class, () -> converter().toParamJUnit(uninitializedArray, false))
+            .getMessage()
+            .contains("initialized array"));
+
+    BlockTest nonArrayRow = parameterizedBlock("new Object[] {1}", false);
+    assertTrue(
+        assertThrows(RuntimeException.class, () -> converter().toParamJUnit(nonArrayRow, false))
+            .getMessage()
+            .contains("rows must be arrays"));
+
+    BlockTest uninitializedArrayRow =
+        parameterizedBlock("new Object[][] {new int[1]}", false);
+    assertTrue(
+        assertThrows(
+                RuntimeException.class,
+                () -> converter().toParamJUnit(uninitializedArrayRow, false))
+            .getMessage()
+            .contains("rows must be arrays"));
+
+    BlockTest missingGivens = parameterizedBlock("new Object[][] {{1}}", false);
+    missingGivens.parameterizedGivens = null;
+    assertThrows(RuntimeException.class, () -> converter().toParamJUnit(missingGivens, false));
+
+    BlockTest missingParameterValues = parameterizedBlock("new Object[][] {{1}}", false);
+    missingParameterValues.parameterValues = null;
+    assertThrows(
+        RuntimeException.class, () -> converter().toParamJUnit(missingParameterValues, false));
+  }
+
+  @Test
+  public void supportsCreatedAndNestedArrayRowsAndFallbackParameterSourceNames() {
+    Util.junitVersion = "junit5";
+    BlockTest createdArray = parameterizedBlock("new Object[][] {new int[] {1}}", false);
+    MethodDeclaration source =
+        (MethodDeclaration) converter().toParamJUnit(createdArray, false).get(0);
+    assertTrue(source.toString().contains("Arguments.of(1)"));
+
+    BlockTest nestedArray = parameterizedBlock("new Object[][] {{{1, 2}}}", false);
+    source = (MethodDeclaration) converter().toParamJUnit(nestedArray, false).get(0);
+    assertTrue(source.toString().contains("new Object[] { 1, 2 }"));
+
+    BlockTest unnamed = parameterizedBlock("new Object[][] {{1}}", false);
+    unnamed.testName = null;
+    source = (MethodDeclaration) converter().toParamJUnit(unnamed, false).get(0);
+    assertEquals("blockTestParamSourceTestLine0", source.getNameAsString());
+    unnamed.testName = "";
+    source = (MethodDeclaration) converter().toParamJUnit(unnamed, false).get(0);
+    assertEquals("blockTestParamSourceTestLine0", source.getNameAsString());
+  }
+
+  @Test
+  public void unsupportedFrameworkDoesNotGenerateParameterizedDeclarations() {
+    Util.junitVersion = "testng";
+    BlockTest block = parameterizedBlock("new Object[][] {{1}}", false);
+    assertTrue(converter().toParamJUnit(block, false).isEmpty());
+  }
+
+  @Test
+  public void emitsAssumptionsBeforeTheTargetAndRenamesTheirExpressions() {
+    BlockTest block = block("{ use(x); }");
+    block.assumptions.add(StaticJavaParser.parseExpression("obj.value > 0"));
+    block.renameGivenVariables.add("obj.value");
+
+    MethodDeclaration converted = junit(block);
+    assertEquals(
+        "assumeTrue(obj__value > 0);",
+        converted.getBody().get().getStatement(0).toString());
+    assertEquals("use(x);", converted.getBody().get().getStatement(1).toString());
+  }
 }
