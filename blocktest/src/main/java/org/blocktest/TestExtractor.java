@@ -611,7 +611,7 @@ public class TestExtractor {
             }
             Files.write(path, newCU.toString().getBytes(StandardCharsets.UTF_8));
             System.out.println("Writing to " + testOutputFile);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -620,7 +620,7 @@ public class TestExtractor {
                 Path path = Paths.get(inputFileSource);
                 Files.write(path, originalCU.toString().getBytes(StandardCharsets.UTF_8));
                 System.out.println("Writing to " + inputFileSource);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -828,7 +828,7 @@ public class TestExtractor {
                 }
                 Files.write(path, newCU.toString().getBytes(StandardCharsets.UTF_8));
                 System.out.println("Writing to " + paramTestOutputFile);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -837,7 +837,7 @@ public class TestExtractor {
                     Path path = Paths.get(inputFileSource);
                     Files.write(path, originalCU.toString().getBytes(StandardCharsets.UTF_8));
                     System.out.println("Writing to " + inputFileSource);
-                } catch (Exception e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
