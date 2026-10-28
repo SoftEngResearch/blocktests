@@ -171,8 +171,11 @@ public class Util {
                 return matched;
             }
 
-            if (((MethodCallExpr) node).getNameAsString().equals(Constant.GIVEN) || ((MethodCallExpr) node).getNameAsString().equals(Constant.ARGS)
-                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.MOCK)) {
+            if (((MethodCallExpr) node).getNameAsString().equals(Constant.GIVEN)
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.PARAMETERIZED)
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.ARGS)
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.MOCK)
+                    || ((MethodCallExpr) node).getNameAsString().equals(Constant.CONFIG_PARAM)) {
                 matched = true;
             }
 

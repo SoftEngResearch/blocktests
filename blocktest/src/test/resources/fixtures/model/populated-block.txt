@@ -1,6 +1,7 @@
 BlockTest(sample) at line 8 {
 Given:
   int n = 2
+Assume:
 Statement:
   n++;
 Assertions:

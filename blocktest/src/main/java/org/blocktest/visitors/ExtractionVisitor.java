@@ -9,14 +9,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;import java.util.Set;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
@@ -30,14 +32,14 @@ import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.SwitchEntry;
 import com.github.javaparser.ast.stmt.ThrowStmt;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
-import javassist.compiler.ast.Variable;
 import org.blocktest.BlockTest;
-import org.blocktest.TestExtraction;
+import org.blocktest.TestExtractor;
+import org.blocktest.types.BlockTestParamConfig;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
+import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.types.GivenVariable;
 import org.blocktest.utils.Constant;
 import org.blocktest.utils.TypeResolver;
@@ -470,6 +472,170 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             GivenVariable givenVariable = new GivenVariable(leftType, left.toString(), left, right);
             blockTest.givens.add(givenVariable);
             blockTest.givenVariables.add(left.toString());
+        } else if (methodCall.getName().asString().equals(Constant.ASSUME)) {
+            // assume(condition); This take one argument
+            // The condition can be a string or an expression
+            List<Expression> args = methodCall.getArguments();
+            if (args.size() != 1) {
+                throw new RuntimeException(Constant.ASSUME + " should have 1 argument");
+            }
+
+            // Parse the condition expression
+            Expression condition = args.get(0);
+            if (condition instanceof StringLiteralExpr) {
+                String conditionStr = ((StringLiteralExpr) condition).asString();
+                try {
+                    condition = StaticJavaParser.parseExpression(conditionStr);
+                } catch (Exception e) {
+                    throw new RuntimeException(Constant.ASSUME + " could not parse condition: " + conditionStr);
+                }
+            } else {
+                condition = condition.clone();
+            }
+
+            // Add the condition to the assumptions list
+            blockTest.assumptions.add(condition);
+        } else if (methodCall.getName().asString().equals(Constant.PARAMETERIZED)) {
+            
+            List<Expression> args = methodCall.getArguments();
+
+            if (args.size() < 2) {
+                throw new RuntimeException(Constant.PARAMETERIZED
+                        + " should have parameters, types, and variable names OR label and variable names");
+            }
+            
+            if (args.get(0).isArrayCreationExpr()) {
+                String typeNames = args.get(1).isStringLiteralExpr()
+                        ? args.get(1).asStringLiteralExpr().asString()
+                        : args.get(1).toString();
+
+                String[] parameterTypes = typeNames.trim().split("\\s+");
+
+                List<String> variableNames = new ArrayList<>();
+
+                for (Expression variableName : args.subList(2, args.size())) {
+                    if (variableName.isStringLiteralExpr()) {
+                        variableNames.add(variableName.asStringLiteralExpr().asString());
+                    } else if (variableName.isNameExpr()) {
+                        variableNames.add(variableName.asNameExpr().getNameAsString());
+                    } else {
+                        throw new RuntimeException(Constant.PARAMETERIZED
+                                + " variable names must be identifiers or strings");
+                    }
+                }
+
+                if (parameterTypes.length != variableNames.size()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED
+                            + " should have the same number of types and variable names");
+                }
+
+                ArrayCreationExpr array = args.get(0).asArrayCreationExpr();
+                if (!array.getInitializer().isPresent()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED + " parameters must have an initializer");
+                }
+                ArrayInitializerExpr initializer = array.getInitializer().get();
+
+                for (Expression row : initializer.getValues()) {
+                    if (!row.isArrayInitializerExpr()) {
+                        throw new RuntimeException(Constant.PARAMETERIZED + " each row must be an array");
+                    }
+
+                    if (row.asArrayInitializerExpr().getValues().size() != variableNames.size()) {
+                        throw new RuntimeException(Constant.PARAMETERIZED
+                                + " each row must have one value for each variable");
+                    }
+                }
+                
+                blockTest.parameterValues = args.get(0).clone();
+                blockTest.is_parameterized = true;
+                blockTest.parameterizedGivens = new ArrayList<>();
+                blockTest.parameterizedGivenVariables = new ArrayList<>();
+
+                for (int i = 0; i < variableNames.size(); i++) {
+                    String variableName = variableNames.get(i);
+                    blockTest.parameterizedGivenVariables.add(variableName);
+
+                    Type variableType = Util.getTypeFromStr(parameterTypes[i]);
+                    blockTest.parameterizedGivens.add(new GivenParameterizedVariable(
+                            variableType, variableName, new NameExpr(variableName), i));
+                }
+            } else if (args.get(0).isStringLiteralExpr()) {
+
+                blockTest.is_configed = true;
+                blockTest.is_parameterized = true;
+                blockTest.label = args.get(0).clone().asStringLiteralExpr().asString();
+
+                List<String> variableNames = new ArrayList<>();
+                for (Expression variableName : args.subList(1, args.size())) {
+                    if (variableName.isStringLiteralExpr()) {
+                        variableNames.add(variableName.asStringLiteralExpr().asString());
+                    } else if (variableName.isNameExpr()) {
+                        variableNames.add(variableName.asNameExpr().getNameAsString());
+                    } else {
+                        throw new RuntimeException(Constant.PARAMETERIZED
+                                + " variable names must be identifiers or strings");
+                    }
+                }
+
+                for (String variableName : variableNames) {
+                    blockTest.parameterizedGivenVariables.add(variableName);
+                }
+            } else {
+                throw new RuntimeException(Constant.PARAMETERIZED
+                        + " should have parameters, types, and variable names OR label and variable names"); 
+            }
+
+        } else if (methodCall.getName().asString().equals(Constant.CONFIG_PARAM)) {
+            List<Expression> args = methodCall.getArguments();
+            if (args.size() != 3) {
+                throw new RuntimeException(Constant.CONFIG_PARAM + " should have a label, types for each column, and a collection");
+            }
+            if (!args.get(0).isStringLiteralExpr()) {
+                throw new RuntimeException(Constant.CONFIG_PARAM + " label must be a string literal");
+            }
+            if (!args.get(1).isStringLiteralExpr()) {
+                throw new RuntimeException(Constant.CONFIG_PARAM + " types must be a string literal");
+            }
+
+
+            String typeNames = args.get(1).isStringLiteralExpr()
+                    ? args.get(1).asStringLiteralExpr().asString()
+                    : args.get(1).toString();
+
+            String[] parameterTypes = typeNames.trim().split("\\s+");
+
+            List<Type> types = new ArrayList<>();
+            for (String parameterType : parameterTypes) {
+                types.add(Util.getTypeFromStr(parameterType));
+            }
+
+            ArrayCreationExpr array = args.get(2).asArrayCreationExpr();
+            if (!array.getInitializer().isPresent()) {
+                throw new RuntimeException(Constant.PARAMETERIZED + " parameters must have an initializer");
+            }
+            ArrayInitializerExpr initializer = array.getInitializer().get();
+
+            for (Expression row : initializer.getValues()) {
+                if (!row.isArrayInitializerExpr()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED + " each row must be an array");
+                }
+
+                if (row.asArrayInitializerExpr().getValues().size() != types.size()) {
+                    throw new RuntimeException(Constant.PARAMETERIZED
+                            + " each column must have a type");
+                }
+            }
+
+            BlockTestParamConfig config = new BlockTestParamConfig();
+            config.parameterValues = args.get(2).clone();
+            config.parameterizedGivenTypes = types;
+
+            if (blockTest.configs == null) {
+                blockTest.configs = new HashMap<>();
+            }
+
+            blockTest.configs.put(args.get(0).asStringLiteralExpr().asString(), config);
+            blockTest.is_config = true;
         } else if (methodCall.getName().asString().equals(Constant.ARGS)) {
             List<Expression> args = methodCall.getArguments();
             if (args.isEmpty()) {
@@ -561,8 +727,8 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                         super.visit(n, arg);
 
                         String name = n.getNameAsString();
-                        if (TestExtraction.staticFields.containsKey(name)) {
-                            String className = TestExtraction.staticFields.get(name);
+                        if (TestExtractor.staticFields.containsKey(name)) {
+                            String className = TestExtractor.staticFields.get(name);
                             n.replace(new FieldAccessExpr(new NameExpr(className), name));
                         }
                     }

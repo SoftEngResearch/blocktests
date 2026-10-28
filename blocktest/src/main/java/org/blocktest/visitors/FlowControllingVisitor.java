@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.github.javaparser.ast.ArrayCreationLevel;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.*;

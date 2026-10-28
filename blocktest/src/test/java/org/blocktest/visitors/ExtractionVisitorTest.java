@@ -12,7 +12,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.*;
 import org.blocktest.BlockTest;
-import org.blocktest.TestExtraction;
+import org.blocktest.TestExtractor;
 import org.blocktest.support.AstTestSupport;
 import org.blocktest.types.*;
 import org.blocktest.utils.Util;
@@ -283,7 +283,7 @@ public class ExtractionVisitorTest extends AstTestSupport {
   public void mocksSupportWildcardsFieldsMultipleValuesAndRemoval() throws Exception {
     BlockTest b = oneCase("mockReplacement");
     assertBlock("{ int a=1; int b=2; int c=3; int d=4; }", b.statements);
-    TestExtraction.staticFields.put("VALUE", "Owner");
+    TestExtractor.staticFields.put("VALUE", "Owner");
     b = chain("mockString(\"VALUE + 1\",9).end(FIRST_STATEMENT)");
     assertTrue(b.mockMethods.containsKey("Owner.VALUE + 1"));
     Util.loadXml = true;
@@ -336,5 +336,90 @@ public class ExtractionVisitorTest extends AstTestSupport {
     copy.assignments.clear();
     assertEquals(1, ctx.symbolTable.size());
     assertEquals(1, ctx.assignments.size());
+  }
+
+  @Test
+  public void rejectsMalformedConfigAndParameterizedDeclarations() {
+    String[] invalidConfigs = {
+      "configParam()",
+      "configParam(\"cases\", \"int\")",
+      "configParam(label, \"int\", new Object[][] {{1}})",
+      "configParam(\"cases\", types, new Object[][] {{1}})",
+      "configParam(\"cases\", \"int\", new Object[1][1])",
+      "configParam(\"cases\", \"int\", new Object[][] {1})",
+      "configParam(\"cases\", \"int\", new Object[][] {{1, 2}})"
+    };
+    for (String config : invalidConfigs) {
+      assertThrows(config, RuntimeException.class, () -> one("blocktest()." + config + ";"));
+    }
+
+    String[] invalidParameterized = {
+      "parameterized()",
+      "parameterized(new Object[][] {{1}}, \"int int\", x)",
+      "parameterized(new Object[1][1], \"int\", x)",
+      "parameterized(new Object[][] {1}, \"int\", x)",
+      "parameterized(new Object[][] {{1, 2}}, \"int\", x)",
+      "parameterized(new Object[][] {{1}}, \"int\", x + 1)",
+      "parameterized(\"cases\", x + 1)"
+    };
+    for (String parameterized : invalidParameterized) {
+      assertThrows(
+          parameterized, RuntimeException.class, () -> one("blocktest()." + parameterized + ";"));
+    }
+  }
+
+  @Test
+  public void parsesAssumptionsAndParameterizedNamesAsExpressionsOrStrings() {
+    BlockTest assumptions =
+        chain("assume(x > 0).assume(\"x < 5\").end(FIRST_STATEMENT)");
+    assertEquals(
+        Arrays.asList("x < 5", "x > 0"), strings(assumptions.assumptions));
+
+    BlockTest parameterized =
+        chain("parameterized(new Object[][] {{1}}, \"int\", \"x\").end(FIRST_STATEMENT)");
+    assertEquals(Collections.singletonList("x"), parameterized.parameterizedGivenVariables);
+
+    BlockTest configs =
+        one(
+            "blocktest().configParam(\"first\", \"int\", new Object[][] {{1}})"
+                + ".configParam(\"second\", \"String\", new Object[][] {{\"value\"}});");
+    assertEquals(new HashSet<>(Arrays.asList("first", "second")), configs.configs.keySet());
+  }
+
+  @Test
+  public void acceptsParameterizedTypeExpressionsAndStringGivenNames() {
+    BlockTest typed =
+        chain("parameterized(new Object[][] {{1}}, Integer, x).end(FIRST_STATEMENT)");
+    assertEquals("Integer", typed.parameterizedGivens.get(0).type.asString());
+
+    BlockTest configured =
+        chain("parameterized(\"cases\", \"x\").end(FIRST_STATEMENT)");
+    assertEquals(Collections.singletonList("x"), configured.parameterizedGivenVariables);
+
+    invalid(
+        "parameterized(123, x)",
+        "should have parameters, types, and variable names OR label and variable names");
+  }
+
+  @Test
+  public void parsesThreeArgumentLambdaInputsWithAnExplicitType() {
+    BlockTest block =
+        one(
+            "consume((int a, int b, int c) -> { "
+                + "lambdatest().args(1, 2, \"int\").argsVar(a, b, c).end(FIRST_STATEMENT); "
+                + "return a; });");
+    assertEquals(Arrays.asList("a", "b", "c"), block.givenVariables);
+    for (GivenVariable given : block.givens) {
+      assertEquals("int", given.type.asString());
+    }
+  }
+
+  @Test
+  public void reportsMalformedAssumptionCallsAndStringConditions() {
+    invalid("assume()", "assume should have 1 argument");
+    invalid("assume(1,2)", "assume should have 1 argument");
+    RuntimeException malformed =
+        assertThrows(RuntimeException.class, () -> chain("assume(\"x >\")"));
+    assertTrue(malformed.getMessage().contains("could not parse condition"));
   }
 }
