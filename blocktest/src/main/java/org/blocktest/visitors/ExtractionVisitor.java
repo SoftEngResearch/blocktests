@@ -284,19 +284,6 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 if (name.startsWith("this.")) {
                     name = name.substring(5); // strip "this." → "foo"
                 }
-                // Allow assertions on variables
-                //if (leftStr.matches("[A-Za-z_$][A-Za-z0-9_$]*")) {
-                //    left = new NameExpr(leftStr);
-                //    blockTest.assertedVariables.add(leftStr);
-                //}
-                //// Allow assertions on expressions
-                //else {
-                //    left = StaticJavaParser.parseExpression(leftStr);
-                //    List<NameExpr> names = left.findAll(NameExpr.class);
-                //    for (NameExpr name : names) {
-                //        blockTest.assertedVariables.add(name.getNameAsString());
-                //    }
-                //}
                 left = new NameExpr(name);
                 blockTest.assertedVariables.add(left.toString());
             } else {

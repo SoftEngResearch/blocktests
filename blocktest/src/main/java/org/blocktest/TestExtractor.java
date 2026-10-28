@@ -59,10 +59,7 @@ public class TestExtractor {
     public static Set<String> staticPrivateFields = new HashSet<>();
 
     String inputFileSource;
-    //String testOutputFile;
     String testedClassName;
-    //String className; 
-    //int duplicatedTestCount; 
     boolean coverage; 
     boolean rewrite; 
     boolean compile;
@@ -221,8 +218,6 @@ public class TestExtractor {
 
         this.imports = testImports;
 
-        //System.out.println("STATIC METHODS: " + this.staticMethods);
-
         this.globalSymbolTable = visitor.globalSymbolTable;
 
         java.util.Iterator<BlockTest> blockTestIterator = this.blockTests.iterator();
@@ -231,11 +226,6 @@ public class TestExtractor {
             if (blockTest.testName.isEmpty()) {
                 blockTest.testName = "testLine" + blockTest.lineNo;
             }
-
-            //if (!staticPrivateFields.isEmpty()) {
-            //    // We convert all private static fields to non-private
-            //    changedToPublic = true;
-            //}
 
             if (this.rewrite) {
                 originalCU.findAll(ExpressionStmt.class).forEach(stmt -> {
@@ -307,8 +297,6 @@ public class TestExtractor {
         }
     }
 
-    // The way this function executes depends a lot on the version of junit etc we should refactor to call 
-    // specific function as needed for each tasting framework
     public void extractTestsToSameClass(String testOutputFile, String className, int duplicatedTestCount) {
         FileInputStream in;
         try {
@@ -458,7 +446,7 @@ public class TestExtractor {
             } else {
                 // Because all JUNIT4 tests in the same class
                 // share the same parameters we need to create a new 
-                // test class for each block assuming blocks do not share parameters
+                // test class for each block
                 continue;
             }
         }
