@@ -91,7 +91,7 @@ public class HttpPortUtil {
             }
 
             String configVariableXMLAsString = null;
-            blocktest().given(configVariableXMLAsString, null).given(configVariableXML, new File("../OpenLiberty_ci.common/src/main/java/io/openliberty/tools/common/arquillian/util/HttpPortUtil.java")).checkTrue(configVariableXMLAsString != null).checkTrue(configVariableXMLAsString.contains("blocktest()"));
+            blocktest().given(configVariableXMLAsString, null).given(configVariableXML, new File("../OpenLiberty-ci.common/src/main/java/io/openliberty/tools/common/arquillian/util/HttpPortUtil.java")).checkTrue(configVariableXMLAsString != null).checkTrue(configVariableXMLAsString.contains("blocktest()"));
             if (configVariableXML != null && configVariableXML.exists() && configVariableXML.isFile()) {
                 byte[] configVarBytes = Files.readAllBytes(Paths.get(configVariableXML.getCanonicalPath()));
                 configVariableXMLAsString = new String(configVarBytes, StandardCharsets.UTF_8);
