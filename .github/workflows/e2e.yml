@@ -1,0 +1,52 @@
+name: e2e with Maven
+
+on:
+  - push
+  - pull_request
+
+env:
+  PATH: /root/apache-maven/bin:/usr/lib/jvm/java-8-openjdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  JAVA_HOME: /usr/lib/jvm/java-8-openjdk
+  M2_HOME: /root/apache-maven
+  MAVEN_HOME: /root/apache-maven
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: softengresearch/maven3:latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Style check
+      run: |
+        exit_code=0
+        for file in $(find . -type f \( -name "*.java" -o -name "*.py" -o -name "*.md" -o -name "pom.xml" -o -name "*.yml" -o -name "*.yaml" -o -name "Dockerfile" \) | grep -v "/examples/" | grep -v "/scripts/test/" | grep -v "/data/"); do
+          if [ -s "$file" ] && [ "$(tail -c1 "$file")" != "" ]; then
+            echo "File does not end with a newline: $file"
+            exit_code=1
+          fi
+        done
+        exit ${exit_code}
+      shell: bash
+    - name: Cache local Maven repository
+      uses: actions/cache@v3
+      with:
+        path: /root/.m2/repository/
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml', 'examples/*.java') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: Compile blocktest
+      run: mvn test-compile install
+      working-directory: blocktest
+      shell: bash
+    - name: Test OSS
+      shell: bash
+      run: |
+        for i in $(ls ../examples); do
+          bash run_example.sh ../examples/$i test
+          if [[ $? -ne 0 ]]; then
+            echo "Test ${i} failed"
+            exit 1
+          fi
+        done
+      working-directory: scripts

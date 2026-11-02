@@ -30,6 +30,15 @@ if [[ ${project_name} == Harium-keel && ${sha} == "e4e6a302eb6b7dcf6dab5d1167cf6
   rm pom.xml.bak
 fi
 
+if [[ ${project_name} == Harium-keel && ${sha} == "8b427e277df4b6c891617e6a0b9eea59c9d348d9" ]]; then
+  echo "Patching Harium-keel"
+  sed -i.bak "s/<version>[/<version>/g" pom.xml
+  rm pom.xml.bak
+  
+  sed -i.bak "s/,)<\/version>/<\/version>/g" pom.xml
+  rm pom.xml.bak
+fi
+
 if [[ ${project_name} == jai-imageio-jai-imageio-core && ${sha} == "f81bc1ab19faa210ad289c6ae2588bc1157fd07a" ]]; then
   echo "Patching jai-imageio-jai-imageio-core"
   sed -i.bak 's/<source>1.6<\/source>/<source>7<\/source>/' pom.xml
