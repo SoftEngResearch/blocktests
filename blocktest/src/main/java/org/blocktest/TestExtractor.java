@@ -183,11 +183,13 @@ public class TestExtractor {
         if (Util.junitVersion.equals("junit4")) {
             testImports.add(new ImportDeclaration("org.junit.Test", false, false));
             testImports.add(new ImportDeclaration("org.junit.Assert", true, true));
-            testImports.add(new ImportDeclaration("org.junit.runners.Parameterized", false, false));
-            testImports.add(new ImportDeclaration(" org.junit.runners.Parameterized.Parameter", false, false));
-            testImports.add(new ImportDeclaration("org.junit.runner.RunWith", false, false));
-            testImports.add(new ImportDeclaration("org.junit.Assume.assumeTrue", true, false));
-            testImports.add(new ImportDeclaration("java.util.Collection", false, false));
+            if (this.blockTests.stream().anyMatch(blockTest -> blockTest.is_parameterized)) {
+                testImports.add(new ImportDeclaration("org.junit.runners.Parameterized", false, false));
+                testImports.add(new ImportDeclaration(" org.junit.runners.Parameterized.Parameter", false, false));
+                testImports.add(new ImportDeclaration("org.junit.runner.RunWith", false, false));
+                testImports.add(new ImportDeclaration("org.junit.Assume.assumeTrue", true, false));
+                testImports.add(new ImportDeclaration("java.util.Collection", false, false));
+            }
         } else if (Util.junitVersion.equals("testng")) {
             testImports.add(new ImportDeclaration("org.testng.annotations.Test", false, false));
             testImports.add(new ImportDeclaration("org.testng.Assert", true, true));
