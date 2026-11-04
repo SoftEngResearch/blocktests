@@ -14,22 +14,6 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.ArrayCreationLevel;
-import com.github.javaparser.ast.expr.ArrayCreationExpr;
-import com.github.javaparser.ast.expr.ArrayInitializerExpr;
-import com.github.javaparser.ast.expr.ClassExpr;
-import com.github.javaparser.ast.expr.EnclosedExpr;
-import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.IntegerLiteralExpr;
-import com.github.javaparser.ast.expr.LambdaExpr;
-import com.github.javaparser.ast.expr.LongLiteralExpr;
-import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
-import com.github.javaparser.ast.expr.MemberValuePair;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.NameExpr;
-import com.github.javaparser.ast.expr.NormalAnnotationExpr;
-import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
-import com.github.javaparser.ast.expr.StringLiteralExpr;
-import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
@@ -125,6 +109,9 @@ public class TestConverter {
             if (Util.junitVersion.equals("junit5")) {
                 method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
                 applyJUnit5TestAnnotation(method, blockTest);
+            } else if (Util.junitVersion.equals("testng")) {
+                method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
+                applyTestNGTestAnnotation(method, blockTest); 
             } else {
                 method.setName(blockTest.testName).setType(new VoidType()).setBody(body);
                 method.addMarkerAnnotation("Test");
@@ -250,7 +237,69 @@ public class TestConverter {
             method.setBody(new BlockStmt().addStatement(new ReturnStmt(returned)));
             declarations.add(method);
         }
-        
+        // testng parameterized tests
+        else if (Util.junitVersion.equals("testng")) {
+            MethodDeclaration method = new MethodDeclaration();
+            method.setPublic(true);
+            method.setStatic(true);
+            method.setName(generateTestNGDataProviderMethodName(blockTest));
+
+            // TestNG DataProvider returns Object[][]
+            method.setType("Object[][]");
+
+            if (!blockTest.parameterValues.isArrayCreationExpr()
+                    || !blockTest.parameterValues.asArrayCreationExpr().getInitializer().isPresent()) {
+                throw new RuntimeException("TestNG parameterized block test parameters must be an initialized array");
+            }
+
+            NodeList<Expression> rows = new NodeList<>();
+
+            for (Expression row : blockTest.parameterValues.asArrayCreationExpr()
+                    .getInitializer().get().getValues()) {
+
+                ArrayInitializerExpr initializer = null;
+
+                if (row.isArrayInitializerExpr()) {
+                    initializer = row.asArrayInitializerExpr();
+                } else if (row.isArrayCreationExpr()
+                        && row.asArrayCreationExpr().getInitializer().isPresent()) {
+                    initializer = row.asArrayCreationExpr().getInitializer().get();
+                } else {
+                    throw new RuntimeException("TestNG parameterized block test rows must be arrays");
+                }
+
+                // Create an Object[] for each row
+                ArrayCreationExpr objectArray = new ArrayCreationExpr(
+                        new ClassOrInterfaceType(null, "Object"),
+                        NodeList.nodeList(new ArrayCreationLevel()),
+                        initializer.clone()
+                );
+
+                rows.add(objectArray);
+            }
+
+            // Return new Object[][] { ... }
+            Expression returned = new ArrayCreationExpr(
+                    new ClassOrInterfaceType(null, "Object"),
+                    NodeList.nodeList(new ArrayCreationLevel(), new ArrayCreationLevel()),
+                    new ArrayInitializerExpr(rows)
+            );
+
+            method.setBody(new BlockStmt().addStatement(new ReturnStmt(returned)));
+
+            // Add @DataProvider annotation
+            NormalAnnotationExpr dataProvider = new NormalAnnotationExpr(
+                    new Name("DataProvider"),
+                    NodeList.nodeList(
+                            new MemberValuePair("name",
+                                    new StringLiteralExpr(method.getNameAsString()))
+                    )
+            );
+
+            method.addAnnotation(dataProvider);
+
+            declarations.add(method);
+        }
         // JUnit 4 parameterized tests
         else if (Util.junitVersion.equals("junit4")) {
             for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
@@ -303,6 +352,41 @@ public class TestConverter {
         return declarations;
     }
 
+    private void applyTestNGTestAnnotation(MethodDeclaration method, BlockTest blockTest) {
+        // Add Test annotation
+        if (!blockTest.is_parameterized) {
+            method.addMarkerAnnotation("Test");
+            return;
+        }
+    
+        // Add @Test(dataProvider = "...")
+        NormalAnnotationExpr testAnnotation = new NormalAnnotationExpr(
+                new Name("Test"),
+                NodeList.nodeList(
+                        new MemberValuePair(
+                                "dataProvider",
+                                new StringLiteralExpr(generateTestNGDataProviderMethodName(blockTest))
+                        )
+                )
+        );
+    
+        method.addAnnotation(testAnnotation);
+    
+        // Add parameters into the test method signature
+        for (GivenParameterizedVariable parameterizedGiven : blockTest.parameterizedGivens) {
+            Type paramType = parameterizedGiven.type.clone();
+        
+            String paramName;
+            if (blockTest.exception != null) {
+                paramName = parameterizedGiven.name + "BlockTestParam";
+            } else {
+                paramName = parameterizedGiven.name;
+            }
+        
+            method.addParameter(new Parameter(paramType, paramName));
+        }
+    }
+
     private void applyJUnit5TestAnnotation(MethodDeclaration method, BlockTest blockTest) {
         // If the test is not parameterized, add the Test annotation
         if (!blockTest.is_parameterized) {
@@ -339,6 +423,13 @@ public class TestConverter {
                 : blockTest.testName;
         return "blockTestParamSource" + testName;
     }
+
+    private String generateTestNGDataProviderMethodName(BlockTest blockTest) {
+    String testName = blockTest.testName == null || blockTest.testName.isEmpty()
+            ? "TestLine" + blockTest.lineNo
+            : blockTest.testName;
+    return "blockTestDataProvider" + testName;
+}
 
     public MethodDeclaration toSourceCode(BlockTest blockTest) {
         System.out.println(blockTest);
@@ -382,6 +473,24 @@ public class TestConverter {
     }
 
     private void addGivenStatements(BlockStmt body, BlockTest blockTest) {
+
+        // Add assumptions
+        if (blockTest.assumptions != null && !blockTest.assumptions.isEmpty()) {
+            for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
+            //for (int i = 0; i <= blockTest.assumptions.size(); i++) {
+                // Generate the assume statement
+                Expression condition = blockTest.assumptions.get(i).clone();
+                MethodCallExpr assumeTrue = new MethodCallExpr(null, "assumeTrue", NodeList.nodeList(condition));
+                ExpressionStmt statement = new ExpressionStmt(assumeTrue);
+
+                // Replace the variables with the renamed variables
+                Util.replaceExpressionsWithVariables(statement, blockTest.renameGivenVariables);
+
+                // Add the assume statement to the body
+                body.addStatement(statement);
+            }
+        }
+
         for (int i = blockTest.givens.size() - 1; i >= 0; i--) {
             Expression expression = blockTest.givens.get(i).toAssignExpr().clone();
             body.addStatement(expression);
@@ -461,21 +570,6 @@ public class TestConverter {
             }
         }
 
-        // Add assumptions
-        if (blockTest.assumptions != null && !blockTest.assumptions.isEmpty()) {
-            for (int i = blockTest.assumptions.size() - 1; i >= 0; i--) {
-                // Generate the assume statement
-                Expression condition = blockTest.assumptions.get(i).clone();
-                MethodCallExpr assumeTrue = new MethodCallExpr(null, "assumeTrue", NodeList.nodeList(condition));
-                ExpressionStmt statement = new ExpressionStmt(assumeTrue);
-
-                // Replace the variables with the renamed variables
-                Util.replaceExpressionsWithVariables(statement, blockTest.renameGivenVariables);
-
-                // Add the assume statement to the body
-                body.addStatement(statement);
-            }
-        }
     }
 
     private void addTargetBlock(BlockStmt body, BlockStmt initBody, BlockStmt assertBody, BlockTest blockTest, boolean coverage) {

@@ -193,6 +193,10 @@ public class TestExtractor {
         } else if (Util.junitVersion.equals("testng")) {
             testImports.add(new ImportDeclaration("org.testng.annotations.Test", false, false));
             testImports.add(new ImportDeclaration("org.testng.Assert", true, true));
+            if (this.blockTests.stream().anyMatch(blockTest -> blockTest.is_parameterized)) {
+                testImports.add(new ImportDeclaration("org.testng.annotations.DataProvider", false, false));
+                testImports.add(new ImportDeclaration("org.testng.annotations.Test", false, false));
+            }
         } else {
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Test", false, false));
             testImports.add(new ImportDeclaration("org.junit.jupiter.api.Assertions", true, true));
