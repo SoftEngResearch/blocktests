@@ -39,6 +39,7 @@ public class Constant {
     public final static String NO_INIT = "noInit";
     public final static String MOCK = "mock";
     public final static String MOCK_STR = "mockString";
+    public final static String TYPE = "type";
 
     // control blocktest().end()
     public final static String LAMBDA = "LAMBDA";

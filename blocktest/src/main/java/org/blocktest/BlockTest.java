@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
@@ -45,6 +47,9 @@ public class BlockTest implements Cloneable{
     public String controlFlow;
     public long delay;
     public Map<String, List<Expression>> mockMethods;
+    public List<MethodDeclaration> mockHelperMethods;
+    public List<FieldDeclaration> mockHelperFields;
+    public Map<String, Type> genericTypeMap;
 
     public List<Expression> lambdaParameters;
     
@@ -75,6 +80,9 @@ public class BlockTest implements Cloneable{
         this.controlFlow = null;
         this.delay = 0;
         this.mockMethods = new HashMap<>();
+        this.mockHelperMethods = new ArrayList<>();
+        this.mockHelperFields = new ArrayList<>();
+        this.genericTypeMap = new HashMap<>();
         this.lambdaParameters = new ArrayList<>();
 
         this.notReturn = false;
@@ -149,6 +157,18 @@ public class BlockTest implements Cloneable{
             cloned.mockMethods = new HashMap<>();
             for (Map.Entry<String, List<Expression>> entry : this.mockMethods.entrySet()) {
                 cloned.mockMethods.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+            cloned.mockHelperMethods = new ArrayList<>();
+            for (MethodDeclaration helper : this.mockHelperMethods) {
+                cloned.mockHelperMethods.add(helper.clone());
+            }
+            cloned.mockHelperFields = new ArrayList<>();
+            for (FieldDeclaration field : this.mockHelperFields) {
+                cloned.mockHelperFields.add(field.clone());
+            }
+            cloned.genericTypeMap = new HashMap<>();
+            for (Map.Entry<String, Type> entry : this.genericTypeMap.entrySet()) {
+                cloned.genericTypeMap.put(entry.getKey(), entry.getValue().clone());
             }
             cloned.lambdaParameters = new ArrayList<>(this.lambdaParameters);
             

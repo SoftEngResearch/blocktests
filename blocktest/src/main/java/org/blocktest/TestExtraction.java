@@ -257,9 +257,21 @@ public class TestExtraction {
                     String classNameTmp = cls.getNameAsString();
                     System.out.println("Test Coverage mode: found " + blockTest.className + " vs " + classNameTmp);
                     cls.addMember(method2);
+                    for (FieldDeclaration field : blockTest.mockHelperFields) {
+                        cls.addMember(field.clone());
+                    }
+                    for (MethodDeclaration helper : blockTest.mockHelperMethods) {
+                        cls.addMember(helper.clone());
+                    }
                 });
             } else {
                 testClass.addMember(method.setPublic(true));
+                for (FieldDeclaration field : blockTest.mockHelperFields) {
+                    testClass.addMember(field.clone());
+                }
+                for (MethodDeclaration helper : blockTest.mockHelperMethods) {
+                    testClass.addMember(helper.clone());
+                }
             }
             
             if (duplicatedTestCount > 1) {

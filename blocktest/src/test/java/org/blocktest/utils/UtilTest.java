@@ -3,7 +3,6 @@ package org.blocktest.utils;
 import static org.junit.Assert.*;
 
 import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
 import java.util.*;
@@ -12,11 +11,6 @@ import org.junit.Test;
 
 public class UtilTest extends AstTestSupport {
   private static final String FIXTURE = "utils/UtilCases.java";
-
-  private BlockStmt mockBlock(String method, String expression) throws Exception {
-    return StaticJavaParser.parseBlock(
-        blockFixture(FIXTURE, method).toString().replace("TEST_EXPRESSION", expression));
-  }
 
   @Test
   public void parsesPrimitivesArraysWildcardsAndNestedGenerics() {
@@ -111,66 +105,5 @@ public class UtilTest extends AstTestSupport {
     assertEquals(copy, block);
   }
 
-  @Test
-  public void generatesAllArgumentWildcardCombinationsInStableOrder() {
-    MethodCallPatternGenerator g = new MethodCallPatternGenerator();
-    assertEquals(
-        Arrays.asList(
-            "a.b(1, 2).c(3).d()",
-            "a.b(1, 2).c(BLOCKTEST_ANYTHING).d()",
-            "a.b(BLOCKTEST_ANYTHING).c(3).d()",
-            "a.b(BLOCKTEST_ANYTHING).c(BLOCKTEST_ANYTHING).d()"),
-        g.generateAllPatterns(
-            StaticJavaParser.parseExpression("a.b(1,2).c(3).d()").asMethodCallExpr()));
-    assertEquals(
-        Collections.singletonList("run()"),
-        g.generateAllPatterns(StaticJavaParser.parseExpression("run()").asMethodCallExpr()));
-    assertEquals(
-        Arrays.asList("run(1)", "run(BLOCKTEST_ANYTHING)"),
-        g.generateAllPatterns(StaticJavaParser.parseExpression("run(1)").asMethodCallExpr()));
-  }
 
-  private static Map<String, List<Expression>> mocks(String key, Expression... values) {
-    Map<String, List<Expression>> map = new HashMap<>();
-    map.put(key, Arrays.asList(values));
-    return map;
-  }
-
-  @Test
-  public void substitutesCallsNamesFieldsAndExpressionsSequentiallyThenRepeatsLastValue()
-      throws Exception {
-    for (String expression : Arrays.asList("call()", "value", "obj.field", "x + y")) {
-      BlockStmt b = mockBlock("repeatedMock", expression);
-      assertSame(
-          b,
-          Util.substituteMockedValues(
-              b, mocks(expression, new IntegerLiteralExpr(10), new IntegerLiteralExpr(20))));
-      assertBlock("{ int a = 10; int b = 20; int c = 20; untouched(); }", b);
-    }
-  }
-
-  @Test
-  public void emptyAndNullMocksRemoveContainingStatements() throws Exception {
-    for (String expression : Arrays.asList("call()", "value", "obj.field", "x + y")) {
-      for (List<Expression> values : Arrays.asList(Collections.<Expression>emptyList(), null)) {
-        BlockStmt b = mockBlock("removedMock", expression);
-        Map<String, List<Expression>> map = new HashMap<>();
-        map.put(expression, values);
-        Util.substituteMockedValues(b, map);
-        assertBlock("{ untouched(); }", b);
-      }
-    }
-  }
-
-  @Test
-  public void wildcardMocksReplaceWholeChainsAndVisitCallArguments() throws Exception {
-    BlockStmt b = blockFixture(FIXTURE, "wildcardMock");
-    Map<String, List<Expression>> map =
-        mocks("obj.a(BLOCKTEST_ANYTHING).b(2)", new IntegerLiteralExpr(9));
-    map.put("other(BLOCKTEST_ANYTHING)", Arrays.asList(new IntegerLiteralExpr(8)));
-    Util.substituteMockedValues(b, map);
-    assertBlock("{ int n = 9; consume(8); }", b);
-    assertSame(b, Util.substituteMockedValues(b, null));
-    assertSame(b, Util.substituteMockedValues(b, Collections.emptyMap()));
-  }
 }

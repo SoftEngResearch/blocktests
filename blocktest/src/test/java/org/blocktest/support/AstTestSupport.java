@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import org.blocktest.TestExtraction;
 import org.blocktest.utils.TypeResolver;
+import org.blocktest.utils.MockUtil;
 import org.blocktest.utils.Util;
 import org.junit.After;
 import org.junit.Before;
@@ -43,6 +44,9 @@ public abstract class AstTestSupport {
   @Before
   public void isolateGlobals() throws Exception {
     for (Field field : Util.class.getFields()) {
+      if (Modifier.isStatic(field.getModifiers())) options.put(field, field.get(null));
+    }
+    for (Field field : MockUtil.class.getFields()) {
       if (Modifier.isStatic(field.getModifiers())) options.put(field, field.get(null));
     }
     parser = StaticJavaParser.getConfiguration();
@@ -66,6 +70,7 @@ public abstract class AstTestSupport {
     Util.generatedTests = false;
     Util.withAssertion = false;
     Util.allPublic = false;
+    MockUtil.newMock = false;
   }
 
   @After

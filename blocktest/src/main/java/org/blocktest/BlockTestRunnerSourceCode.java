@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 import org.blocktest.utils.TypeResolver;
+import org.blocktest.utils.MockUtil;
 import org.blocktest.utils.Util;
 
 public class BlockTestRunnerSourceCode {
@@ -105,6 +106,10 @@ public class BlockTestRunnerSourceCode {
 
         if (params.containsKey("generated_tests")) {
             Util.generatedTests = Boolean.parseBoolean(params.get("generated_tests"));
+        }
+
+        if (params.containsKey("new_mock")) {
+            MockUtil.newMock = Boolean.parseBoolean(params.get("new_mock"));
         }
 
         TestExtraction.extractTest(inputFilePath.toAbsolutePath().toString(), testOutputFile, publicClassName,

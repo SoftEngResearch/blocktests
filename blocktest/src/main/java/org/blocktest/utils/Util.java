@@ -15,11 +15,9 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Expression;
-import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
-import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ArrayType;
@@ -37,6 +35,7 @@ public class Util {
     public static String junitVersion = "junit4";
 
     public static boolean predictValue = false;
+    public static boolean replaceGeneric = true;
 
     public static boolean loadXml = false;
 
@@ -71,8 +70,9 @@ public class Util {
             // Add cases for other primitives as needed
         }
 
-        if (input.equals("T") || input.equals("? extends T") || input.equals("? super T"))
-            return new ClassOrInterfaceType().setName("Object");
+        if (replaceGeneric)
+            if (input.equals("T") || input.equals("? extends T") || input.equals("? super T"))
+                return new ClassOrInterfaceType().setName("Object");
 
         // Handle array types
         if (input.endsWith("[]")) {
@@ -282,128 +282,6 @@ public class Util {
                 expr.replace(replacement);
             }
         });
-    }
-
-    public static BlockStmt substituteMockedValues(BlockStmt blockStmt, Map<String, List<Expression>> mockMethods) {
-        if (mockMethods == null || mockMethods.isEmpty()) {
-            return blockStmt;
-        }
-
-        Map<String, Integer> mockedCounts = mockMethods.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> 0));
-
-        System.out.println("MOCKING... with methods: " + mockMethods.keySet());
-
-        blockStmt.findAll(MethodCallExpr.class).stream()
-                .filter(methodCall -> {
-                    // Check if this method call is NOT the scope of another method call
-                    Optional<Node> parent = methodCall.getParentNode();
-                    if (parent.isPresent() && parent.get() instanceof MethodCallExpr) {
-                        MethodCallExpr parentMethodCall = (MethodCallExpr) parent.get();
-                        return !parentMethodCall.getScope().map(scope -> scope.equals(methodCall)).orElse(false);
-                    }
-                    return true; // Keep it if it's not the scope of another method call
-                })
-                .forEach(methodCall -> {
-                    String methodName = methodCall.toString();
-                    if (!mockMethods.containsKey(methodName)) {
-                        // This part enables a more powerful parameter matching for method calls
-                        // for example, if the method call is a.b(123).c(456).d();
-                        // we can match this using mock method a.b(..).c(..).d(), a.b(..).c(456).d(), etc.
-                        MethodCallPatternGenerator generator = new MethodCallPatternGenerator();
-                        System.out.println(methodName + " alternative contains " + generator.generateAllPatterns(methodCall));
-                        for (String potentialName : generator.generateAllPatterns(methodCall)) {
-                            if (mockMethods.containsKey(potentialName)) {
-                                System.out.println("Although " + methodName + " is not found in mock method, the alternative " +
-                                        potentialName + " is found in mock methods");
-                                methodName = potentialName;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (mockMethods.containsKey(methodName)) {
-                        List<Expression> mockValues = mockMethods.get(methodName);
-                        if (mockValues != null && !mockValues.isEmpty()) {
-                            if (mockedCounts.get(methodName) >= mockValues.size()) {
-                                // running out of mocked values, just use the last one
-                                System.out.println("Replacing method call " + methodName + " with " + mockValues.get(mockValues.size() - 1));
-                                methodCall.replace(mockValues.get(mockValues.size() - 1));
-                            } else {
-                                System.out.println("Replacing method call " + methodName + " with " + mockValues.get(mockedCounts.get(methodName)));
-                                methodCall.replace(mockValues.get(mockedCounts.get(methodName)));
-                                mockedCounts.put(methodName, mockedCounts.get(methodName) + 1);
-                            }
-                        } else {
-                            System.out.println("Replacing method call " + methodName + " with empty statement");
-                            methodCall.findAncestor(ExpressionStmt.class).ifPresent(Node::remove);
-                        }
-                    }
-        });
-
-        blockStmt.findAll(NameExpr.class).forEach(nameExpr -> {
-            String variableName = nameExpr.getNameAsString();
-            if (mockMethods.containsKey(variableName)) {
-                List<Expression> mockValues = mockMethods.get(variableName);
-                if (mockValues != null && !mockValues.isEmpty()) {
-                    if (mockedCounts.get(variableName) >= mockValues.size()) {
-                        // running out of mocked values, just use the last one
-                        System.out.println("Replacing variable name " + variableName + " with " + mockValues.get(mockValues.size() - 1));
-                        nameExpr.replace(mockValues.get(mockValues.size() - 1));
-                    } else {
-                        System.out.println("Replacing variable name " + variableName + " with " + mockValues.get(mockedCounts.get(variableName)));
-                        nameExpr.replace(mockValues.get(mockedCounts.get(variableName)));
-                        mockedCounts.put(variableName, mockedCounts.get(variableName) + 1);
-                    }
-                } else {
-                    System.out.println("Replacing variable name " + variableName + " with empty statement");
-                    nameExpr.findAncestor(ExpressionStmt.class).ifPresent(Node::remove);
-                }
-            }
-        });
-
-        blockStmt.findAll(FieldAccessExpr.class).forEach(fieldAccessExpr -> {
-            String fieldName = fieldAccessExpr.toString();
-            if (mockMethods.containsKey(fieldName)) {
-                List<Expression> mockValues = mockMethods.get(fieldName);
-                if (mockValues != null && !mockValues.isEmpty()) {
-                    if (mockedCounts.get(fieldName) >= mockValues.size()) {
-                        // running out of mocked values, just use the last one
-                        System.out.println("Replacing field access " + fieldName + " with " + mockValues.get(mockValues.size() - 1));
-                        fieldAccessExpr.replace(mockValues.get(mockValues.size() - 1));
-                    } else {
-                        System.out.println("Replacing field access " + fieldName + " with " + mockValues.get(mockedCounts.get(fieldName)));
-                        fieldAccessExpr.replace(mockValues.get(mockedCounts.get(fieldName)));
-                        mockedCounts.put(fieldName, mockedCounts.get(fieldName) + 1);
-                    }
-                } else {
-                    System.out.println("Replacing field access " + fieldName + " with empty statement");
-                    fieldAccessExpr.findAncestor(ExpressionStmt.class).ifPresent(Node::remove);
-                }
-            }
-        });
-
-        blockStmt.findAll(Expression.class).forEach(expression -> {
-            String expressionString = expression.toString();
-            if (mockMethods.containsKey(expressionString)) {
-                List<Expression> mockValues = mockMethods.get(expressionString);
-                if (mockValues != null && !mockValues.isEmpty()) {
-                    if (mockedCounts.get(expressionString) >= mockValues.size()) {
-                        // running out of mocked values, just use the last one
-                        System.out.println("Replacing expression " + expressionString + " with " + mockValues.get(mockValues.size() - 1));
-                        expression.replace(mockValues.get(mockValues.size() - 1));
-                    } else {
-                        System.out.println("Replacing expression " + expressionString + " with " + mockValues.get(mockedCounts.get(expressionString)));
-                        expression.replace(mockValues.get(mockedCounts.get(expressionString)));
-                        mockedCounts.put(expressionString, mockedCounts.get(expressionString) + 1);
-                    }
-                } else {
-                    System.out.println("Replacing expression " + expressionString + " with empty statement");
-                    expression.findAncestor(ExpressionStmt.class).ifPresent(Node::remove);
-                }
-            }
-        });
-
-        return blockStmt;
     }
 
     public static boolean removeBlockTests(String filePath) {

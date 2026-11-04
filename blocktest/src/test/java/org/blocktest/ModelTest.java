@@ -74,6 +74,7 @@ public class ModelTest extends AstTestSupport {
     b.statements.addStatement("work();");
     b.exception = StaticJavaParser.parseExpression("Exception.class");
     b.mockMethods.put("call()", new ArrayList<>(Arrays.asList(new IntegerLiteralExpr(1))));
+    b.genericTypeMap.put("T", StaticJavaParser.parseType("String"));
     BlockTest copy = b.clone();
     assertEquals(b.toString(), copy.toString());
     for (java.lang.reflect.Field field : BlockTest.class.getFields()) {
@@ -86,10 +87,12 @@ public class ModelTest extends AstTestSupport {
       }
     }
     copy.mockMethods.get("call()").clear();
+    copy.genericTypeMap.get("T").asClassOrInterfaceType().setName("Integer");
     copy.setupBlock.addStatement("other();");
     copy.statements.addStatement("other();");
     ((ClassExpr) copy.exception).setType("RuntimeException");
     assertEquals(1, b.mockMethods.get("call()").size());
+    assertEquals("String", b.genericTypeMap.get("T").toString());
     assertEquals(1, b.setupBlock.getStatements().size());
     assertEquals(1, b.statements.getStatements().size());
     assertEquals("Exception.class", b.exception.toString());

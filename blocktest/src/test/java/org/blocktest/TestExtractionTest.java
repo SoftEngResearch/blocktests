@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import org.blocktest.support.AstTestSupport;
 import org.blocktest.support.GeneratedCode;
+import org.blocktest.utils.MockUtil;
 import org.blocktest.utils.Util;
 import org.junit.Test;
 import org.junit.runner.Result;
@@ -80,6 +81,91 @@ public class TestExtractionTest extends AstTestSupport {
             temporary.getRoot().toPath(), "sample.SampleBlockTest", input(), output());
     assertEquals(1, result.getRunCount());
     assertTrue(result.getFailures().toString(), result.wasSuccessful());
+  }
+
+  @Test
+  public void typeMappingUpdatesGenericTypesInExtractedFragment() throws Exception {
+    String fixture = "extraction/generic/Sample.java";
+    CompilationUnit generated = extractFixture(fixture);
+    MethodDeclaration method = generated.getClassByName("SampleBlockTest").get()
+        .getMethodsByName("generic").get(0);
+    String body = method.getBody().get().toString();
+    assertTrue(body, body.contains("List<String> list"));
+    assertTrue(body, body.contains("String y = list.iterator().next()"));
+    assertTrue(body, body.contains("List<? extends String> view = list"));
+    assertTrue(body, body.contains("String[] unused = null"));
+    assertTrue(body, body.contains("String label = \"T\""));
+    assertTrue(body, body.contains("int TT = label.length()"));
+    assertFalse(body, body.contains("List<T>"));
+    assertEquals(fixtureText(fixture), new String(Files.readAllBytes(input()), StandardCharsets.UTF_8));
+
+    Result result = GeneratedCode.run(
+        temporary.getRoot().toPath(), "sample.SampleBlockTest", input(), output());
+    assertEquals(1, result.getRunCount());
+    assertTrue(result.getFailures().toString(), result.wasSuccessful());
+
+  }
+
+  @Test
+  public void advancedMockHelpersHandleSequencesAndCatchAllInGeneratedLoop() throws Exception {
+    MockUtil.newMock = true;
+    CompilationUnit generated = extractFixture("extraction/advanced-mock/Sample.java");
+    ClassOrInterfaceDeclaration generatedClass = generated.getClassByName("SampleBlockTest").get();
+    MethodDeclaration test = generatedClass.getMethods().stream()
+        .filter(method -> method.getNameAsString().startsWith("testLine"))
+        .findFirst().get();
+    MethodDeclaration helper = generatedClass.getMethodsByName(
+        test.getNameAsString() + "_mock0").get(0);
+    MethodDeclaration stringHelper = generatedClass.getMethodsByName(
+        test.getNameAsString() + "_mock1").get(0);
+    assertTrue(helper.isStatic());
+    assertTrue(stringHelper.isStatic());
+    assertEquals("java.lang.Boolean", helper.getType().toString());
+    assertEquals("java.lang.Boolean", stringHelper.getType().toString());
+    assertEquals("Object... args", helper.getParameter(0).toString());
+    assertFalse(test.toString().contains("class BLOCKTEST_MOCKS"));
+    assertTrue(test.toString().contains(helper.getNameAsString() + "(i)"));
+    assertTrue(test.toString().contains(stringHelper.getNameAsString() + "(\"hi\")"));
+    assertTrue(test.toString().contains(stringHelper.getNameAsString() + "(\"bye\")"));
+    assertTrue(test.toString().contains("Unexpected mock sequence or wildcard value"));
+    assertFalse(test.toString().contains(helper.getNameAsString() + "_count"));
+    assertEquals("int[]", generatedClass.getFieldByName(helper.getNameAsString() + "_count").get()
+        .getVariable(0).getType().toString());
+    assertEquals("new int[3]", generatedClass.getFieldByName(helper.getNameAsString() + "_count").get()
+        .getVariable(0).getInitializer().get().toString());
+    assertEquals("new int[3]", generatedClass.getFieldByName(stringHelper.getNameAsString() + "_count").get()
+        .getVariable(0).getInitializer().get().toString());
+    assertTrue(helper.toString().contains(helper.getNameAsString() + "_count[0]++"));
+    assertTrue(helper.toString().contains("deepEquals(args[0], 0)"));
+    assertTrue(helper.toString().contains("if (index == 0)"));
+    assertTrue(helper.toString().contains("if (index == 1)"));
+    assertTrue(helper.toString().contains("return false;"));
+    assertTrue(helper.toString().contains("return true;"));
+    assertTrue(stringHelper.toString().contains("deepEquals(args[0], \"hi\")"));
+    assertTrue(stringHelper.toString().contains("deepEquals(args[0], \"hola\")"));
+    assertTrue(stringHelper.toString().contains("if (true)"));
+
+    Result result = GeneratedCode.run(
+        temporary.getRoot().toPath(), "sample.SampleBlockTest", input(), output());
+    assertEquals(1, result.getRunCount());
+    assertTrue(result.getFailures().toString(), result.wasSuccessful());
+
+    Util.coverage = true;
+    CompilationUnit coverageTests = extractFixture(
+        "extraction/advanced-mock/Sample.java", 0, true, true, true);
+    assertEquals(1, coverageTests.getClassByName("SampleBlockTest").get().getMethods().size());
+    CompilationUnit rewrittenSource = StaticJavaParser.parse(input());
+    assertEquals(1, rewrittenSource.getClassByName("Sample").get()
+        .getMethodsByName(helper.getNameAsString()).size());
+    assertEquals(1, rewrittenSource.getClassByName("Sample").get()
+        .getMethodsByName(stringHelper.getNameAsString()).size());
+    assertTrue(rewrittenSource.getClassByName("Sample").get()
+        .getFieldByName(helper.getNameAsString() + "_count").isPresent());
+    assertTrue(rewrittenSource.getClassByName("Sample").get()
+        .getFieldByName(stringHelper.getNameAsString() + "_count").isPresent());
+    Result coverageResult = GeneratedCode.run(
+        temporary.getRoot().toPath(), "sample.SampleBlockTest", input(), output());
+    assertTrue(coverageResult.getFailures().toString(), coverageResult.wasSuccessful());
   }
 
   @Test

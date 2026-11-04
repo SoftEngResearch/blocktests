@@ -5,11 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,6 +36,7 @@ import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
 import org.blocktest.types.GivenVariable;
 import org.blocktest.utils.Constant;
+import org.blocktest.utils.MockUtil;
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
 
@@ -80,12 +77,24 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
 
         if (Util.isTestStatement(expressionStmt)) {
             BlockTest blockTest = new BlockTest();
+            Util.replaceGeneric = !expressionStmt.toString().contains("." + Constant.TYPE + "(");
             parseBlockTest(expressionStmt, blockTest, ctx.symbolTable);
 
             // Find target statements
             findTargetStatements(expressionStmt, blockTest, ctx.symbolTable);
+            substituteGenericTypes(blockTest);
             // Substitute with mocked values
-            blockTest.statements = Util.substituteMockedValues(blockTest.statements, blockTest.mockMethods);
+            if (MockUtil.newMock) {
+                // using new mock design (extracted mocked methods)
+                String testName = blockTest.testName.isEmpty()
+                        ? "testLine" + blockTest.lineNo : blockTest.testName;
+                blockTest.mockHelperMethods = MockUtil.substituteMockedValuesAdvanced(
+                        blockTest.statements, blockTest.mockMethods, testName,
+                        blockTest.mockHelperFields);
+            } else {
+                // previous mock design
+                blockTest.statements = MockUtil.substituteMockedValues(blockTest.statements, blockTest.mockMethods);
+            }
 
             blockTests.add(blockTest);
             blockTest.localSymbolTable = new HashMap<>(ctx.symbolTable);
@@ -96,6 +105,21 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             if (classDecl.isPresent()) {
                 String className = classDecl.get().getNameAsString();
                 blockTest.className = className;
+            }
+        }
+    }
+
+    private static void substituteGenericTypes(BlockTest blockTest) {
+        if (blockTest.genericTypeMap.isEmpty()) {
+            return;
+        }
+
+        for (ClassOrInterfaceType type : blockTest.statements.findAll(ClassOrInterfaceType.class)) {
+            if (!type.getScope().isPresent()) {
+                Type replacement = blockTest.genericTypeMap.get(type.getNameAsString());
+                if (replacement != null) {
+                    type.replace(replacement.clone());
+                }
             }
         }
     }
@@ -434,7 +458,7 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                 System.out.println("Replacing this field for " + left);
             }
 
-            leftType = getTypeUsingJavaParser(symbolTable, left, leftType);
+            leftType = getTypeUsingJavaParser(symbolTable, blockTest.genericTypeMap, left, leftType);
 
             if (left.toString().contains(".") || left.toString().contains("[")) {
                 // need to perform replacement
@@ -491,7 +515,7 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                     leftType = Util.getTypeFromStr(args.get(2).toString().replace("\"", ""));
                     symbolTable.put(left.toString(), leftType);
                 } else {
-                    leftType = getTypeUsingJavaParser(symbolTable, left, leftType);
+                    leftType = getTypeUsingJavaParser(symbolTable, blockTest.genericTypeMap, left, leftType);
                 }
 
                 if (leftType == null) {
@@ -610,6 +634,36 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                     values.add(args.get(i));
                 }
             }
+        } else if (methodCall.getName().asString().equals(Constant.TYPE)) {
+            // type(type, actual_type);
+            List<Expression> args = methodCall.getArguments();
+            if (args.size() != 2) {
+                throw new RuntimeException(Constant.TYPE + " should have 2 arguments");
+            }
+
+            Expression left = args.get(0);
+            Expression right = args.get(1);
+
+            if (!(left instanceof StringLiteralExpr && right instanceof StringLiteralExpr)) {
+                throw new RuntimeException(Constant.TYPE + " should have 2 string literal arguments");
+            }
+
+            String leftStr = ((StringLiteralExpr) left).asString();
+            String rightStr = ((StringLiteralExpr) right).asString();
+
+            Type rightType = Util.getTypeFromStr(rightStr.replace("\"", ""));
+            blockTest.genericTypeMap.put(leftStr, rightType);
+
+            for (GivenVariable v : blockTest.givens) {
+                if (v.type.toString().equals(leftStr)) {
+                    v.type = rightType;
+                }
+            }
+            for (Map.Entry<String, Type> entry : symbolTable.entrySet()) {
+                if (entry.getValue().toString().equals(leftStr)) {
+                    entry.setValue(rightType);
+                }
+            }
         }
 
         if (methodCall.getScope().isPresent()) {
@@ -617,10 +671,13 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
         }
     }
 
-    private Type getTypeUsingJavaParser(HashMap<String, Type> symbolTable, Expression left, Type leftType) {
+    private Type getTypeUsingJavaParser(HashMap<String, Type> symbolTable, Map<String, Type> genericTypeMap, Expression left, Type leftType) {
         try {
             System.out.println("Determining the type of " + left + " using JavaParser");
             String leftTypeStr = TypeResolver.sSymbolResolver.calculateType(left).describe();
+            if (genericTypeMap.containsKey(leftTypeStr)) {
+                leftTypeStr = genericTypeMap.get(leftTypeStr).toString();
+            }
             leftType = Util.getTypeFromStr(leftTypeStr);
 
             boolean wrongType = leftType != null && (leftType.toString().equals("java.lang.Class<?>") || leftType.toString().equals("U") || leftType.toString().contains("InferenceVariable_"));

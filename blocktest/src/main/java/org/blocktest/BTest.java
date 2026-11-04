@@ -141,6 +141,10 @@ public class BTest {
         return btest;
     }
 
+    public BTest type(Object variable, Object type) {
+        return btest;
+    }
+
     // end()
     public BTest end() {
         return btest;
