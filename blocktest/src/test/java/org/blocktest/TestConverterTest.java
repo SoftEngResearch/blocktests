@@ -264,6 +264,44 @@ public class TestConverterTest extends AstTestSupport {
   }
 
   @Test
+  public void generatesTestNGDataProvidersAndRejectsMalformedRows() {
+    Util.junitVersion = "testng";
+    BlockTest b = parameterizedBlock("new Object[][] {{1}, new int[] {2}}", false);
+    MethodDeclaration source = (MethodDeclaration) converter().toParamJUnit(b, false).get(0);
+    assertEquals("blockTestDataProvidernumbers", source.getNameAsString());
+    assertEquals("Object[][]", source.getType().toString());
+    assertTrue(source.toString().contains("@DataProvider(name = \"blockTestDataProvidernumbers\")"));
+    assertTrue(source.toString().contains("new Object[][] { new Object[] { 1 }, new Object[] { 2 } }"));
+
+    MethodDeclaration test = junit(b);
+    assertEquals("n", test.getParameter(0).getNameAsString());
+    assertEquals("blockTestDataProvidernumbers", test.getAnnotation(0)
+        .asNormalAnnotationExpr()
+        .getPairs()
+        .get(0)
+        .getValue()
+        .asStringLiteralExpr()
+        .asString());
+
+    BlockTest unnamed = parameterizedBlock("new Object[][] {}", false);
+    unnamed.testName = null;
+    source = (MethodDeclaration) converter().toParamJUnit(unnamed, false).get(0);
+    assertEquals("blockTestDataProviderTestLine0", source.getNameAsString());
+
+    BlockTest notArray = parameterizedBlock("1", false);
+    assertTrue(
+        assertThrows(RuntimeException.class, () -> converter().toParamJUnit(notArray, false))
+            .getMessage()
+            .contains("initialized array"));
+
+    BlockTest nonArrayRow = parameterizedBlock("new Object[][] {1}", false);
+    assertTrue(
+        assertThrows(RuntimeException.class, () -> converter().toParamJUnit(nonArrayRow, false))
+            .getMessage()
+            .contains("rows must be arrays"));
+  }
+
+  @Test
   public void junit5ParameterizedAnnotationsAndExpectedExceptionParametersAreGenerated() {
     Util.junitVersion = "junit5";
     BlockTest b = parameterizedBlock("new Object[][] {{1}}", false);
@@ -345,13 +383,6 @@ public class TestConverterTest extends AstTestSupport {
     unnamed.testName = "";
     source = (MethodDeclaration) converter().toParamJUnit(unnamed, false).get(0);
     assertEquals("blockTestParamSourceTestLine0", source.getNameAsString());
-  }
-
-  @Test
-  public void unsupportedFrameworkDoesNotGenerateParameterizedDeclarations() {
-    Util.junitVersion = "testng";
-    BlockTest block = parameterizedBlock("new Object[][] {{1}}", false);
-    assertTrue(converter().toParamJUnit(block, false).isEmpty());
   }
 
   @Test
