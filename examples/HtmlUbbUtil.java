@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1880,6 +1881,21 @@ public class HtmlUbbUtil {
                             // replace tags with caption
                             blocktest().given(tablerows, new String[]{"[tc]test[/tc]"}).given(headerrow, 0).checkEq(caption, "\\caption{test}\n");
                             
+                            blocktest().parameterized(new Object [][] {
+                                {new String[]{"[tc]test0_hcqjkh[/tc]"}, 0},
+                                {new String[]{"[tc]test1_wxqkxc jqk[/tc]"}, 0},
+                                {new String[]{"[tc]test2 bxqx b    chbqchxb[/tc]"}, 0},
+                                {new String[]{"[tc][/tc]"}, 0},
+                                {new String[]{"[tc]\n[/tc]"}, 0},
+                                {new String[]{"[tc]test3 GN*@(GC&@CNg827cbhny2m2 [/tc]"}, 0}},
+                                "String[] int",
+                                tablerows, headerrow)
+                            .checkTrue(Arrays.stream(tablerows).anyMatch(caption::contains))
+                            .checkTrue(caption.contains("\n")).checkTrue(caption.contains("{"))
+                            .checkTrue(caption.contains("}")).checkTrue(caption.contains("caption"))
+                            .checkFalse(caption.contains("[tc]") || caption.contains("[/tc]"))
+                            .checkTrue(headerrow == 0);
+
                             tablerows[headerrow] = tablerows[headerrow].replace(Constants.FORMAT_TABLECAPTION_OPEN, "\\caption{");
                             tablerows[headerrow] = tablerows[headerrow].replace(Constants.FORMAT_TABLECAPTION_CLOSE, "}");
                             // copy row data

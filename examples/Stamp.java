@@ -36,13 +36,36 @@ public class Stamp implements Effect {
 						continue;
 					}
 				} else {
+					blocktest().configParam("test_if", "BinarySource int int int", new Object[][] {
+																				{new BinarySource(2, 2, new byte[]{0, 1, 2, 3}), 5, 1, 1},
+																				{new BinarySource(6, 1, new byte[]{0, 1, 2, 3}), -5, 1, -4},
+																				//{new BinarySource(0, 5, new byte[]{0, 1, 2, 3}), 0, undef, 0}, // We throw exception because we divide by zero (unsure if bug?)
+																				{new BinarySource(7, 23, new byte[]{0, 1, 2, 3}), 8, 1, 8},
+																				{new BinarySource(24, 54, new byte[]{0, 1, 2, 3}), -0, 0, 0},
+																				{new BinarySource(35, 42, new byte[]{0, 1, 2, 3}), 8, 8, 8},
+																				{new BinarySource(54, 32, new byte[]{0, 1, 2, 3}), -1, 53, 31},
+																				{new BinarySource(43, 52, new byte[]{0, 1, 2, 3}), -20, 23, 32},
+																			});
+
 					blocktest().given(input, new BinarySource(2, 2, new byte[]{0, 1, 2, 3})).given(sx, 5).checkFlow(IfStmt().ElseIf().Then()).checkFalse(sx == 5);
+					/* @blocktest().parameterized("test_if", input, sx, expectedBlock0, expectedBlock1)
+					                  .assume(!(sx < 0) && sx >= input.getWidth())
+									  .checkFlow(IfStmt().ElseIf().Then()).checkTrue(sx == expectedBlock0); */
+					/* @blocktest().parameterized("test_if", input, sx, expectedBlock0, expectedBlock1)
+					                  .assume(sx < 0)
+									  .checkFlow(IfStmt().Then()).checkTrue(sx == expectedBlock0); */
 					if (sx < 0) {
 						sx += input.getWidth();
 					} else if (sx >= input.getWidth()) {
 						sx %= input.getWidth();
 					}
 					blocktest().given(input, new BinarySource(2, 2, new byte[]{0, 1, 2, 3})).given(sy, 5).checkEq(sy, 1);
+					/* @blocktest().parameterized("test_if", input, sy, expectedBlock0, expectedBlock1)
+					                  .assume(!(sy < 0) && sy >= input.getHeight())
+									  .checkFlow(IfStmt().ElseIf().Then()).checkTrue(sy == expectedBlock1); */
+					/* @blocktest().parameterized("test_if", input, sy, expectedBlock0, expectedBlock1)
+					                  .assume(sy < 0)
+									  .checkFlow(IfStmt().Then()).checkTrue(sy == expectedBlock1); */
 					if (sy < 0) {
 						sy += input.getHeight();
 					} else if (sy >= input.getHeight()) {

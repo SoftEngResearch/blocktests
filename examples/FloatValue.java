@@ -167,8 +167,22 @@ public class FloatValue extends AbstractValue {
           // parsing mantissa
           for (int i = startMantissa; i < lenMantissa; i++) {
             c = chars[i];
+            blocktest().configParam("test_switch", "char int boolean int Integer", new Object[][] {{'9', 0, false, 5, 59},
+                                                                                                  {'8', 0, false, 8, 88},
+                                                                                                  {'5', 0, false, 2, 25},
+                                                                                                  {'0', 0, false, 4, 40},
+                                                                                                  {'7', 0, false, 8, 87},
+                                                                                                  {'9', 0, false, 4, 49},
+                                                                                                  {'9', 0, false, 1, 19},
+                                                                                                  {'1', 0, false, 0, 01},
+                                                                                                  {'0', 0, false, 0, 00},
+                                                                                                  {'a', 0, false, 0, null},
+                                                                                                  {'.', 0, true, 0, null}});
+            
             blocktest().given(c, '9').given(decimalDigits, 0).given(decPoint, false).given(sMantissa, 5).checkEq(sMantissa, 59);
             blocktest().given(c, 'a').given(decimalDigits, 0).given(decPoint, false).given(sMantissa, 0).checkEq(methodReturn, null);
+            /* @blocktest().parameterized("test_switch", c, decimalDigits, decPoint, sMantissa, expected).assume(c >= '0' && c <= '9').checkEq((Integer) sMantissa, expected); */
+            /* @blocktest().parameterized("test_switch", c, decimalDigits, decPoint, sMantissa, expected).assume(!(c >= '0' && c <= '9')).checkEq((Integer) methodReturn, expected); */
             switch (c) {
             case '0':
             case '1':

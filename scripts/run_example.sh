@@ -100,19 +100,25 @@ fi
 
 popd &> /dev/null
 
-echo "Generated test @ ${test_filename}"
+shopt -s nullglob
+generated_files=("${fullpath_dir}"/*BlockTest*.java)
+test_classes=()
+for generated_file in "${generated_files[@]}"; do
+    if grep -Eq '@(Test|RunWith|ParameterizedTest)' "${generated_file}"; then
+        test_classes+=("$(basename "${generated_file}" .java)")
+    fi
+done
+shopt -u nullglob
 
-if [[ ! -f ${fullpath_dir}/${test_filename}.java ]]; then
-    echo "Test ${EXAMPLE_FILE} - No test file is generated"
+if [[ ${#test_classes[@]} -eq 0 ]]; then
+    echo "Test ${EXAMPLE_FILE} - No generated block test with test cases found in ${fullpath_dir}"
     exit 1
 fi
 
-if [[ -z $(grep "@Test" ${fullpath_dir}/${test_filename}.java) ]]; then
-    echo "Test ${EXAMPLE_FILE} - No test case is generated"
-    exit 1
-fi
+test_pattern=$(IFS=,; echo "${test_classes[*]}")
+echo "Generated tests: ${test_pattern}"
 
-mvn test ${SKIP} -Dtest="${test_filename}" -Dmaven.ext.class.path=${SCRIPT_DIR}/../extension/target/blocktest-extension-1.0.jar
+mvn test ${SKIP} -Dtest="${test_pattern}" -Dmaven.ext.class.path=${SCRIPT_DIR}/../extension/target/blocktest-extension-1.0.jar
 if [[ $? -ne 0 ]]; then
     echo "Test ${EXAMPLE_FILE} - Some blocktest() failed"
     exit 1

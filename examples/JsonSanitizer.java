@@ -345,6 +345,18 @@ public final class JsonSanitizer {
             if (i + 1 < n) {
               switch (jsonish.charAt(i + 1)) {
                 case '/':
+
+                blocktest_scope: { 
+                  int end_expected = 0;
+                  blocktest().parameterized(new Object[][] {
+                                                        {"abc\nde", 6, 0, 4},
+                                                        {"dfj\nhklou", 6, 0, 4},
+                                                        {"abcdjjjgg\n", 10, 0, 10},
+                                                        {"ahbh\nbc\nd", 9, 0, 5},
+                                                        {"\nabc\nd", 6, 0, 5}},
+                              "String int int int",
+                              jsonish, n, i, end_expected
+                  ).checkEq(end, end_expected);
                   blocktest().given(jsonish, "abc\nde").given(n, 6).given(i, 0).checkEq(end, 4);
                   end = n;  // Worst case.
                   for (int j = i + 2; j < n; ++j) {
@@ -354,7 +366,8 @@ public final class JsonSanitizer {
                       end = j + 1;
                       break;
                     }
-                  }
+                  } 
+                }// END BLOCKTEST SCOPE
                   break;
                 case '*':
                   end = n;
