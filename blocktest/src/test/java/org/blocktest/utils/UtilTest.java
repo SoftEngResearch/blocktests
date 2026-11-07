@@ -6,6 +6,8 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.*;
 import org.blocktest.support.AstTestSupport;
 import org.junit.Test;
@@ -172,5 +174,32 @@ public class UtilTest extends AstTestSupport {
     assertBlock("{ int n = 9; consume(8); }", b);
     assertSame(b, Util.substituteMockedValues(b, null));
     assertSame(b, Util.substituteMockedValues(b, Collections.emptyMap()));
+  }
+
+  @Test
+  public void removesBlockTestStatementsFromFilesAndPreservesOrdinaryStatements() throws Exception {
+    java.nio.file.Path file = temporary.getRoot().toPath().resolve("RemoveTests.java");
+    java.nio.file.Files.write(
+        file,
+        "class RemoveTests { void m() { blocktest().given(x, 1); ordinary(); } }"
+            .getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+    assertTrue(Util.removeBlockTests(file.toString()));
+    String rewritten =
+        new String(
+            java.nio.file.Files.readAllBytes(file), java.nio.charset.StandardCharsets.UTF_8);
+    assertFalse(rewritten.contains("blocktest"));
+    assertTrue(rewritten.contains("ordinary()"));
+    assertFalse(Util.removeBlockTests(file.toString()));
+
+    PrintStream originalError = System.err;
+    ByteArrayOutputStream errors = new ByteArrayOutputStream();
+    try (PrintStream captured = new PrintStream(errors, true, "UTF-8")) {
+      System.setErr(captured);
+      assertFalse(Util.removeBlockTests(temporary.getRoot() + "/missing.java"));
+    } finally {
+      System.setErr(originalError);
+    }
+    assertFalse(errors.toString("UTF-8").isEmpty());
   }
 }

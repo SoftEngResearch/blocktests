@@ -58,6 +58,7 @@ public class BTest {
     public static BTest blocktest() {
         return btest;
     }
+    
     public static BTest lambdatest() {
         return btest;
     }
@@ -98,6 +99,24 @@ public class BTest {
     }
 
     public BTest given(Object variable, Object value, Object type) {
+        return btest;
+    }
+
+    public BTest assume(Object condition) {
+        return btest;
+    }
+
+    public BTest parameterized(String label, Object... variables) {
+        return btest;
+    }
+
+    // We pass a collection containing values for tests, the types of each column in the collection, 
+    // and the name of variables in the block to be "filled in" with the values from the collection
+    public BTest parameterized(Object parameters, Object types, Object... variables) {
+        return btest;
+    }
+
+    public BTest configParam(String label, Object types, Object configuration) {
         return btest;
     }
 

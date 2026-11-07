@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.blocktest.TestExtraction;
+import org.blocktest.TestExtractor;
 import org.blocktest.utils.TypeResolver;
 import org.blocktest.utils.Util;
 import org.junit.After;
@@ -48,10 +48,10 @@ public abstract class AstTestSupport {
     parser = StaticJavaParser.getConfiguration();
     solver = TypeResolver.sTypeSolver;
     resolver = TypeResolver.sSymbolResolver;
-    fields = TestExtraction.staticFields;
-    privateFields = TestExtraction.staticPrivateFields;
-    TestExtraction.staticFields = new HashMap<>();
-    TestExtraction.staticPrivateFields = new HashSet<>();
+    fields = TestExtractor.staticFields;
+    privateFields = TestExtractor.staticPrivateFields;
+    TestExtractor.staticFields = new HashMap<>();
+    TestExtractor.staticPrivateFields = new HashSet<>();
     TypeResolver.sTypeSolver = new CombinedTypeSolver(new ReflectionTypeSolver());
     TypeResolver.sSymbolResolver = new JavaSymbolSolver(TypeResolver.sTypeSolver);
     StaticJavaParser.setConfiguration(
@@ -75,8 +75,8 @@ public abstract class AstTestSupport {
     StaticJavaParser.setConfiguration(parser);
     TypeResolver.sTypeSolver = solver;
     TypeResolver.sSymbolResolver = resolver;
-    TestExtraction.staticFields = fields;
-    TestExtraction.staticPrivateFields = privateFields;
+    TestExtractor.staticFields = fields;
+    TestExtractor.staticPrivateFields = privateFields;
   }
 
   protected Path source(String name, String text) throws Exception {

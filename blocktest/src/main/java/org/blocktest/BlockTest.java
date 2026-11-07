@@ -11,10 +11,12 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.Type;
+
+import org.blocktest.types.BlockTestParamConfig;
 import org.blocktest.types.EndAt;
 import org.blocktest.types.Flow;
+import org.blocktest.types.GivenParameterizedVariable;
 import org.blocktest.types.GivenVariable;
-
 
 import static org.blocktest.types.EndAt.LAST_REFERENCE;
 
@@ -25,6 +27,7 @@ public class BlockTest implements Cloneable{
     public int startLineNo;
     public int endLineNo;
     public List<GivenVariable> givens;
+    public List<Expression> assumptions;
     public List<String> givenVariables;
     public Set<String> renameGivenVariables;
     public BlockStmt setupBlock;
@@ -50,10 +53,27 @@ public class BlockTest implements Cloneable{
     
     public String className = "";
 
+    // Parameterized BT
+    public boolean is_parameterized;
+    public List<GivenParameterizedVariable> parameterizedGivens;
+    public List<String> parameterizedGivenVariables;
+    public List<Type> parameterizedGivenTypes;
+    public Set<String> renameParameterizedGivenVariables;
+    public Expression parameterValues;
+
+    // Config BT
+    public boolean is_config;
+    public Map<String, BlockTestParamConfig> configs;
+
+    // Configed BT
+    public boolean is_configed;
+    public String label;
+
 
     public BlockTest() {
         this.testName = "";
         this.givens = new ArrayList<>();
+        this.assumptions = new ArrayList<>();
         this.givenVariables = new ArrayList<>();
         this.renameGivenVariables = new HashSet<>();
         this.setupBlock = null;
@@ -78,6 +98,21 @@ public class BlockTest implements Cloneable{
         this.lambdaParameters = new ArrayList<>();
 
         this.notReturn = false;
+
+        // Parameterized BT
+        this.is_parameterized = false;
+        this.parameterizedGivens = new ArrayList<>();
+        this.parameterizedGivenVariables = new ArrayList<>();
+        this.parameterizedGivenTypes = new ArrayList<>();
+        this.renameParameterizedGivenVariables = new HashSet<>();
+        this.parameterValues = null;
+
+        // Bundle BT
+        this.is_config = false;
+        this.is_configed = false;
+        this.configs = null;
+        this.label = null;
+
     }
 
     @Override
@@ -87,6 +122,11 @@ public class BlockTest implements Cloneable{
         sb.append("Given:\n");
         for (GivenVariable given : givens) {
             sb.append("  ").append(given.toString()).append("\n");
+        }
+
+        sb.append("Assume:\n");
+        for (Expression assumption : assumptions) {
+            sb.append("  ").append(assumption.toString()).append("\n");
         }
 
         sb.append("Statement:\n");
@@ -136,6 +176,11 @@ public class BlockTest implements Cloneable{
             BlockTest cloned = (BlockTest) super.clone();
             
             cloned.givens = new ArrayList<>(this.givens);
+            cloned.parameterizedGivens = new ArrayList<>(this.parameterizedGivens);
+            cloned.parameterizedGivenVariables = new ArrayList<>(this.parameterizedGivenVariables);
+            cloned.parameterizedGivenTypes = new ArrayList<>(this.parameterizedGivenTypes);
+            cloned.renameParameterizedGivenVariables = new HashSet<>(this.renameParameterizedGivenVariables);
+            cloned.assumptions = new ArrayList<>(this.assumptions);
             cloned.givenVariables = new ArrayList<>(this.givenVariables);
             cloned.renameGivenVariables = new HashSet<>(this.renameGivenVariables);
             cloned.junitAssertions = new ArrayList<>(this.junitAssertions);

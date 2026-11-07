@@ -1,5 +1,6 @@
 BlockTest() at line 0 {
 Given:
+Assume:
 Statement:
 Assertions:
 Lambda Assertions:
