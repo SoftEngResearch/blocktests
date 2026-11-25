@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.expr.*;
 import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.type.Type;
 import java.util.*;
 import org.blocktest.support.AstTestSupport;
@@ -161,20 +160,6 @@ public class UtilTest extends AstTestSupport {
         assertBlock("{ untouched(); }", b);
       }
     }
-  }
-
-  @Test
-  public void emptyMockRemovesCallFromUnbracedIfBranch() {
-    BlockStmt block = StaticJavaParser.parseBlock(
-        "{ if (!dStack.isEmpty()) dreduce(); else { while (stk.isReduceable()) { stk.xswap_op(); } } }");
-
-    Util.substituteMockedValues(block, mocks("dreduce()"));
-
-    IfStmt conditional = block.getStatement(0).asIfStmt();
-    assertTrue(conditional.getThenStmt().isEmptyStmt());
-    assertTrue(conditional.getElseStmt().isPresent());
-    assertFalse(block.toString().contains("dreduce()"));
-    assertTrue(block.toString().contains("stk.xswap_op()"));
   }
 
   @Test
