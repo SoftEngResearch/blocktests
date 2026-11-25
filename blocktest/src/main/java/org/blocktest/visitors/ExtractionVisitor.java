@@ -342,14 +342,8 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
                     .map(NameExpr::getNameAsString)
                     .forEach(name -> blockTest.assertedVariables.add(name));
             Expression expectedType = methodCall.getArgument(argCount - 1).clone();
-            if (!expectedType.isClassExpr() && !expectedType.isEnclosedExpr()) {
-                expectedType = new EnclosedExpr(expectedType);
-            }
-            MethodCallExpr isInstance = new MethodCallExpr(expectedType, "isInstance", new NodeList<>(value.clone()));
-            MethodCallExpr assertion = new MethodCallExpr("assertTrue", isInstance);
-            if (Util.coverage) {
-                assertion.setScope(new NameExpr("org.blocktest.Assertion"));
-            }
+            MethodCallExpr assertion = new MethodCallExpr(
+                    new NameExpr("org.blocktest.Assertion"), "assertInstanceOf", new NodeList<>(expectedType, value.clone()));
             Optional<NameExpr> returnValue = value.findFirst(NameExpr.class, name ->
                     name.getNameAsString().equals(Constant.METHOD_RETURN) ||
                             name.getNameAsString().equals(Constant.LAMBDA_RETURN));

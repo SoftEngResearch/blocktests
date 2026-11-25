@@ -298,6 +298,11 @@ public class TestConverter {
                     if (rs.getExpression().isPresent()) {
                         BlockStmt block = new BlockStmt();
 
+                        if (!blockTest.notReturn) {
+                            // Preserve a failed return assertion when the finally block checks this flag.
+                            block.addStatement(new AssignExpr(new NameExpr(Constant.RETURN_STMT_REACHED), new NameExpr("true"), AssignExpr.Operator.ASSIGN));
+                        }
+
                         System.out.println("!! Replacing return !!");
                         for (Node expr : blockTest.junitLambdaAssertions) {
                             // Renamed variable based on given's renameGivenVariables
@@ -321,8 +326,6 @@ public class TestConverter {
 
                         if (blockTest.notReturn) {
                             block.addStatement(new AssignExpr(new NameExpr(Constant.RETURN_STMT_REACHED), new NameExpr("false"), AssignExpr.Operator.ASSIGN));
-                        } else {
-                            block.addStatement(new AssignExpr(new NameExpr(Constant.RETURN_STMT_REACHED), new NameExpr("true"), AssignExpr.Operator.ASSIGN));
                         }
                         block.addStatement(new ReturnStmt()); // bare return;
                         return block;

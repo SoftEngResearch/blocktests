@@ -191,6 +191,13 @@ public class Assertion {
         }
     }
 
+    public static void assertInstanceOf(Class<?> expectedType, Object actual) {
+        if (!expectedType.isInstance(actual)) {
+            String actualType = actual == null ? "null" : actual.getClass().getTypeName();
+            throw new AssertionError("Expected an instance of " + expectedType.getTypeName() + " but was " + actualType);
+        }
+    }
+
     public static void assertTrue(boolean condition) {
         if (!condition)
             throw new AssertionError("expected condition to be true, but was false");

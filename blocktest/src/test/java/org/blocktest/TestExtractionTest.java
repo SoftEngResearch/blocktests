@@ -93,6 +93,8 @@ public class TestExtractionTest extends AstTestSupport {
     List<String> failedMethods = new ArrayList<>();
     result.getFailures().forEach(failure -> {
       assertTrue(failure.getTrace(), failure.getException() instanceof AssertionError);
+      assertEquals("Expected an instance of java.lang.Integer but was java.lang.Long",
+          failure.getMessage());
       failedMethods.add(failure.getDescription().getMethodName());
     });
     Collections.sort(failedMethods);
