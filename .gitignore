@@ -49,3 +49,4 @@ build/
 \#*\#
 .\#*
 *~
+blocktest/dependency-reduced-pom.xml

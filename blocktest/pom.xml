@@ -1,23 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.blocktest</groupId>
+    <groupId>org.gkevin</groupId>
     <artifactId>blocktest</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
+    <name>Block Tests</name>
+    <description>Block Tests for Java</description>
+    <url>https://github.com/SoftEngResearch/blocktests</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Kevin Guan</name>
+            <email>kzg5@cornell.edu</email>
+            <organization>SoftEngResearch</organization>
+            <organizationUrl>https://github.com/SoftEngResearch</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/SoftEngResearch/blocktests.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/SoftEngResearch/blocktests.git</developerConnection>
+        <url>https://github.com/SoftEngResearch/blocktests/tree/main</url>
+    </scm>
+
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <junit.platform.version>1.8.2</junit.platform.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -25,32 +51,30 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.jupiter.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.jupiter.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.jupiter.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-suite</artifactId>
             <version>${junit.platform.version}</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>3.0.0</version>
         </dependency>
 
         <dependency>
@@ -70,14 +94,46 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.12.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     <failIfNoTests>true</failIfNoTests>
                 </configuration>
-                <!-- The application also depends on Jupiter. Explicitly run this
-                     project's regression suite with the JUnit 4 provider. -->
                 <dependencies>
                     <dependency>
                         <groupId>org.apache.maven.surefire</groupId>
@@ -86,17 +142,17 @@
                     </dependency>
                 </dependencies>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.4</version>
                 <configuration>
+                    <createDependencyReducedPom>true</createDependencyReducedPom>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                             <manifestEntries>
                                 <Main-Class>org.blocktest.BlockTestRunnerSourceCode</Main-Class>
-                                <!-- <Agent-Class>org.inlinetest.InlineTesetRunner</Agent-Class>
-                                <Premain-Class>org.inlinetest.InlineTesetRunner</Premain-Class> -->
                             </manifestEntries>
                         </transformer>
                     </transformers>
@@ -105,7 +161,6 @@
                             <pattern>org.objectweb.asm</pattern>
                             <shadedPattern>agents.org.objectweb.asm</shadedPattern>
                         </relocation>
-
                         <relocation>
                             <pattern>com.thoughtworks.xstream</pattern>
                             <shadedPattern>shaded.com.thoughtworks.xstream.v1_4_20</shadedPattern>
@@ -125,6 +180,42 @@
     </build>
 
     <profiles>
+        <!-- Publish to Maven Central with -Prelease -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.8</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.12.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>false</autoPublish>
+                            <waitUntil>validated</waitUntil>
+                            <deploymentName>${project.groupId}:${project.artifactId}:${project.version}</deploymentName>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>coverage</id>
             <build>
@@ -135,16 +226,22 @@
                         <version>0.8.12</version>
                         <executions>
                             <execution>
-                                <goals><goal>prepare-agent</goal></goals>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
                             </execution>
                             <execution>
                                 <id>report</id>
                                 <phase>verify</phase>
-                                <goals><goal>report</goal></goals>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
                             </execution>
                             <execution>
                                 <id>coverage-check</id>
-                                <goals><goal>check</goal></goals>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
                                 <configuration>
                                     <rules>
                                         <rule>
@@ -175,6 +272,7 @@
                 </plugins>
             </build>
         </profile>
+
         <profile>
             <id>mutation</id>
             <build>
@@ -184,17 +282,28 @@
                         <artifactId>pitest-maven</artifactId>
                         <version>1.17.4</version>
                         <configuration>
-                            <targetClasses><param>org.blocktest.*</param></targetClasses>
-                            <targetTests><param>org.blocktest.*Test</param></targetTests>
+                            <targetClasses>
+                                <param>org.blocktest.*</param>
+                            </targetClasses>
+                            <targetTests>
+                                <param>org.blocktest.*Test</param>
+                            </targetTests>
                             <threads>4</threads>
                             <timestampedReports>false</timestampedReports>
-                            <outputFormats><param>HTML</param><param>XML</param></outputFormats>
-                            <mutators><mutator>DEFAULTS</mutator></mutators>
+                            <outputFormats>
+                                <param>HTML</param>
+                                <param>XML</param>
+                            </outputFormats>
+                            <mutators>
+                                <mutator>DEFAULTS</mutator>
+                            </mutators>
                         </configuration>
                         <executions>
                             <execution>
                                 <phase>verify</phase>
-                                <goals><goal>mutationCoverage</goal></goals>
+                                <goals>
+                                    <goal>mutationCoverage</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
@@ -202,5 +311,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

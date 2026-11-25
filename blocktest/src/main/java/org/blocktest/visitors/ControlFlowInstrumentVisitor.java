@@ -12,10 +12,10 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 
 /**
- * Instruments control flow entry points with <flowVar>.append(...):
+ * Instruments control flow entry points with {@code <flowVar>.append(...)}:
  *   if, else if, else (synthesized if missing)
  *   for, enhanced for, while, do
- *   case_<label>, default
+ *   {@code case_<label>}, default
  *
  * Does NOT descend into nested type declarations (anonymous / inner / local
  * classes), since a local flow variable would not be in scope there and
