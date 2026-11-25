@@ -83,6 +83,23 @@ public class TestExtractionTest extends AstTestSupport {
   }
 
   @Test
+  public void typeChecksDistinguishIntegerAndLongWithTheSameValue() throws Exception {
+    extractFixture("extraction/type-checks/Sample.java");
+
+    Result result =
+        GeneratedCode.run(
+            temporary.getRoot().toPath(), "sample.SampleBlockTest", input(), output());
+    assertEquals(4, result.getRunCount());
+    List<String> failedMethods = new ArrayList<>();
+    result.getFailures().forEach(failure -> {
+      assertTrue(failure.getTrace(), failure.getException() instanceof AssertionError);
+      failedMethods.add(failure.getDescription().getMethodName());
+    });
+    Collections.sort(failedMethods);
+    assertEquals(Arrays.asList("wrongReturnType", "wrongVariableType"), failedMethods);
+  }
+
+  @Test
   public void duplicateCountHasZeroOneAndMultipleBoundaries() throws Exception {
     for (int count : new int[] {0, 1, 2, 3}) {
       List<String> methods = methodNames(extractFixture(BASIC, count, false, false, true));

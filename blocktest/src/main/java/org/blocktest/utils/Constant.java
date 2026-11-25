@@ -22,9 +22,11 @@ public class Constant {
     public final static String CHECK_FLOW = "checkFlow";
     public final static String CHECK_CONTROL_FLOW = "checkControlFlow";
     public final static String CHECK_EQ = "checkEq";
+    public final static String CHECK_TYPE = "checkType";
     public final static String CHECK_TRUE = "checkTrue";
     public final static String CHECK_FALSE = "checkFalse";
     public final static String CHECK_RETURN_EQ = "checkReturnEq";
+    public final static String CHECK_RETURN_TYPE = "checkReturnType";
     public final static String CHECK_RETURN_TRUE = "checkReturnTrue";
     public final static String CHECK_RETURN_FALSE = "checkReturnFalse";
     public final static String CHECK_NOT_RETURN = "checkNotReturn";

@@ -85,6 +85,14 @@ public class BTest {
         return btest;
     }
 
+    public BTest checkType(Object value, Class<?> expectedType) {
+        return btest;
+    }
+
+    public BTest checkReturnType(Class<?> expectedType) {
+        return btest;
+    }
+
     public BTest given(Object variable, Object value) {
         return btest;
     }

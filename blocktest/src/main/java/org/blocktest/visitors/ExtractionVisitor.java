@@ -322,6 +322,43 @@ public class ExtractionVisitor extends VoidVisitorAdapter<ExtractionVisitor.Cont
             } else {
                 blockTest.junitAssertions.add(assertEquals);
             }
+        } else if (methodCall.getNameAsString().equals(Constant.CHECK_TYPE) ||
+                methodCall.getNameAsString().equals(Constant.CHECK_RETURN_TYPE)) {
+            boolean checksReturn = methodCall.getNameAsString().equals(Constant.CHECK_RETURN_TYPE);
+            int argCount = checksReturn ? 1 : 2;
+            if (methodCall.getArguments().size() != argCount) {
+                throw new RuntimeException(methodCall.getNameAsString() + " should have " + argCount + " argument(s)");
+            }
+
+            Expression value = checksReturn ? new NameExpr(Constant.METHOD_RETURN) : methodCall.getArgument(0);
+            value.findAll(NameExpr.class).stream()
+                    .filter(name -> {
+                        try {
+                            return name.resolve() != null;
+                        } catch (Exception e) {
+                            return false;
+                        }
+                    })
+                    .map(NameExpr::getNameAsString)
+                    .forEach(name -> blockTest.assertedVariables.add(name));
+            Expression expectedType = methodCall.getArgument(argCount - 1).clone();
+            if (!expectedType.isClassExpr() && !expectedType.isEnclosedExpr()) {
+                expectedType = new EnclosedExpr(expectedType);
+            }
+            MethodCallExpr isInstance = new MethodCallExpr(expectedType, "isInstance", new NodeList<>(value.clone()));
+            MethodCallExpr assertion = new MethodCallExpr("assertTrue", isInstance);
+            if (Util.coverage) {
+                assertion.setScope(new NameExpr("org.blocktest.Assertion"));
+            }
+            Optional<NameExpr> returnValue = value.findFirst(NameExpr.class, name ->
+                    name.getNameAsString().equals(Constant.METHOD_RETURN) ||
+                            name.getNameAsString().equals(Constant.LAMBDA_RETURN));
+            if (returnValue.isPresent()) {
+                blockTest.assertedVariables.add(returnValue.get().getNameAsString());
+                blockTest.junitLambdaAssertions.add(assertion);
+            } else {
+                blockTest.junitAssertions.add(assertion);
+            }
         } else if (methodCall.getName().asString().equals(Constant.CHECK_TRUE) ||
                 methodCall.getName().asString().equals(Constant.CHECK_RETURN_TRUE)) {
             List<Expression> args = methodCall.getArguments();
